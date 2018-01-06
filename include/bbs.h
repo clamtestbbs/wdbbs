@@ -34,9 +34,9 @@
 #include <sys/time.h>
 
 #if	defined(__linux__) && (__GLIBC__ != 2)
-#include <bsd/sgtty.h>
+#include <bsd/sgetty.h>
 #else
-#include <sgtty.h>
+#include <termios.h>
 #endif
 
 

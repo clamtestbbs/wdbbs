@@ -772,11 +772,11 @@ do_post ()
         clear ();
         move (7, 0);
         update_data ();
-        prints ("\
-              [1;36m¡i[37mµo  ªí  §¹  ²¦[36m¡j\n
-              [37m ³o¬O±zªº[33m²Ä %d ½g[37m¤å³¹¡C
-              [36m¡i¶O®É¡j[33m %d [37m¤À[33m % d [37m¬í¡C
-              [36m¡i¦r¼Æ¡j[33m %d ",
+        prints (""\
+"              [1;36m¡i[37mµo  ªí  §¹  ²¦[36m¡j\n\n" \
+"              [37m ³o¬O±zªº[33m²Ä %d ½g[37m¤å³¹¡C\n" \
+"              [36m¡i¶O®É¡j[33m %d [37m¤À[33m % d [37m¬í¡C\n" \
+"              [36m¡i¦r¼Æ¡j[33m %d \n",\
         ++cuser.numposts, spendtime / 60, spendtime % 60 , wordsnum);
         substitute_record (fn_passwd, &cuser, sizeof (userec), usernum);
 

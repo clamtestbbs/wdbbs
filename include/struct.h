@@ -514,3 +514,12 @@ typedef struct money_note MN;
 #define	WAY_EDU		4	// 育
 #define	WAY_PLAY	5	// 樂
 #define WAY_OTHER	6	// 其他
+
+
+/* ----------------menu.c (test --*/
+
+typedef struct commands {
+    int (*cmdfunc)();
+    int level;
+    char *desc;                   /* next/key/description */
+} commands;
