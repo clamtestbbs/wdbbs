@@ -7,7 +7,7 @@
 /*-------------------------------------------------------*/
 
 #include "bbs.h"
-#include <varargs.h>
+#include <stdarg.h>
 
 void
 setuserfile(buf, fname)
@@ -265,17 +265,17 @@ Cdate(clock)
 
 
 void
-pressanykey(va_alist)
-  va_dcl
+pressanykey(char *fmt, ...)
 {
   va_list ap;
-  char msg[512], *fmt;
+  char msg[512];
   int ch;
 
   msg[0]=0;
-  va_start(ap);
-  fmt = va_arg(ap, char *);
-  if(fmt) vsprintf(msg, fmt, ap);
+
+  va_start(ap, fmt);
+  if(fmt)
+    vsprintf(msg, fmt, ap);
   va_end(ap);
   if (msg[0])
   {

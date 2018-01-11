@@ -6,7 +6,7 @@
 /* update : 95/12/15				 	 */
 /*-------------------------------------------------------*/
 
-#include <varargs.h>
+#include <stdarg.h>
 #include "bbs.h"
 
 extern char clearbuf[];
@@ -46,7 +46,7 @@ initscr()
 {
   if (!dumb_term && !big_picture)
   {
-    extern char *calloc();
+    extern void *calloc();
 
     scr_lns = t_lines;
     scr_cols = t_columns = ANSILINELEN;
@@ -617,14 +617,12 @@ outz(msg)
 
 
 void
-prints(va_alist)
-va_dcl
+prints(char *fmt, ...)
 {
   va_list args;
-  char buff[1024], *fmt;
+  char buff[1024];
 
-  va_start(args);
-  fmt = va_arg(args, char *);
+  va_start(args, fmt);
   vsprintf(buff, fmt, args);
   va_end(args);
   outs(buff);
