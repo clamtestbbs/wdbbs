@@ -15,14 +15,14 @@
 #define O_XTABS 02
 #endif
 
-#ifdef LINUX
+//#ifdef LINUX
 // shakalaca patch , 990818
 // #include <linux/termios.h>
 #include <termios.h>
 
 #define stty(fd, data) tcsetattr( fd, TCSETS, data )
 #define gtty(fd, data) tcgetattr( fd, data )
-#endif
+//#endif
 
 #ifndef TANDEM
 #define TANDEM  0x00000001
@@ -32,11 +32,11 @@
 #define CBREAK  0x00000002
 #endif
 
-#ifdef LINUX
+//#ifdef LINUX
 struct termios tty_state, tty_new;
-#else
-struct sgttyb tty_state, tty_new;
-#endif
+//#else
+//struct sgttyb tty_state, tty_new;
+//#endif
 
 
 #ifndef BSD44
@@ -821,7 +821,7 @@ init_tty()
   }
   memcpy(&tty_new, &tty_state, sizeof(tty_new));
 
-#ifdef  LINUX
+//#ifdef  LINUX
 
 //  tty_new.c_lflag &= ~(ICANON | ECHO | RAW | ISIG);
 // shakalaca patch , 990818
@@ -829,22 +829,22 @@ init_tty()
   tcsetattr(1, TCSANOW, &tty_new);
   restore_tty();
 
-#else
+//#else
 
-  tty_new.sg_flags |= RAW;
+//  tty_new.sg_flags |= RAW;
 
-#ifdef  HP_UX
-  tty_new.sg_flags &= ~(O_HUPCL | O_XTABS | LCASE | ECHO | CRMOD);
-#else
-  tty_new.sg_flags &= ~(TANDEM | CBREAK | LCASE | ECHO | CRMOD);
-#endif
+//#ifdef  HP_UX
+//  tty_new.sg_flags &= ~(O_HUPCL | O_XTABS | LCASE | ECHO | CRMOD);
+//#else
+//  tty_new.sg_flags &= ~(TANDEM | CBREAK | LCASE | ECHO | CRMOD);
+//#endif
 
-  stty(1, &tty_new);
-#endif
+//  stty(1, &tty_new);
+//#endif
 }
 
 
-#ifdef LINUX
+//#ifdef LINUX
 reset_tty()
 {
    system("stty -raw echo");
@@ -853,19 +853,19 @@ restore_tty()
 {
    system("stty raw -echo");
 }
-#else
-void
-reset_tty()
-{
-  stty(1, &tty_state);
-}
-void
-restore_tty()
-{
-  stty(1, &tty_new);
-}
+//#else
+//void
+//reset_tty()
+//{
+//  stty(1, &tty_state);
+//}
+//void
+//restore_tty()
+//{
+//  stty(1, &tty_new);
+//}
 
-#endif
+//#endif
 
 
 /* ----------------------------------------------------- */
@@ -953,11 +953,11 @@ term_init(term)
   char *sbp, *s;
   char *tgetstr();
 
-#ifdef LINUX
+//#ifdef LINUX
   ospeed = cfgetospeed(&tty_state);
-#else
-  ospeed = tty_state.sg_ospeed;
-#endif
+//#else
+//  ospeed = tty_state.sg_ospeed;
+//#endif
 
   if (tgetent(buf, term) != 1)
     return NA;
