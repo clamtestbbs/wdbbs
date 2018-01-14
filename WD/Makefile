@@ -73,7 +73,7 @@ install: $(ALL)
 	if [ -f $(BBSHOME)/bin/xchatd ]; then\
 	  mv -f $(BBSHOME)/bin/xchatd $(BBSHOME)/bin/xchatd.old; \
 	fi
-	chown bbs.bbs $(ALL) $(HDR) $(SRC) $(OBJ)
+	chown bbs:bbs $(ALL) $(HDR) $(SRC) $(OBJ)
 #
 # shakalaca.990401: 前面 LIBS = -s 與 strip 效果相同
 #	strip $(ALL)
