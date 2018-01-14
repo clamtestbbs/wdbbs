@@ -1,6 +1,0 @@
-# This is a sample nodelist.bbs                                                 
-# name          hostname & domainname                    full name              
-#-------        ----------------------------------      ------------            
-nthu		news.cs.nthu.edu.tw	POST(119)	清華資訊 News Server
-EP		news.ep.nctu.edu.tw	POST(119)	交大電物NewsServer
-WDNEWS		wd.pchome.com.tw	POST(119)	風與塵埃的對話
