@@ -1,0 +1,320 @@
+ ----------------------------------------------------------------------------
+ BBS v1.8 PL1 - 網路資源連線程式資料檔              Last Update: Mar 24, 1997
+ ----------------------------------------------------------------------------
+
+   ◎ 程式搜尋本檔的順序為:
+
+       [1]  $HOME/.bbsdata-v1.8
+       [2]  /usr/local/etc/bbsdata-v1.8
+
+   ◎ 第一個字元為 * 的那一行是用來設定一些環境； 第一個字元為 '#' 或
+      空白 的一行將視為注解。 所有的設定項目不分大小寫
+
+ ----------------------------------------------------------------------------
+
+* [offscreen] 300             # 多久進入保護模式 (秒)
+* [mailcheck] true            # 是否檢查有新信件
+* [counttime] true            # 是否計算連線時間
+* [mailserv]  true            # 是否可直接與程式作者連絡
+* [security]  false           # 僅能單純連線，無 mail 等功能 (適用於 bbsnet)
+* [showansi]  true            # 使用彩色顯示
+
+* [logging]   true           # 是否記錄連線狀態
+* [logfile]   /home/bbs/log/net.log    # 記錄檔位置
+
+  下面是 bbs 所呼叫的外部程式設定, 你可以用 whereis 查詢位置
+
+* [telnet] /usr/local/bin/telnet -8 # telnet 程式
+* [mailer] /usr/bin/mail            # 送 mail 的程式
+* [editor] /usr/local/bin/joe       # 若有設 EDITOR 環境變數，則此設定自動失效
+* [gopher] /usr/local/bin/gopher    # Gopher client
+* [ftp]    /usr/local/bin/ncftp -u  # FTP client
+
+  程式結束時秀出的字串, 可定義多行
+
+* [issue] Thanks for using BBS.
+
+* [end]
+
+  -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  其餘的為各站資料，請依性質區分為不同的區段
+
+  每個區段以 '* [section] TYPE' 開頭,  '* [end]' 結尾
+
+  TYPE 代表本區段屬於那一類 Service，程式能判斷的符號為:
+
+      TEL       使用 `telnet hostname port' 連上
+      BBS       與上同, 但可作 Mailpost/Mail-to-user
+      GOPHER    Gopher
+      FTP       FTP
+
+  然後是設定本區塊的標題, 你可以在 '* [title]' 後填入任意字串
+
+  接下來是各站的資訊, 分三(四)個欄位, 各欄以空白或 TAB 隔開,
+
+    1. 單位
+    2. 站名
+    3. 位址
+   [4. Port] 本項內定為 port 23, 可略去不填, 如有特殊的
+             telnet port, 請以數字方式填於此欄
+
+# WD 相關站台
+
+* [section]     BBS
+* [title] For WD-BBS
+# 單                    站                      位
+# 位                    名                      址
+風與塵埃的對話          wd.pchome.com.tw        203.70.70.115
+PC-HomeBBS              bbs.pchome.com.tw       203.70.70.70
+洛陽紅城番外篇          ccsh.twbbs.org          203.70.70.114
+山洞外的天空            sky.twbbbs.org          192.192.158.7
+翠谷風情                bbs.shu.edu.tw          192.192.155.129
+給我一顆星星            meamea.twbbs.org        140.131.68.72
+魔窟                    devil.twbbs.org         140.138.153.222
+程式設計師樂園          cszone.twbbs.org        140.112.8.172
+
+* [end]
+
+# 各大學計中/各系
+
+* [section]     BBS
+* [title] BBS(1)
+
+# 單            站              位
+# 位            名              址
+
+交大資工        鳳凰城資訊站    bbs.csie.nctu.edu.tw
+交大資科        交大資科        bbs.cis.nctu.edu.tw
+交大電子        阿拉伯一號      alab01.ee.nctu.edu.tw
+交大電子        伊甸園          eden.ee.nctu.edu.tw
+交大控工        天空之城        www.cn.nctu.edu.tw
+交大機械        交大機械        bbs.me.nctu.edu.tw
+交大電信        風信遊子        bbs.cm.nctu.edu.tw
+交大資管        心靈小站        BBS.iim.nctu.edu.tw
+交大土木        風中奇緣        bbs.cv.nctu.edu.tw
+交大應化        交大應化        bbs.ac.nctu.edu.tw
+交大應數        交大應數        bbs.math.nctu.edu.tw
+交大管科        灰姑娘城堡      140.113.30.91
+交大工管        交大工管        140.113.108.95
+交大環工        交大環工        ev009.ev.nctu.edu.tw
+清華電機        STAR-BBS        bbs.ee.nthu.edu.tw
+清大資訊        楓橋驛站        bbs.cs.nthu.edu.tw
+清大資研        人工智慧實驗室  140.114.78.31
+清大動機        清大動機        140.114.40.29
+清華化學        白金之星        140.114.45.12
+清華數學        清華數學        140.114.32.146
+中央資管        龍貓資訊站      bbs.mgt.ncu.edu.tw
+中央資電        松濤風情資訊站  bbs.ee.ncu.edu.tw
+中山計中        美麗之島        bbs.nsysu.edu.tw
+中山大學        南風BBS站       bbs2.nsysu.edu.tw
+中山音樂        中山音樂        music.nsysu.edu.tw
+台大計中        椰林風情站      bbs.ntu.edu.tw
+台大電機        Maxwell         bbs.ee.ntu.edu.tw
+台大資工        台大資工        bbs.csie.ntu.edu.tw
+台大數學        台大數學        bbs.math.ntu.edu.tw
+台大醫學院      台大醫學院      140.112.131.231
+成大計中        成大計中        bbs.ncku.edu.tw
+成大資研        成大資研        vlsi1.iie.ncku.edu.tw
+成大化學        煉丹師資訊站    bbs.ch.ncku.edu.tw
+成大工科        成大工科        140.116.39.100
+成大物理        Feynman         140.116.22.200
+師大計中        精靈之城        bbs.ntnu.edu.tw
+師大分部        師大分部        140.122.191.5
+師大資教        師大資教        bbs.ice.ntnu.edu.tw
+師大工科        師大工科        bbs.ite.ntnu.edu.tw
+中正計中        寂寞芳心小站    bbs.ccu.edu.tw
+中正資工        四百年來第一站  bbs.cs.ccu.edu.tw
+法商計中        北極星          192.192.35.34
+中興計中        天樞資訊網      bbs.nchu.edu.tw
+逢甲計中        蒼穹資訊網      bbs.fcu.edu.tw
+#政大計中       醉夢溪畔        bbs.nccu.edu.tw
+政大資科        政大資科        bbs.cs.nccu.edu.tw
+政大新聞        政大新聞        jour.nccu.edu.tw
+淡江大學        淡江計中        bbs.tku.edu.tw
+淡江資管        淡江資管        bbs.im.tku.edu.tw
+淡江統計        淡江統計        bbs.stat.tku.edu.tw
+東海大學        大度山之戀      140.128.99.114
+輔仁理工        美少女夢工場    bbs.secc.fju.edu.tw
+* [end]
+
+# 其它 BBS
+
+* [section]     BBS
+* [title] BBS(2)
+AIDE_BBS        實驗站          aidebbs.edu.tw
+新竹師院        心情小站        bbs.nhctc.edu.tw
+台中師院        台中師院        192.83.167.51
+彰化師大        白沙山莊        bbs@192.83.173.50
+台南師院        台南師院        192.83.189.2
+高雄師大        高雄師大        bbs.nknu.edu.tw
+屏東師院        屏東師院        bbs@140.127.81.10
+花蓮師院        洄瀾工作站      bbs@192.192.6.112
+宜蘭農專        蘭雨情懷資訊站  ccbbs.ilantech.edu.tw
+臺東師院        臺東師院        140.127.172.99
+海洋電機        海洋電機        bbs.ee.ntou.edu.tw
+海洋食品        海洋食品        dreamy.wfd.ntou.edu.tw
+文化大學        文化大學計中    bbs.pccu.edu.tw
+台北師院        北市師範學院    140.131.41.10
+大同資訊        超級玩家        sunserv.cse.ttit.edu.tw
+大同資工        祕密情人資訊站  bbs.cse.ttit.edu.tw
+中華資工        中華資工        pbbs.chpi.edu.tw
+陽明大學        陽明計中        bbs.ym.edu.tw
+中原計中        中原方向站      bbs.cycu.edu.tw
+大葉工學院      大葉工學院      sun.dyit.edu.tw
+元智工學院      還酹江月資訊站  140.138.244.61
+元智工學院      風之塔          140.138.36.40
+工技電子        工技電子        etc3.et.ntit.edu.tw
+工技電機        工技電機        140.118.7.154
+中正理工        寂寞芳心小站    bbs.ccit.edu.tw
+北一女中        呼和浩特        bbs@203.64.52.30
+東吳計中        蘇州資訊站      bbs.scu.edu.tw
+空中大學        空中大學        bbs.nou.edu.tw
+靜宜計中        靜宜計中        140.128.1.88
+東海大學        石頭紀樂園      140.128.99.100
+銘傳計中        銘傳計中        140.131.50.80
+銘傳資管        銘傳資管        140.131.50.66
+文化華崗        文化華崗        140.137.1.11
+慈濟醫學院      慈濟醫學院      bbs.tccm.edu.tw
+慈濟護專        慈濟護專        cc.tccn.edu.tw
+台北技術學院    台北技術學院    redbbs.cc.tit.edu.tw
+政戰學校        政戰學校        192.192.89.3
+嶺東商專        嶺東商專        192.192.2.1
+南台商專        南台商專        bbs.ntc.edu.tw
+德明商專        德明商專        192.192.140.6
+崇右企專        崇右企專        192.192.212.33
+長榮學院        長榮學院        bbs.cju.edu.tw
+西安交大        兵馬俑站        bb5@bbs.xanet.edu.cn
+北京清華        水木清華        bb5@bbs.net.tsinghua.edu.cn
+北京大學        北京大學        bb5@bbs.pku.edu.cn
+武漢大學        武漢大學        bb5@sun200.whnet.edu.cn
+香港            學生網絡資訊站  susis.ust.hk    4000
+* [end]
+
+* [section]     BBS
+* [title] BBS(3)
+台灣文化        台灣文化資訊站  TWserv.csie.nctu.edu.tw
+交大CCCA        全球資訊網      bbs@www.ccca.nctu.edu.tw
+果茶小站        果茶小站        bbs@Henry.cis.NCTU.edu.tw
+附友小站        附友小站        bbs@140.113.122.169
+彰友會          戀戀半線情      Hua.tem.nctu.edu.tw
+松山高中        松高人的甜甜窩  bbs@sungshan.dorm12.nctu.edu.tw
+中友小站        中友小站        bbs@flybirds.ccca.nctu.edu.tw
+全國竹友        BBS             bbs@alumni.HCHS.hc.edu.tw
+松濤斑城        松濤斑城        bbs@Trumpet.Dorm10.Nctu.edu.tw
+交大-DB2        交大-DB2        bbs.ibm.nctu.edu.tw
+清大-DB2        清大-DB2        ibmsrv.cc.nthu.edu.tw
+飄雨蘭城        飄雨蘭城        kavalan.csie.nctu.edu.tw
+交大鐵道        內灣小月台的故事        bbs@140.113.172.208
+水世界          水世界          bbs@www.gc.nctu.edu.tw
+風之谷          風之谷          bbs@140.113.87.120
+白日夢          白日夢          bbs.dds.com.tw
+信望愛          信望愛          fhl.ee.nctu.edu.tw
+冷馨居          冷馨居          Rouge.Dorm10.NCTU.edu.tw
+交大戲劇社      交大戲劇社      Drama.Dorm10.NCTU.edu.tw
+地下社會        地下社會        203.67.80.80
+光華幼教        光華幼教        140.116.23.80
+物理學會        交互作用        140.109.112.40
+台北之音        台北之音        203.67.82.4
+不良牛牧場      不良牛牧場      bbs.m6.ntu.edu.tw
+陽光沙灘        陽光沙灘        sob.m7.ntu.edu.tw
+宜蘭資教        山水蘭陽資訊站  bbs.boe.ilc.edu.tw
+桃縣資教        桃縣資教網路    bbs@bbs.tyc.edu.tw
+竹市資教        竹市資教網路    bbs@serv.hceb.edu.tw
+中縣資教        中縣資教網路    bbs@sun1.tccgeb.edu.tw
+中市資教        中市資教網路    bbs@bbs.tceb.edu.tw
+高縣資教        高縣資教網路    bbs.kscg.gov.tw
+南市資教        南市資教網路    192.192.170.3
+高市資教        高市資教網路    140.117.10.1
+花蓮資教        花蓮資教網路    bbs@hledu.nhltc.edu.tw
+中市教育局      異境站          bbs2.tceb.edu.tw
+成功高中        濟城歲月        bbs.cksh.tp.edu.tw
+#環境保護署     環境保護署      sun.epa.gov.tw
+* [end]
+
+* [section]     GOPHER
+* [title] Gopher
+交大資工        交大資工        gopher.csie.nctu.edu.tw
+交大資工        Linux           linux.csie.nctu.edu.tw
+交大資工        FreeBSD         freebsd.csie.nctu.edu.tw
+交大資科        交大資科        gopher.cis.nctu.edu.tw
+交大資科        Linux           linux.cis.nctu.edu.tw
+交大電信        交大電信        gopher.cm.nctu.edu.tw
+清大計中        清大計中        gopher.nthu.edu.tw
+台大計中        台大計中        gopher.ntu.edu.tw
+成大計中        成大計中        gopher.ncku.edu.tw
+中山計中        中山計中        gopher.nsysu.edu.tw
+中央資管        中央資管        gopher.mgt.ncu.edu.tw
+台灣文化        台灣文化資訊站  twserv.csie.nctu.edu.tw
+IBM-DB2         學術合作計劃    bbs.ibm.nctu.edu.tw
+中正計中        中正計中        gopher.ccu.edu.tw
+政大計中        政大計中        gopher.nccu.edu.tw
+師大計中        師大計中        gopher.ntnu.edu.tw
+中興大學        中興大學        gopher.nchu.edu.tw
+東吳大學        東吳大學        gopher.scu.edu.tw
+淡江計中        淡江計中        gopher.tku.edu.tw
+逢甲資中        資訊中心        fcums1.fcu.edu.tw
+東海計中        東海大學        s867.thu.edu.tw
+花蓮師院        花蓮師院        gopher.nhltc.edu.tw
+國立宜專        國立宜專        192.83.183.5
+附友小站        附友小站        140.113.176.169
+教育部          教育部          gopher.edu.tw
+HiNet           NiNet           gopher.hinet.net
+SeedNet         SEEDNET         gopher.seed.net.tw
+#資策會         資策會          gopher.iii.org.tw
+TWNIC           TWNIC           gopher.twnic.net
+NII             NII             gopher.nii.gov.tw
+華碩            ASUS            gopher.asus.com.tw
+環境保護署      環境保護署      sun.epa.gov.tw
+交大資工BBS     精華區  gopher://gopher.csie.nctu.edu.tw/NCTU/CSIE/0Announce/
+交大資科BBS     精華區  gopher://gopher.cis.nctu.edu.tw/cisbbs/
+#交大電子BBS    精華區  gopher://alab03.ee.nctu.edu.tw/alab01.0announce
+台大計中BBS     精華區  gopher://gopher.ntu.edu.tw/bbs/ntu/
+成大計中BBS     精華區  gopher://gopher.ncku.edu.tw/announce/boards/
+中興計中BBS     精華區  gopher://gopher.nchu.edu.tw/cc/bbs/
+中山計中BBS     精華區  gopher://gopher.nsysu.edu.tw/bbs/
+* [end]
+
+* [section]     TEL
+* [title] 圖書館
+交通大學        圖書館          library@library.nctu.edu.tw
+清華大學        圖書館          library@lib2.nthu.edu.tw
+中央大學        圖書館          library@nculib3.ncu.edu.tw
+政治大學        圖書館          library@cculais.nccu.edu.tw
+台灣大學        圖書館          tulips@tulips.ntu.edu.tw
+中興大學        圖書館          library@mainlib.nchu.edu.tw
+成功大學        圖書館          OPAC@opac.lib.ncku.edu.tw
+台北市立        圖書館          library@192.83.187.1
+台灣/台中       圖書館          library@192.192.47.120
+中央研究院      圖書館          chinese@las.sinica.edu.tw
+中央圖書館      台灣分館        tbopac1@192.192.13.10
+資策會          資料中心        140.92.23.11
+* [end]
+
+* [section]     TEL
+* [title] Mud
+交大資工        風之傳說        mud.csie.nctu.edu.tw    4040
+交大資工        時空之門        mud.csie.nctu.edu.tw    4444
+#交大資科       東方故事        mud.cis.nctu.edu.tw     8000
+交大資科        東方故事        140.113.166.36          8000
+交大資科        失落國度        140.113.23.141          4000
+NCTUCCCA        四度空間        140.113.5.151           7777
+清華大學        東方之豬        140.114.18.21           5555
+清華大學        DOOM            140.114.79.109          4000
+台大計中        Dragon          drake.ntu.edu.tw        3000
+中央資工        Formosa         140.115.50.82           4000
+* [end]
+
+* [section]     FTP
+* [title] 檔案傳輸
+NCTUCCCA        NCTUCCCA        nctuccca.nctu.edu.tw
+交大資工        Ftp-Site        ftp.csie.nctu.edu.tw
+交大資科        Ftp-Site        ftp.cis.nctu.edu.tw
+交大運管        Ftp-Site        ftp.tem.nctu.edu.tw
+交大資工        Linux           linux.csie.nctu.edu.tw
+交大資工        Freebsd         freebsd.csie.nctu.edu.tw
+淡江大學        Ftp-Site        ftp.tku.edu.tw
+* [end]
+
+# end of data --------------------------------------------
+
