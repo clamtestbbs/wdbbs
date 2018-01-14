@@ -15,14 +15,10 @@
 #define O_XTABS 02
 #endif
 
-//#ifdef LINUX
-// shakalaca patch , 990818
-// #include <linux/termios.h>
 #include <termios.h>
 
 #define stty(fd, data) tcsetattr( fd, TCSETS, data )
 #define gtty(fd, data) tcgetattr( fd, data )
-//#endif
 
 #ifndef TANDEM
 #define TANDEM  0x00000001
@@ -32,12 +28,7 @@
 #define CBREAK  0x00000002
 #endif
 
-//#ifdef LINUX
 struct termios tty_state, tty_new;
-//#else
-//struct sgttyb tty_state, tty_new;
-//#endif
-
 
 #ifndef BSD44
 /*
@@ -821,30 +812,13 @@ init_tty()
   }
   memcpy(&tty_new, &tty_state, sizeof(tty_new));
 
-//#ifdef  LINUX
-
-//  tty_new.c_lflag &= ~(ICANON | ECHO | RAW | ISIG);
-// shakalaca patch , 990818
   tty_new.c_lflag &= ~(ICANON | ECHO | ISIG);
   tcsetattr(1, TCSANOW, &tty_new);
   restore_tty();
 
-//#else
-
-//  tty_new.sg_flags |= RAW;
-
-//#ifdef  HP_UX
-//  tty_new.sg_flags &= ~(O_HUPCL | O_XTABS | LCASE | ECHO | CRMOD);
-//#else
-//  tty_new.sg_flags &= ~(TANDEM | CBREAK | LCASE | ECHO | CRMOD);
-//#endif
-
-//  stty(1, &tty_new);
-//#endif
 }
 
 
-//#ifdef LINUX
 reset_tty()
 {
    system("stty -raw echo");
@@ -853,19 +827,6 @@ restore_tty()
 {
    system("stty raw -echo");
 }
-//#else
-//void
-//reset_tty()
-//{
-//  stty(1, &tty_state);
-//}
-//void
-//restore_tty()
-//{
-//  stty(1, &tty_new);
-//}
-
-//#endif
 
 
 /* ----------------------------------------------------- */
@@ -943,9 +904,7 @@ term_init(term)
   char *term;
 {
   extern char PC, *UP, *BC;
-#ifndef LINUX
   extern short ospeed;
-#endif
   static char UPbuf[TERMCOMSIZE];
   static char BCbuf[TERMCOMSIZE];
   static char buf[1024];
@@ -953,11 +912,7 @@ term_init(term)
   char *sbp, *s;
   char *tgetstr();
 
-//#ifdef LINUX
   ospeed = cfgetospeed(&tty_state);
-//#else
-//  ospeed = tty_state.sg_ospeed;
-//#endif
 
   if (tgetent(buf, term) != 1)
     return NA;
