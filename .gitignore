@@ -1,0 +1,5 @@
+*.a
+*.o
+tags
+WD/mbbsd
+include/config.h
