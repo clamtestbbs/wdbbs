@@ -6,7 +6,7 @@
 
 * 程式版本歷史請參考 ANCESTOR
 
-* 相關文件說明請參考 https://github.com/clamtestbbs/wd_pure/wiki
+* 相關文件說明請參考 https://github.com/clamtestbbs/wdbbs/wiki
 
 ## LICENSE
 
