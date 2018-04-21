@@ -525,7 +525,7 @@ u_editfile()
       break;
 
     default:
-      return;
+      return 0;
   }
     
   sprintf(msg1, "%s ½s¿è(E) §R°£(D) ¨S¨Æ[Q] ", msg2);

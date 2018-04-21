@@ -2064,7 +2064,7 @@ t_users()
   int destuid0 = currutmp->destuid;
 
   if (chkmailbox())
-    return;
+    return 0;
 
   setutmpmode(LUSERS);
   pickup_user();

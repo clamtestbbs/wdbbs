@@ -11,9 +11,9 @@ BBSHOME = /home/bbs
 # FreeBSD 3.x 4.x
 # ------------------------------------------------------
 OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
-CC	= gcc
-CFLAGS	= -O -Wunused -I../include -pipe -fomit-frame-pointer -s #-g -ggdb
-LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao -export-dynamic -s
+CC	= clang
+CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding  #-ggdb
+LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao -Wl,-export-dynamic
 CPROTO	= cproto -E"gcc -pipe -E -I../include"
 
 # ------------------------------------------------------ #

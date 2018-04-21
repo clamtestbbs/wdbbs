@@ -1243,7 +1243,7 @@ Favor()
   currmode |= MODE_FAVORITE;
 
   setuserfile(fpath, fn_myfavorite);
-  if ((fp = fopen(fpath, "r")) == NULL) return;
+  if ((fp = fopen(fpath, "r")) == NULL) return 0;
   else fclose(fp);
 
   choose_board(cuser.habit & HABIT_BOARDLIST,0);

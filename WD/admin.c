@@ -727,7 +727,7 @@ cleanmail (urec)
   char genbuf[200];
 
   if (urec->userid[0] == '\0' || !strcmp (urec->userid, str_new))
-    return;
+    return 0;
   sethomedir (genbuf, urec->userid);
   fprintf (cleanlog, "%s¡G", urec->userid);
   if (stat (genbuf, &statb) == -1 || statb.st_size == 0)

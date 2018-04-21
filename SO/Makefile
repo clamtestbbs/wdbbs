@@ -11,9 +11,9 @@ BBSHOME = /home/bbs
 # FreeBSD 3.x, Linux
 # ------------------------------------------------------
 OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
-CC	= gcc
-CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g
-LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao -export-dynamic -L/usr/local/lib/mysql -lmysqlclient
+CC	= clang
+CFLAGS	= -m32 -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
+LDFLAGS	= -m32 -lcrypt -ltermcap -lcompat -L../lib -ldao -export-dynamic -L/usr/local/lib/mysql -lmysqlclient
 
 # ------------------------------------------------------
 # NetBSD, 386BSD, FreeBSD 2.x
@@ -46,7 +46,7 @@ ETC =	Makefile $(HDR)
 
 .c.o:   ;   $(CC) $(CFLAGS) $(OS_DEF) -c $*.c
 .c.ln:  ;   lint -abhi $*.c
-.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao
+.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao -melf_i386_fbsd
 
 all:$(SO)
 so: $(SO)

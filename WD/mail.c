@@ -518,7 +518,7 @@ multi_send(title, inmail)
       unlink(fpath);
       curredit = 0;
       pressanykey(msg_cancel);
-      return;
+      return 0;
     }
 
     stand_title("±H«H¤¤...");
@@ -545,7 +545,7 @@ multi_send(title, inmail)
       if (belong(junbuf,cuser.userid) && !HAS_PERM(PERM_SYSOP))
       {
         clear();
-        return;
+        return 0;
       }
 /*  end  */
 
@@ -637,7 +637,7 @@ mail_all()
       curredit = 0;
       unlink(fpath);
       pressanykey(msg_cancel);
-      return;
+      return 0;
    }
    curredit = 0;
 
@@ -683,7 +683,7 @@ mail_all()
          refresh();
       }
    }
-   return;
+   return 0;
 }
 
 

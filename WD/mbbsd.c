@@ -441,7 +441,7 @@ add_distinct(char* fname, char* line)
       strcat(tmpname, "_tmp");
       if (!(fptmp = fopen(tmpname, "w"))) {
          fclose(fp);
-         return;
+         return 0;
       }
 
       rewind(fp);
@@ -488,7 +488,7 @@ del_distinct(char* fname, char* line)
       strcat(tmpname, "_tmp");
       if (!(fptmp = fopen(tmpname, "w"))) {
          fclose(fp);
-         return;
+         return 0;
       }
 
       rewind(fp);

@@ -675,7 +675,7 @@ region_scroll_up(int top, int bottom)
    }
 
    if (top < 0 || bottom >= scr_lns)
-     return;
+     return 0;
 
    for (i = top; i < bottom; i++)
       big_picture[i] = big_picture[i + 1];

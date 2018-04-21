@@ -1686,7 +1686,7 @@ match_paren()
    int c, i;
 
    if (!(ptype = strchr(parens, currline->data[currpnt])))
-      return;
+      return 0;
 
    type = (ptype - parens) / 2;
    parenum += ((ptype - parens) % 2) ? -1 : 1;

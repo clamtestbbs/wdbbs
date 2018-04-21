@@ -8,9 +8,9 @@
 BBSHOME=/home/bbs
 
 # For FreeBSD
-CC	= gcc
-CFLAGS	= -O -DBSD44 -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
-LDFLAGS	= -s -L../lib -ldao -lcrypt
+CC	= clang
+CFLAGS	= -m32 -g -O -DBSD44 -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
+LDFLAGS	= -L../lib -ldao -lcrypt
 
 # For SunOS 5.6
 #CC	= gcc
@@ -32,7 +32,7 @@ all: 	$(TOOL)
 
 
 install:$(TOOL)
-	strip $(TOOL)
+	#strip $(TOOL)
 	chown bbs:bbs $(TOOL)
 	cp -fp $(TOOL) $(BBSHOME)/bin
 

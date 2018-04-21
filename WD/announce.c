@@ -278,7 +278,7 @@ go_proxy (char *fpath, ITEM * node, int update)
       int sock;
 
       if (fo == NULL)
-	return;
+	return 0;
 
       outmsg ("★ 建立 proxy 資料連線中 ... ");
       refresh ();
@@ -293,7 +293,7 @@ go_proxy (char *fpath, ITEM * node, int update)
 	  fwrite ("", 0, 0, fo);
 	  fclose (fo);
 	  alarm (0);
-	  return;
+	  return 0;
 	}
 
       signal (SIGALRM, isig);
@@ -679,7 +679,7 @@ copy_stamp(char* fpath, char* fname)
     fileheader fhdr;
 
     stampfile(fpath, &fhdr);
-    return;
+    return 0;
   }
   dtime = atoi(fname + 3);
   strcat(fpath, fname);
@@ -1731,7 +1731,7 @@ a_menu (maintitle, path, lastlevel, mode)
 			      strcpy (trans_buffer, fname);
 			      Fexit = 1;
 			      free (me.header);
-			      return;
+			      return 0;
 			    }
 			}
 		      if (more_result == 1)
@@ -1800,7 +1800,7 @@ a_menu (maintitle, path, lastlevel, mode)
 		  if (Fexit)
 		    {
 		      free (me.header);
-		      return;
+		      return 0;
 		    }
 		}
 	      me.page = 9999;

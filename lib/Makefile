@@ -8,13 +8,13 @@
 # ------------------------------------------------------ #
 
 
-CC	= gcc
+CC	= clang
 RANLIB	= ranlib
 #
 # For FreeBSD / OpenBSD
 #
 CPROTO	= cproto -E"gcc -pipe -E" # -s -v
-CFLAGS	= -O2 -s -pipe -fomit-frame-pointer -Wunused -I../include
+CFLAGS	= -g -m32 -O2 -pipe -fomit-frame-pointer -Wunused -I../include
 
 # For Linux
 #
