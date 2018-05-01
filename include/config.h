@@ -63,8 +63,10 @@
 /* 組態規劃                                              */
 /* ------------------------------------------------------*/
 
-//#define HAVE_CHKLOAD                /* check cpu load */
-                                      /* r2.20180502: cygwin cannot check cpu load */
+#ifndef __CYGWIN__
+#define HAVE_CHKLOAD                /* check cpu load */
+                                    /* r2.20180502: cygwin may not check cpu load */
+#endif // __CYGWIN__
 
 #ifdef HAVE_CHKLOAD
   #define MAX_CPULOAD     (10)            /* CPU 最高load */
