@@ -18,10 +18,6 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../include
 CFLAGS	+= -m32
 .endif
 
-# ------------------------------------------------------ #
-# ¤U¦Cªº make rules ¤£»Ý­×§ï				 #
-# ------------------------------------------------------ #
-
 HDR =	dao.h dao.p
 
 SRC =	\

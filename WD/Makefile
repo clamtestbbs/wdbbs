@@ -33,10 +33,6 @@ LDFLAGS	+= -lresolv -ldl -rdynamic
 LDFLAGS	+= -Wl,-export-dynamic -lcompat
 .endif
 
-# ------------------------------------------------------ #
-# 下列的 make rules 不需修改				 #
-# ------------------------------------------------------ #
-
 SRC =	announce.c bbs.c board.c cache.c edit.c \
 	io.c mail.c mbbsd.c menu.c more.c name.c read.c record.c\
 	register.c screen.c stuff.c talk.c user.c term.c\
@@ -67,8 +63,6 @@ all: $(ALL)
 
 mbbsd: $(MOBJ) $(ETC)
 	$(CC) -o mbbsd $(CFLAGS) $(MOBJ) $(LDFLAGS)
-	mv -f ../../bin/mbbsd ../../bin/mbbsd.old
-	cp mbbsd ../../bin
 
 lint: $(LNFILES)
 	lint -abh $(LNFILES)
@@ -80,23 +74,12 @@ bbsrf: bbsrf.c
 	$(CC) $(CFLAGS) -o bbsrf $(OS_DEF) bbsrf.c
 
 update:	install
+
 install: $(ALL)
-	if [ -f $(BBSHOME)/bin/mbbsd ]; then\
-	  mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.old; \
-	fi
-	if [ -f $(BBSHOME)/bin/bbsrf ]; then\
-	  mv -f $(BBSHOME)/bin/bbsrf $(BBSHOME)/bin/bbsrf.old; \
-	fi
-	if [ -f $(BBSHOME)/bin/xchatd ]; then\
-	  mv -f $(BBSHOME)/bin/xchatd $(BBSHOME)/bin/xchatd.old; \
-	fi
-	chown bbs:bbs $(ALL) $(HDR) $(SRC) $(OBJ)
-#
-# shakalaca.990401: 前面 LIBS = -s 與 strip 效果相同
-#	strip $(ALL)
-#
-	ls -l mbbsd
-	cp -f $(ALL) $(BBSHOME)/bin
+	install -d $(BBSHOME)/bin/
+	install -c -m 755 $(ALL) $(BBSHOME)/bin/
+	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.`date '+%s'`
+	ln -sv $(BBSHOME)/bin/mbbsd.`date '+%s'` $(BBSHOME)/bin/mbbsd
 
 WD.p: $(SRC)
 	$(CPROTO) -o $@ $?

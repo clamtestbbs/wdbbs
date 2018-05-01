@@ -5,54 +5,52 @@
 #  create : 95/03/29				 	 #
 #  update : 98/12/21					 #
 # ------------------------------------------------------ #
-BBSHOME = /home/bbs
 
-# ------------------------------------------------------
-# FreeBSD 3.x, Linux
-# ------------------------------------------------------
-OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
+ARCHI	!= uname -m
+
+OPSYS	!= uname -o
+
+#BBSHOME	= /home/bbs
+
 CC	= clang
-CFLAGS	= -m32 -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
-LDFLAGS	= -m32 -lcrypt -ltermcap -lcompat -L../lib -ldao -export-dynamic -L/usr/local/lib/mysql -lmysqlclient
+CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
+LDFLAGS	= -lcrypt -L../lib -ldao -ltermcap  
 
-# ------------------------------------------------------
-# NetBSD, 386BSD, FreeBSD 2.x
-# ------------------------------------------------------
-#OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
-#CC	= gcc
-#CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -s
-#LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao
-#CPROTO	= cproto -E"gcc -pipe -E -I../include"
+.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
+CFLAGS	+= -m32
+LDFLAGS	+= -m32
+.endif
 
-# ------------------------------------------------------
-# Linux
-# ------------------------------------------------------
-#OS_DEF	= -DLINUX -DTWO_LONGJMP_ARGS 
-#CC	= gcc
-#CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -I/usr/include/bsd
-#LDFLAGS	= -ltermcap -lbsd -L../lib -ldao -export-dynamic -ldl -lcrypt
-#CPROTO	= cproto -E"gcc -pipe -E -I../include"
+.if $(OPSYS) == "FreeBSD"
+LDFLAGS	+= -Wl,-export-dynamic -lcompat
+.endif
 
-# ------------------------------------------------------ #
-# 下列的 make rules 不需修改				 #
-# ------------------------------------------------------ #
+.if $(OPSYS) == "GNU/Linux"
+LDFLAGS	+= -rdynamic -lresolv -ldl
+.endif
 
 SO =	chat.so vote.so votebrd.so
 
 ETC =	Makefile $(HDR)
-
        
 .SUFFIXES: .o .c .ln .so
 
-.c.o:   ;   $(CC) $(CFLAGS) $(OS_DEF) -c $*.c
+.c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 .c.ln:  ;   lint -abhi $*.c
-.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao -melf_i386 #_fbsd
+
+
+.if $(OPSYS) == "FreeBSD"
+.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386_fbsd
+.else
+.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386
+.endif
 
 all:$(SO)
+
 so: $(SO)
 
 install: $(SO)
-	cp -f *.so ../../SO
+	install -m 0700 $(SO) $(HOME)/bin
 
 clean: /tmp
 	rm -fr $(GARBAGE) *.o $(SO) $(LNFILES) *~ 

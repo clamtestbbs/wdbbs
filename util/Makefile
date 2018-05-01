@@ -5,22 +5,13 @@
 #  create : 95/03/29				 	  #
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
+
 BBSHOME=/home/bbs
 
 # For FreeBSD
 CC	= clang
-CFLAGS	= -m32 -g -O -DBSD44 -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
+CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
 LDFLAGS	= -L../lib -ldao -lcrypt
-
-# For SunOS 5.6
-#CC	= gcc
-#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DSYSV -DSOLARIS
-#LDFLAGS	= -ltermcap -lnsl -lsocket -ldl -L../lib -ldao
-
-# For Linux
-#CC	= gcc
-#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DLINUX -D_BBS_UTIL_C_
-#LDFLAGS	= -s -fforce-mem -funroll-loops -fstrict-prototype -Wunused -L../lib -ldao -lcrypt
 
 .SUFFIXES: .o .c
 
@@ -30,11 +21,9 @@ TOOL =  setuser
 
 all: 	$(TOOL)
 
-
 install:$(TOOL)
-	#strip $(TOOL)
-	chown bbs:bbs $(TOOL)
-	cp -fp $(TOOL) $(BBSHOME)/bin
+	install -d $(BBSHOME)/bin/
+	install -c -m 755 $(TOOL) $(BBSHOME)/bin/
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~
