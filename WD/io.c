@@ -12,7 +12,7 @@
 #include <sys/select.h>
 #endif
 
-#ifdef  LINUX
+#ifdef  __linux__
 #define OBUFSIZE  (2048)
 #define IBUFSIZE  (128)
 #else

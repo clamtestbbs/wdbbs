@@ -5,16 +5,33 @@
 #  create : 95/03/29				 	 #
 #  update : 98/12/21					 #
 # ------------------------------------------------------ #
-BBSHOME = /home/bbs
 
-# ------------------------------------------------------
-# FreeBSD 3.x 4.x
-# ------------------------------------------------------
-OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
+ARCHI	!= uname -m
+
+OPSYS	!= uname -o
+
+BBSHOME	= /home/bbs
+
 CC	= clang
-CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding  #-ggdb
-LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao -Wl,-export-dynamic
+
 CPROTO	= cproto -E"gcc -pipe -E -I../include"
+
+CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
+
+LDFLAGS	= -lcrypt -ltermcap -L../lib -ldao 
+
+.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
+CFLAGS	+= -m32
+LDFLAGS	+= -m32
+.endif
+
+.if $(OPSYS) == "GNU/Linux"
+LDFLAGS	+= -lresolv -ldl -rdynamic
+.endif
+
+.if $(OPSYS) == "FreeBSD"
+LDFLAGS	+= -Wl,-export-dynamic -lcompat
+.endif
 
 # ------------------------------------------------------ #
 # 下列的 make rules 不需修改				 #

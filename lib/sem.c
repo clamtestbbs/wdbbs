@@ -12,7 +12,7 @@
 void              /*  sem_init(BSEM_KEY,&ap_semid)  */
 sem_init(int semkey,int *semid)
 {
-#if defined(SunOS) || defined(SOLARIS) || defined(LINUX)
+#ifdef __linux__
   int semval = 1;
 #else  
   union semun semval;  // 解決某些 OS 會把 1 認為是 int 之問題

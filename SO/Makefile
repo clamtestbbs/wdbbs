@@ -46,7 +46,7 @@ ETC =	Makefile $(HDR)
 
 .c.o:   ;   $(CC) $(CFLAGS) $(OS_DEF) -c $*.c
 .c.ln:  ;   lint -abhi $*.c
-.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao -melf_i386_fbsd
+.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao -melf_i386 #_fbsd
 
 all:$(SO)
 so: $(SO)

@@ -8,7 +8,8 @@
 /*-------------------------------------------------------*/
 #define _MAIN_C_
 
-
+#include <sys/types.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <sys/wait.h> 
 #include <sys/socket.h>
@@ -156,7 +157,7 @@ dosearchuser(userid)
 static void
 talk_request()
 {
-#ifdef  LINUX
+#ifdef  __linux__
   /*
    * Linux 下連續 page 對方兩次就可以把對方踢出去： 這是由於某些系統一 nal
    * 進來就會將 signal handler 設定為內定的 handler, 不幸的是 default 是將程
@@ -225,7 +226,7 @@ write_request()
 
   time(&now);
 
-#ifdef  LINUX
+#ifdef  __linux__
   signal(SIGUSR2, write_request);
 #endif
 
@@ -612,7 +613,7 @@ user_login()
   extern int fcache_semid;
   
   log_usies("ENTER", getenv("RFC931")/* fromhost */);
-  setproctitle("%s: %s", cuser.userid, fromhost);
+  //setproctitle("%s: %s", cuser.userid, fromhost);
 
   /* ------------------------ */
   /* 初始化 uinfo、flag、mode */
@@ -1344,7 +1345,7 @@ main(argc, argv,envp)
 
     f_cat(PID_FILE, genbuf); 
 
-    setproctitle("listening%s", margs);
+    //setproctitle("listening%s", margs);
 
     /* --------------------------------------------------- */
     /* main loop                                           */
@@ -1392,7 +1393,7 @@ again:
 
       if (!pid)
       {
-        setproctitle("...login...");
+        //setproctitle("...login...");
         nice(2);      /*  Ptt lower priority */
         write(csock, BANNER , strlen(BANNER));
         while (--nfds >= 0)

@@ -7,35 +7,19 @@
 #  update : 95/12/15					 #
 # ------------------------------------------------------ #
 
+ARCHI	!= uname -m
 
-CC	= clang
-RANLIB	= ranlib
-#
-# For FreeBSD / OpenBSD
-#
-CPROTO	= cproto -E"gcc -pipe -E" # -s -v
-CFLAGS	= -g -m32 -O2 -pipe -fomit-frame-pointer -Wunused -I../include
+CC	=  clang
+RANLIB	=  ranlib
+CPROTO	=  cproto -E"gcc -pipe -E" 
+CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../include
 
-# For Linux
-#
-#CPROTO	= cproto -E"gcc -pipe -E" # -s -v
-#CFLAGS	= -O2 -s -pipe -fomit-frame-pointer -Wunused -I../include -DLINUX
-
-#
-# For SunOS 5.5.1
-#
-#CPROTO	= cproto -E"gcc -pipe -E" # -s -v
-#CFLAGS	= -O2 -s -pipe -fomit-frame-pointer -Wunused -DSOLARIS -I../include
-
-#
-# For Solaris x86
-#
-#CPROTO	= cproto -E"gcc -E" # -s -v
-#CFLAGS	= -O2 -s -fomit-frame-pointer -Wunused -DSOLARIS -I../include
-
+.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
+CFLAGS	+= -m32
+.endif
 
 # ------------------------------------------------------ #
-# �U�C�� make rules ���ݭק�				 #
+# ¤U¦Cªº make rules ¤£»Ý­×§ï				 #
 # ------------------------------------------------------ #
 
 HDR =	dao.h dao.p
