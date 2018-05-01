@@ -1,7 +1,1 @@
-*.a
-*.o
-tags
-WD/mbbsd
-WD/bbsrf
-WD/xchatd
-include/config.h
+/wdbbs.conf
