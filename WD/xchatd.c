@@ -714,7 +714,7 @@ send_to_room(room, msg, userno, number)
   for (clitype = (number == MSG_MESSAGE || !number) ? 0 : 1; clitype < 2; clitype++)
   {
 
-    FD_ZERO(wptr = &wset);
+    FD_ZERO( (wptr = &wset) );
     max = -1;
 
     for (cu = mainuser; cu; cu = cu->unext)
@@ -768,7 +768,7 @@ send_to_user(user, msg, userno, number)
     static char sendbuf[256];
 
     sock = user->sock;
-    FD_ZERO(wptr = &wset);
+    FD_ZERO( (wptr = &wset) );
     FD_SET(sock, wptr);
 
     if (user->clitype)
