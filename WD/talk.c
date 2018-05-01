@@ -1030,7 +1030,7 @@ my_talk(uin)
         }
         else
         {
-#ifdef __linux__
+#if defined ( __linux__ ) || defined ( __CYGWIN__ )
           add_io(sock, 20);       /* added 4 linux... achen */
 #endif
           move(0, 0);
@@ -1040,7 +1040,7 @@ my_talk(uin)
 
           if (kill(pid, SIGUSR1) == -1)
           {
-#ifdef __linux__
+#if defined ( __linux__ ) || defined ( __CYGWIN__ )
             add_io(sock, 20);       /* added 4 linux... achen */
 #endif
             pressanykey(msg_usr_left);

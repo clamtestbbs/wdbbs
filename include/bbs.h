@@ -33,7 +33,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#if	defined(__linux__) && (__GLIBC__ != 2)
+#if ( defined ( __linux__ ) || defined ( __CYGWIN__ ) ) && (__GLIBC__ != 2)
 #include <bsd/sgetty.h>
 #else
 #include <termios.h>

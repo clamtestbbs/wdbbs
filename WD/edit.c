@@ -1426,8 +1426,8 @@ write_file(fpath, saveheader)
       }
     }
 /* shakalaca patch            */
-/* undef it for __linux__ 990816  */
-#ifndef __linux__
+/* undef it for Linux 990816  */
+#if !defined ( __linux__ ) || !defined ( __CYGWIN__ )
     free(p); 
 #endif
   }

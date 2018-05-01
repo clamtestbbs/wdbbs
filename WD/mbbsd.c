@@ -157,7 +157,7 @@ dosearchuser(userid)
 static void
 talk_request()
 {
-#ifdef  __linux__
+#if defined ( __linux__ ) || defined ( __CYGWIN__ )
   /*
    * Linux 下連續 page 對方兩次就可以把對方踢出去： 這是由於某些系統一 nal
    * 進來就會將 signal handler 設定為內定的 handler, 不幸的是 default 是將程
@@ -226,7 +226,7 @@ write_request()
 
   time(&now);
 
-#ifdef  __linux__
+#if defined ( __linux__ ) || defined ( __CYGWIN__ ) 
   signal(SIGUSR2, write_request);
 #endif
 
