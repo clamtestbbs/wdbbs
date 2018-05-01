@@ -10,7 +10,7 @@ ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
-#BBSHOME	= /home/bbs
+BBSHOME	?= $(HOME)
 
 CC	= clang
 CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
@@ -50,7 +50,7 @@ all:$(SO)
 so: $(SO)
 
 install: $(SO)
-	install -m 0700 $(SO) $(HOME)/bin
+	install -m 0700 $(SO) $(BBSHOME)/bin
 
 clean: /tmp
 	rm -fr $(GARBAGE) *.o $(SO) $(LNFILES) *~ 

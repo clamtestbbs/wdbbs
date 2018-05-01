@@ -6,7 +6,7 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
-BBSHOME=/home/bbs
+BBSHOME	?= $(HOME)
 
 # For FreeBSD
 CC	= clang

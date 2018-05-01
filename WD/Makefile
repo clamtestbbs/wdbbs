@@ -10,7 +10,7 @@ ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
-BBSHOME	= /home/bbs
+BBSHOME	?= $(HOME)
 
 CC	= clang
 
