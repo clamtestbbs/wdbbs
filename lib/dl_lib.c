@@ -12,8 +12,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define BBSHOME "/home/bbs"
-
 typedef struct
 {
   char *path;
