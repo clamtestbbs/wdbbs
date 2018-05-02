@@ -5,12 +5,8 @@
 /* update :   /  /                                       */
 /* ----------------------------------------------------- */
 
+#include "bbs.h"
 #include <dlfcn.h>
-#include <stdarg.h>
-#include <strings.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 
 typedef struct
 {
