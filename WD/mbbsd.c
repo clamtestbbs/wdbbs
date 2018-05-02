@@ -1364,7 +1364,9 @@ again:
       msock = select(nfds, (fd_set *) & readset, NULL, NULL, &tv);
 
       if (msock < 0)
+      {
         goto again;
+      }
       else if (msock == 0)        /* No network traffic */
         continue;
  
@@ -1375,7 +1377,9 @@ again:
         if (csock & readset)
           break;
         if (++msock >= nfds)
+        {
           goto again;
+        }
         csock <<= 1;
       }
 
@@ -1386,7 +1390,9 @@ again:
       } while (csock < 0 && errno == EINTR);
 
       if (csock < 0)
+      {
         goto again;
+      }
 
 
       pid = fork();
