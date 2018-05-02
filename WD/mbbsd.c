@@ -1352,13 +1352,13 @@ main(argc, argv,envp)
     /* --------------------------------------------------- */
 
 
-    tv.tv_sec = 60 * 30;
-    tv.tv_usec = 0;
-
 
     for (;;)
     {
 again:
+
+      tv.tv_sec = 60 * 30;
+      tv.tv_usec = 0;
 
       readset = mainset;
       msock = select(nfds, (fd_set *) & readset, NULL, NULL, &tv);
