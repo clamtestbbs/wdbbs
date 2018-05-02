@@ -1,3 +1,0 @@
-#!/bin/sh
-
-echo -e "\033[1;31mPlease compile the source first, thanks!\033[m"
