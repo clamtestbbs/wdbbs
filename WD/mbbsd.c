@@ -319,7 +319,7 @@ logattempt(uid, type)
   }
 }
 
-#ifdef BSD44
+#ifdef __FreeBSD__
 static int
 over_load()
 {
@@ -360,7 +360,7 @@ login_query()
     sleep(1);
     exit(1);
   }
-#ifdef BSD44
+#ifdef __FreeBSD__
   if(over_load() > MAX_CPULOAD) 
   {
     oflush();

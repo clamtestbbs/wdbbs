@@ -30,7 +30,7 @@
 
 struct termios tty_state, tty_new;
 
-#ifndef BSD44
+#ifndef __FreeBSD__
 /*
  * tparm.c
  *
