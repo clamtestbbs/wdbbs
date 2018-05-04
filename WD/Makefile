@@ -57,7 +57,7 @@ ETC =	Makefile $(HDR)
 .c.x:   ;   $(CPROTO) -o $*.x $*.c
 .c.ln:  ;   lint -abhi $*.c
 
-ALL =	mbbsd bbsrf xchatd
+ALL =	mbbsd bbsrf bbsrf2 xchatd
 
 all: $(ALL)
 
@@ -72,6 +72,9 @@ xchatd: xchatd.c
 
 bbsrf: bbsrf.c 
 	$(CC) $(CFLAGS) -o bbsrf $(OS_DEF) bbsrf.c
+
+bbsrf2: bbsrf2.c 
+	$(CC) $(CFLAGS) -o bbsrf2 $(OS_DEF) bbsrf2.c
 
 update:	install
 
