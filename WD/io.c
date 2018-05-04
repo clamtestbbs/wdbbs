@@ -64,11 +64,15 @@ hit_alarm_clock()
   if(currutmp->pid != currpid)
     setup_utmp(XMODE);   /* 重新配置 shm */
 
+#if 0     /* r2.20180505: 取消閒置踢人的功能 */ 
+
   if((idle_time = now - currutmp->lastact) > IDLE_TIMEOUT)
   {
     pressanykey("超過閒置時間！踢出去囉……");
     abort_bbs();
   }
+
+#endif
 
   if (HAS_HABIT(HABIT_MOVIE) && (currstat && (currstat < CLASS || currstat == MAILALL)))
     movie(0);
