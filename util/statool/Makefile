@@ -6,8 +6,6 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
-SUBDIR	= statool fixtool
-
 ARCHI	!= uname -m
 
 OPSYS	!= uname -o
@@ -16,11 +14,9 @@ BBSHOME	?= $(HOME)
 
 CC	= clang
 
-CPROTO	= cproto -E"gcc -pipe -E -I../include"
+CFLAGS	= -m32 -O -Wunused -I../../include -I../../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 
-CFLAGS	= -m32 -O -Wunused -I../include -I../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
-
-LDFLAGS	= -lcrypt -L../lib -ldao -lncurses
+LDFLAGS	= -lcrypt -L../../lib -ldao -lncurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -39,30 +35,19 @@ LDFLAGS	+= -Wl,-export-dynamic -lcompat
 
 .c:   ;   $(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
-TOOL =  byte showb showdir \
-        expire showboard showuser setuser #mandex 
+TOOL =	poststat birth gnp horoscope topmsg voteboard\
+	topquery yearsold toppost toptime toplogin topexp\
+	topmoney topboard topgold sexcount toplimit\
+	toppersonal #account admin bm_check 
 
 all: 	$(TOOL)
-	$(MAKE) $(TOOL)
-	@for i in $(SUBDIR); do \
-	        cd $$i &&       \
-	       	$(MAKE) all &&  \
-	        cd ..;          \
-	done
+#	$(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
+
 
 install:$(TOOL)
-	install -d $(BBSHOME)/bin/
-	install -c -m 0755 $(TOOL) $(BBSHOME)/bin/
-	@for i in $(SUBDIR); do     \
-	        cd $$i &&           \
-	       	$(MAKE) install &&  \
-	        cd ..;              \
-	done
+	strip $(TOOL)
+	chown bbs.bbs $(TOOL)
+	cp -fp $(TOOL) $(BBSHOME)/bin
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~
-	@for i in $(SUBDIR); do \
-	        cd $$i;         \
-	       	$(MAKE) clean;    \
-	        cd ..;          \
-	done

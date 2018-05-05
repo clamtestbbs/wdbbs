@@ -9,25 +9,31 @@
 OPSYS	!= uname -o
 
 # 需要 compile 的目錄
-# lib WD SO util
+SUBDIR = lib WD util
+
+.if $(OPSYS) != "Cygwin"
+SUBDIR += SO
+.endif
 
 all:
-	@cd lib; $(MAKE) all
-	@cd WD; $(MAKE) all
-.if $(OPSYS) != "Cygwin"
-	@cd SO; $(MAKE) all
-.endif
-	@cd util; $(MAKE) all
+	@for i in $(SUBDIR); do \
+	        cd $$i;         \
+	       	$(MAKE) all;    \
+	        cd ..;          \
+	done
 
 install:
-	@cd WD; $(MAKE) install
-.if $(OPSYS) != "Cygwin"
-	@cd SO; $(MAKE) install
-.endif
-	@cd util; $(MAKE) install
+	@for i in $(SUBDIR); do \
+	        cd $$i;         \
+	       	$(MAKE) install;    \
+	        cd ..;          \
+	done
 
 clean:
-	@cd lib; $(MAKE) clean
-	@cd WD; $(MAKE) clean
-	@cd SO; $(MAKE) clean
-	@cd util; $(MAKE) clean
+	@for i in $(SUBDIR); do \
+	        cd $$i;         \
+	       	$(MAKE) clean;    \
+	        cd ..;          \
+	done
+
+
