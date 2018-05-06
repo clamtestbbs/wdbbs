@@ -401,7 +401,7 @@ outch(c)
   {
 
 #ifdef BIT8
-    if ((c != '') && !isprint2(c))
+    if ((c != '\x1b') && !isprint2(c))
 #else
     if (!isprint(c))
 #endif
@@ -421,7 +421,7 @@ outch(c)
   slp = &big_picture[i];
 
 #ifdef BIT8
-  if ((c != '') && !isprint2(c))
+  if ((c != '\x1b') && !isprint2(c))
 #else
   if (!isprint(c))
 #endif
@@ -546,7 +546,7 @@ outc(ch)
       else
       {
 	mode = NORMAL;
-	outch('');
+	outch('\x1b');
 	if (ch != ']')
   	  outch(ch);
       }
@@ -566,7 +566,7 @@ outc(ch)
 
       if (buf[0])
       {
-	outch('');
+	outch('\x1b');
 	outch('[');
 
 	for (i = 0; p = buf[i]; i++)

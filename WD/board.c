@@ -594,8 +594,8 @@ unread_position(dirfile, ptr)
 static void
 brdlist_foot()
 {
-  prints(COLOR2"  ¿ï¾Ü¬ÝªO  "COLOR1"[1m  [33m(c)[37m·s¤å³¹¼Ò¦¡  [33m(v/V)\
-[37m¼Ð°O¤wÅª/¥¼Åª  [33m(y)[33m¦C¥X%s  [33m(z)[37m¨ú®ø/­q¾\\     [m",
+  prints(COLOR2"  ¿ï¾Ü¬ÝªO  "COLOR1"\x1b[1m  \x1b[33m(c)\x1b[37m·s¤å³¹¼Ò¦¡  \x1b[33m(v/V)\
+\x1b[37m¼Ð°O¤wÅª/¥¼Åª  \x1b[33m(y)\x1b[33m¦C¥X%s  \x1b[33m(z)\x1b[37m¨ú®ø/­q¾\\     \x1b[m",
     yank_flag ? "­q¾\\" : "¥þ³¡");
 }
 /*
@@ -606,7 +606,7 @@ have_author(char* brdname, int n)
    char dirname[96];
    extern cmpfowner();
 
-   sprintf(dirname, "¥¿¦b·j´M§@ªÌ[33m%s[m ¬ÝªO:[1;33m%12s[0m.....[%d/%d]",
+   sprintf(dirname, "¥¿¦b·j´M§@ªÌ\x1b[33m%s\x1b[m ¬ÝªO:\x1b[1;33m%12s\x1b[0m.....[%d/%d]",
            currauthor, brdname, n, numboards);
    move(b_lines, 0);
    clrtoeol();
@@ -628,12 +628,12 @@ show_brdlist(head, clsflag, newflag)
     showtitle("¬ÝªO¦Cªí", tmpbuf);
 #ifdef HYPER_BBS
     prints(HB_BACK"\033[200m\033[444m\033[507m[¡÷]¾\\Åª\033[201m[\033[200m\033[444m\033[504m¡ô\033[201m\033[200m\033[444m\033[505m¡õ\033[201m]¿ï¾Ü[y]¸ü¤J[S]±Æ§Ç[/]·j´M [^Z]¨D§U [\033[200m\033[444m\033[500mPgUp\033[201m/\033[200m\033[444m\033[501mPgDn\033[201m]¤W¤U­¶\n"
-      COLOR1"[1m%-20s Ãþ§OÂà«H%-33s§ë²¼ ªO    ¥D    [m",
+      COLOR1"\x1b[1m%-20s Ãþ§OÂà«H%-33s§ë²¼ ªO    ¥D    \x1b[m",
       newflag ? "Á`¼Æ ¥¼Åª ¬Ý  ªO" : "  ½s¸¹  ¬Ý  ªO", 
       clsflag == 1 ? " ¤¤   ¤å   ±Ô   ­z" : " ¢è²ÎÂà¨pÁô°ÎÀu­Ó ");
 #else
     prints("[¡ö]¤W¤@­¶[¡÷]¾\\Åª¡ô¡õ]¿ï¾Ü[y]¸ü¤J[S]±Æ§Ç[/]·j´M [^Z]¨D§U [PgUp/PgDn]¤W¤U­¶\n"
-      COLOR1"[1m%-20s Ãþ§OÂà«H%-33s§ë²¼ ªO    ¥D    [m",
+      COLOR1"\x1b[1m%-20s Ãþ§OÂà«H%-33s§ë²¼ ªO    ¥D    \x1b[m",
       newflag ? "Á`¼Æ ¥¼Åª ¬Ý  ªO" : "  ½s¸¹  ¬Ý  ªO", 
       clsflag == 1 ? " ¤¤   ¤å   ±Ô   ­z" : " ¢è²ÎÂà¨pÁô°ÎÀu­Ó ");
 #endif
@@ -645,9 +645,9 @@ show_brdlist(head, clsflag, newflag)
   {
     boardstat *ptr;
     int myrow;  /* Ptt add color */
-    static char *color[7]={"[1;36m","[1;34m","[1;33m","[1;32m","[1;35m","[1;36m","[1;37m"};
+    static char *color[7]={"\x1b[1;36m","\x1b[1;34m","\x1b[1;33m","\x1b[1;32m","\x1b[1;35m","\x1b[1;36m","\x1b[1;37m"};
 
-    static char *unread[2]={"  ","[36m¡´"};
+    static char *unread[2]={"  ","\x1b[36m¡´"};
 
     myrow = 2;
     while (++myrow < b_lines-5)
@@ -693,8 +693,8 @@ show_brdlist(head, clsflag, newflag)
                  head,!(ptr->brdattr & BRD_HIDE) ? ' ':
                  (ptr->brdattr & BRD_POSTMASK) ? ')' : '-',
                  ptr->zap ? "--" :
-                 (ptr->brdattr & BRD_GROUPBOARD) ? "[1;34m£U" :
-                 (ptr->brdattr & BRD_CLASS) ? "[1;36m¡¼" :
+                 (ptr->brdattr & BRD_GROUPBOARD) ? "\x1b[1;34m£U" :
+                 (ptr->brdattr & BRD_CLASS) ? "\x1b[1;36m¡¼" :
                  unread[ptr->unread]);
 
         else if (ptr->zap)
@@ -715,13 +715,13 @@ show_brdlist(head, clsflag, newflag)
 
         if(clsflag != 2)
         {
-          prints("%-13s[m%s%5.5s[m%-2.2s %-34.34s%s  %-13.13s[201m",
+          prints("%-13s\x1b[m%s%5.5s\x1b[m%-2.2s %-34.34s%s  %-13.13s\x1b[201m",
             ptr->name,
             color[(unsigned int)(ptr->title[1]+ptr->title[2]+
                    ptr->title[3]+ptr->title[0])%7],
             ptr->title,ptr->title+5,ptr->title+7,
-            (ptr->bvote == 1 ? "[1;33m¦³[m" : 
-             ptr->bvote == 2 ? "[1;37m¶}[m" : "  "),
+            (ptr->bvote == 1 ? "\x1b[1;33m¦³\x1b[m" : 
+             ptr->bvote == 2 ? "\x1b[1;37m¶}\x1b[m" : "  "),
             ptr->BM);
         }
 
@@ -739,13 +739,13 @@ show_brdlist(head, clsflag, newflag)
 	    ptr->brdattr & BRD_GOOD ? "£¾" : "¢æ",
 	    ptr->brdattr & BRD_PERSONAL ? "£¾" : "¢æ");
 
-          prints("%-13s[m%s%5.5s[m%-2.2s %-34.34s%s  %-13.13s[201m",
+          prints("%-13s\x1b[m%s%5.5s\x1b[m%-2.2s %-34.34s%s  %-13.13s\x1b[201m",
             ptr->name,
             color[(unsigned int)(ptr->title[1]+ptr->title[2]+
                    ptr->title[3]+ptr->title[0])%7],
             ptr->title,ptr->title+5,attrbuf,
-            (ptr->bvote == 1 ? "[1;33m¦³[m" : 
-             ptr->bvote == 2 ? "[1;37m¶}[m" : "  "),
+            (ptr->bvote == 1 ? "\x1b[1;33m¦³\x1b[m" : 
+             ptr->bvote == 2 ? "\x1b[1;37m¶}\x1b[m" : "  "),
              ptr->BM);
         }
 
@@ -844,8 +844,8 @@ choose_board(int newflag,usint mode)
     }
     clrchyiuan(b_lines-5,b_lines-1);
     move(b_lines-5,0);
-    prints("[1;36m%s[m\n", msg_seperator);
-    prints(" [1;33m%s [mªOªº¬ÝªO»¡©ú :\n%-80.80s\n%-80.80s\n%-80.80s",
+    prints("\x1b[1;36m%s\x1b[m\n", msg_seperator);
+    prints(" \x1b[1;33m%s \x1b[mªOªº¬ÝªO»¡©ú :\n%-80.80s\n%-80.80s\n%-80.80s",
     nbrd[num].name,nbrd[num].desc[0],nbrd[num].desc[1],nbrd[num].desc[2]);
     {
       int c;

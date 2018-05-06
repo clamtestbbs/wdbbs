@@ -74,7 +74,7 @@ g_showmenu (pm)
   ITEM *item;
 
   showtitle ("ºëµØ¤å³¹", pm->mtitle);
-  prints ("  [1;32m½s¸¹    ¼Ð      ÃD%56s[m", mytype);
+  prints ("  \x1b[1;32m½s¸¹    ¼Ð      ÃD%56s\x1b[m", mytype);
 
   if (pm->num)
     {
@@ -104,14 +104,14 @@ g_showmenu (pm)
 	}
     }
   else
-      outs ("\n  [1;32m¡m[36mºëµØ°Ï[32m¡n[m§l¨ú¤Ñ¦a¤é¤ëºëµØ·í¤¤.... :)");
+      outs ("\n  \x1b[1;32m¡m\x1b[36mºëµØ°Ï\x1b[32m¡n\x1b[m§l¨ú¤Ñ¦a¤é¤ëºëµØ·í¤¤.... :)");
 
   move (b_lines, 0);
   outs (pm->level ?
-	COLOR2 " ¡iªO  ¥D¡j " COLOR1 "[1m [33m(Ctrl+Z)[37m»¡©ú  [33m(q/¡ö)[37mÂ÷¶}  \
-[33m(n)[37m·s¼W¤å³¹  [33m(g)[37m·s¼W¥Ø¿ý  [33m(e)[37m½s¿èÀÉ®×  [m" :
-	COLOR2 " ¡i¥\\¯àÁä¡j " COLOR1 "[1m [33m(Ctrl+Z)[37m»¡©ú  [33m(q/¡ö)[37mÂ÷¶}  \
-[33m(k¡ôj¡õ)[37m²¾°Ê´å¼Ð  [33m(enter/¡÷)[37mÅª¨ú¸ê®Æ  [m");
+	COLOR2 " ¡iªO  ¥D¡j " COLOR1 "\x1b[1m \x1b[33m(Ctrl+Z)\x1b[37m»¡©ú  \x1b[33m(q/¡ö)\x1b[37mÂ÷¶}  \
+\x1b[33m(n)\x1b[37m·s¼W¤å³¹  \x1b[33m(g)\x1b[37m·s¼W¥Ø¿ý  \x1b[33m(e)\x1b[37m½s¿èÀÉ®×  \x1b[m" :
+	COLOR2 " ¡i¥\\¯àÁä¡j " COLOR1 "\x1b[1m \x1b[33m(Ctrl+Z)\x1b[37m»¡©ú  \x1b[33m(q/¡ö)\x1b[37mÂ÷¶}  \
+\x1b[33m(k¡ôj¡õ)\x1b[37m²¾°Ê´å¼Ð  \x1b[33m(enter/¡÷)\x1b[37mÅª¨ú¸ê®Æ  \x1b[m");
 }
 
 /*-------------------------------------------------------*/
@@ -732,8 +732,8 @@ atitle ()
   showtitle ("ºëµØ¤å³¹", a_title);
   outs ("\
 [¡ö]Â÷¶} [¡÷]¾\\Åª [^P]µoªí¤å³¹ [b]³Æ§Ñ¿ý [d]§R°£ [q]ºëµØ°Ï [TAB]¤åºK [^Z]¨D§U\n\
-" COLOR1 "[1m  ½s¸¹   ¤é ´Á  §@  ªÌ       ¤å  ³¹  ¼Ð  ÃD\
-                                  [m");
+" COLOR1 "\x1b[1m  ½s¸¹   ¤é ´Á  §@  ªÌ       ¤å  ³¹  ¼Ð  ÃD\
+                                  \x1b[m");
 }
 
 static int
@@ -747,7 +747,7 @@ a_showmenu (pm)
   time_t dtime;
 
   showtitle ("ºëµØ¤å³¹", pm->mtitle);
-  prints ("   [1;32m½s¸¹    ¼Ð      ÃD%56s[0m", "½s    ¿ï      ¤é    ´Á");
+  prints ("   \x1b[1;32m½s¸¹    ¼Ð      ÃD%56s\x1b[0m", "½s    ¿ï      ¤é    ´Á");
 
   if (pm->num)
     {
@@ -783,15 +783,15 @@ a_showmenu (pm)
     }
   else
     {
-      outs ("\n  [1;32m¡m[33mºëµØ°Ï[32m¡n[mªO¥D¥´²V¤¤¡A©Î¬O¼x¨DªO¥D¤¤");
+      outs ("\n  \x1b[1;32m¡m\x1b[33mºëµØ°Ï\x1b[32m¡n\x1b[mªO¥D¥´²V¤¤¡A©Î¬O¼x¨DªO¥D¤¤");
     }
 
   move (b_lines, 0);
   outs (pm->level ?
-	COLOR2 " ¡iªO  ¥D¡j " COLOR1 "[1m [33m(Ctrl+Z)[37m»¡©ú  [33m(q/¡ö)[37mÂ÷¶}  \
-[33m(n)[37m·s¼W¤å³¹  [33m(g)[37m·s¼W¥Ø¿ý  [33m(e)[37m½s¿èÀÉ®×  [m" :
-	COLOR2 " ¡i¥\\¯àÁä¡j " COLOR1 "[1m [33m(Ctrl+Z)[37m»¡©ú  [34m(q/¡ö)[37mÂ÷¶}  \
-[33m(k¡ôj¡õ)[37m²¾°Ê´å¼Ð  [33m(enter/¡÷)[37mÅª¨ú¸ê®Æ  [m");
+	COLOR2 " ¡iªO  ¥D¡j " COLOR1 "\x1b[1m \x1b[33m(Ctrl+Z)\x1b[37m»¡©ú  \x1b[33m(q/¡ö)\x1b[37mÂ÷¶}  \
+\x1b[33m(n)\x1b[37m·s¼W¤å³¹  \x1b[33m(g)\x1b[37m·s¼W¥Ø¿ý  \x1b[33m(e)\x1b[37m½s¿èÀÉ®×  \x1b[m" :
+	COLOR2 " ¡i¥\\¯àÁä¡j " COLOR1 "\x1b[1m \x1b[33m(Ctrl+Z)\x1b[37m»¡©ú  \x1b[34m(q/¡ö)\x1b[37mÂ÷¶}  \
+\x1b[33m(k¡ôj¡õ)\x1b[37m²¾°Ê´å¼Ð  \x1b[33m(enter/¡÷)\x1b[37mÅª¨ú¸ê®Æ  \x1b[m");
 }
 
 /* ===== Added by mgtsai, Sep 10th, '96 ===== */

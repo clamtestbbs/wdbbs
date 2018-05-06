@@ -12,7 +12,7 @@
 
 struct word *toplev = NULL;
 static struct word *current = NULL;
-static char *msg_more = "[7m-- More --[0m";
+static char *msg_more = "\x1b[7m-- More --\x1b[0m";
 
 
 static void

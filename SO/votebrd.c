@@ -191,7 +191,7 @@ do_voteboardreply(fileheader *fhdr)
    if (opnion[0] == 'y')
    {
       fprintf(fo, "%3d.%-15sE-Mail: %-50s\n", i, cuser.userid, cuser.email);
-      fprintf(fo, "    [1;37;40m%s[m\n", reason);
+      fprintf(fo, "    \x1b[1;37;40m%s\x1b[m\n", reason);
    }
    i = 0;
    fprintf(fo, "%s", genbuf);
@@ -225,7 +225,7 @@ do_voteboardreply(fileheader *fhdr)
    if (opnion[0] == 'n')
    {
       fprintf(fo, "%3d.%-15sE-Mail: %-50s\n", i, cuser.userid, cuser.email);
-      fprintf(fo, "    [1;37;40m%s[m\n", reason);
+      fprintf(fo, "    \x1b[1;37;40m%s\x1b[m\n", reason);
    }
       
    flock(fd, LOCK_UN);

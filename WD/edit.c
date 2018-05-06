@@ -48,12 +48,12 @@ int star_special_num=16;
 
 char fp_bak[] = "bak";
 char *star_key[2]={
-COLOR1"[1m ²Å¸¹   A.¼ÐÂI  B.¼Ð½u  C.¼Æ¾Ç  D.³æ¦ì  E.ª`­µ1 F.ª`­µ2 G.­^¤ås H.­^¤ål[m",
-COLOR1"[1m         A B C D E F G H I J K L M N O P Q R S T U V X W Y Z 1 2 3 4 5 6 7 [m"
+COLOR1"\x1b[1m ²Å¸¹   A.¼ÐÂI  B.¼Ð½u  C.¼Æ¾Ç  D.³æ¦ì  E.ª`­µ1 F.ª`­µ2 G.­^¤ås H.­^¤ål\x1b[m",
+COLOR1"\x1b[1m         A B C D E F G H I J K L M N O P Q R S T U V X W Y Z 1 2 3 4 5 6 7 \x1b[m"
 };
 
 char *star_msg[17] ={
-COLOR1"[1m ¿ï³æ   I.§ÆÃ¾s J.§ÆÃ¾l K.¼Æ¦r  L.¹Ï¶ô  M.½bÀY  N.¬A©·  O.¼Ð°O  P.ªí®æ   [m",
+COLOR1"\x1b[1m ¿ï³æ   I.§ÆÃ¾s J.§ÆÃ¾l K.¼Æ¦r  L.¹Ï¶ô  M.½bÀY  N.¬A©·  O.¼Ð°O  P.ªí®æ   \x1b[m",
 " [¼ÐÂI ] ¡A¡F¡G¡B¡N¡C¡H¡I¡E¡T¡]¡^¡u¡v¡y¡z¡¥¡¦¡§¡¨¡©¡ª¡«¡¬                ",
 " [¼Ð½u ] ¡K¡L¡Æ¡È¡Ë¡\\¡[¡@¡Ä¡X¡ü¡ý¢y¡þ¢@¢®¢¬¢­¢A¢B                       ",
 " [¼Æ¾Ç ] ¡Ï¡Ð¡Ñ¡Ò¡Ô¡Ó¡×¡Ý¡Ú¡Ü¡Ø¡Ù¡Õ¡Ö¡î¡ï¡Û¡ã¡ä¡å¡ì¡í¡®¡æ¡ç¡è¡é¡Þ¡ß¡à¡á¡â",
@@ -94,7 +94,7 @@ int star_ime(int key,char *ans1,char *ans2)
     for(i=1;i<star_special_num;i++)
     {
       move(i+2,0);
-      prints("%s[0m",star_msg[i]);
+      prints("%s\x1b[0m",star_msg[i]);
     }
     pressanykey("¬PªÅ¤§µ¹§Ú©ñ¦ÛµM¤@ÂI¿é¤Jªk¤@Äýªí");
     vs_restore(screen);
@@ -295,8 +295,8 @@ edit_msg(void)
   n++;
   move(b_lines, 0);
   clrtoeol();
-  prints(COLOR2" ½s¿è¤å³¹ [1m"COLOR1" [33m(Ctrl-Z)[37m»²§U»¡©ú \
-[33m(^G)[37m´¡¤J¹Ï¤å®w [33m(^X,^Q) [37mÂ÷¶}ùø%s¢x%c%c%c%cùø %3d:%3d  [m",
+  prints(COLOR2" ½s¿è¤å³¹ \x1b[1m"COLOR1" \x1b[33m(Ctrl-Z)\x1b[37m»²§U»¡©ú \
+\x1b[33m(^G)\x1b[37m´¡¤J¹Ï¤å®w \x1b[33m(^X,^Q) \x1b[37mÂ÷¶}ùø%s¢x%c%c%c%cùø %3d:%3d  \x1b[m",
     edit_mode[insert_character],
     my_ansimode ? 'A' : 'a', indent_mode ? 'I' : 'i',
     phone_mode ? 'P' : 'p', raw_mode ? 'R' : 'r',
@@ -672,7 +672,7 @@ insert_string(str)
   {
 
 #ifdef BIT8
-    if (isprint2(ch) || ch == '')
+    if (isprint2(ch) || ch == '\x1b')
 #else
     if (isprint(ch))
 #endif
@@ -1081,7 +1081,7 @@ check_quote()
 
     outs("\
         ¥»½g¤å³¹ªº¤Þ¨¥¤ñ¨Ò¶W¹L 80%¡A½Ð±z°µ¨Ç·Lªº­×¥¿¡G\n\n\
-         [1;33m1) ¼W¥[¤@¨Ç¤å³¹ ©Î  2) §R°£¤£¥²­n¤§¤Þ¨¥[0m");
+         \x1b[1;33m1) ¼W¥[¤@¨Ç¤å³¹ ©Î  2) §R°£¤£¥²­n¤§¤Þ¨¥\x1b[0m");
 
     if (1/*HAS_PERM(PERM_SYSOP)*/) /* Kaede */
     {
@@ -1232,7 +1232,7 @@ showsignature(fname)
     fname[j] = ch;
     if (fp = fopen(fname, "r"))
     {
-      prints("[36m¡i Ã±¦WÀÉ.%c ¡j[m\n", ch);
+      prints("\x1b[36m¡i Ã±¦WÀÉ.%c ¡j\x1b[m\n", ch);
       for (i = 0; i++ < MAXSIGLINES && fgets(buf, 512, fp); outs(buf));
       fclose(fp);
     }
@@ -1257,7 +1257,7 @@ addsignature(fp)
   extern bad_user(char* name);
 
   if (!strcmp(cuser.userid, "guest") || bad_user(cuser.userid)) {
-     fprintf(fp, "\n--\n[1;36m¡°Post by [37m%-13s [36mfrom [33m%-24.24s[m",cuser.userid, getenv("RFC931"));
+     fprintf(fp, "\n--\n\x1b[1;36m¡°Post by \x1b[37m%-13s \x1b[36mfrom \x1b[33m%-24.24s\x1b[m",cuser.userid, getenv("RFC931"));
      return;
   }
 
@@ -1296,16 +1296,16 @@ addsignature(fp)
 #ifdef  HAVE_ORIGIN
 #ifdef  HAVE_ANONYMOUS
   if (currbrdattr & BRD_ANONYMOUS && strcmp(real_name,"r"))
-    fprintf(fp, "\n--\n[1;36m ²q²q§Ú¬O½Ö¡I\n");
+    fprintf(fp, "\n--\n\x1b[1;36m ²q²q§Ú¬O½Ö¡I\n");
   else {
     char temp[25];
     strncpy (temp,fromhost,24);
     temp[25]='\0';
-    fprintf(fp, "\n--\n[1;36m¡°Post by [37m%-13s [36mfrom [33m%-24.24s[m\n",cuser.userid,temp);
+    fprintf(fp, "\n--\n\x1b[1;36m¡°Post by \x1b[37m%-13s \x1b[36mfrom \x1b[33m%-24.24s\x1b[m\n",cuser.userid,temp);
   }
 #else
   strncpy (temp,fromhost,24);
-    fprintf(fp, "\n--\n[1;36m¡°Post by [37m%-13s [36mfrom [33m%-24.24s[m\n",cuser.userid,temp);
+    fprintf(fp, "\n--\n\x1b[1;36m¡°Post by \x1b[37m%-13s \x1b[36mfrom \x1b[33m%-24.24s\x1b[m\n",cuser.userid,temp);
 #endif
 #endif
 }
@@ -1334,7 +1334,7 @@ write_file(fpath, saveheader)
   {
     case 'a':
     case 'A':
-      outs("¤å³¹[1m ¨S¦³ [0m¦s¤J");
+      outs("¤å³¹\x1b[1m ¨S¦³ \x1b[0m¦s¤J");
       sleep(1);
       aborted = -1;
       break;
@@ -1497,7 +1497,7 @@ woju
            ||
                  currln  <= (currln - curr_window_line + i)
               &&            (currln - curr_window_line + i) <= blockln)) {
-       outs("[7m");
+       outs("\x1b[7m");
        inblock = 1;
     }
     else
@@ -1506,37 +1506,37 @@ woju
     {
       if (my_ansimode)
          if (currln == blockln && p == currline && max > min) {
-             outs("[0m");
+             outs("\x1b[0m");
              strncpy(buf, p->data, min);
              buf[min] = 0;
              outs(buf);
-             outs("[7m");
+             outs("\x1b[7m");
              strncpy(buf, p->data + min, max - min);
              buf[max - min] = 0;
              outs(buf);
-             outs("[0m");
+             outs("\x1b[0m");
              outs(p->data + max);
          }
          else
             outs(p->data);
       else
          if (currln == blockln && p == currline && max > min) {
-             outs("[0m");
+             outs("\x1b[0m");
              strncpy(buf, p->data, min);
              buf[min] = 0;
              edit_outs(buf);
-             outs("[7m");
+             outs("\x1b[7m");
              strncpy(buf, p->data + min, max - min);
              buf[max - min] = 0;
              edit_outs(buf);
-             outs("[0m");
+             outs("\x1b[0m");
              edit_outs(p->data + max);
          }
          else
             edit_outs(&p->data[edit_margin]);
       p = p->next;
       if (inblock)
-         outs("[0m");
+         outs("\x1b[0m");
     }
     else
       outch('~');
@@ -2481,7 +2481,7 @@ woju
          search_str(0);
          break;
       case Ctrl('U'):
-        insert_char('');
+        insert_char('\x1b');
         line_dirty = 1;
         break;
 

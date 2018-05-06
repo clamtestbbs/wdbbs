@@ -168,7 +168,7 @@ chat_recv(fd, chatid)
         move(0, 0);
         clrtoeol();
         sprintf(genbuf, "½Í¤Ñ«Ç [%s]", chatroom);
-        prints("[1;46m %-21s [44m ¸ÜÃD¡G%-48s[0m", genbuf, bptr + 2);
+        prints("\x1b[1;46m %-21s \x1b[44m ¸ÜÃD¡G%-48s\x1b[0m", genbuf, bptr + 2);
       }
     }
     else
@@ -205,13 +205,13 @@ select_address()
   char iptab[25][18] , buf[80];
   move(1,0);
   clrtobot();
-  outs("\n          [1;36m¡i§ä­Ó¦a¤è©ï©ïºb§a!¡j[0m ¡·  ¡i¥H¤U¬°¥»¯¸µn°O¦³®×ªº¯ù¼Ó¡j          \n");
+  outs("\n          \x1b[1;36m¡i§ä­Ó¦a¤è©ï©ïºb§a!¡j\x1b[0m ¡·  ¡i¥H¤U¬°¥»¯¸µn°O¦³®×ªº¯ù¼Ó¡j          \n");
   trans_buffer[0]=0;
   if (fp = fopen("etc/teashop", "r"))
   {
      for (c=0;fscanf(fp,"%s%s",iptab[c],nametab[c])!=EOF;c++)
           {
-            sprintf(buf,"\n            ([36m%d[0m) %-30s     %s",c+1,nametab[c],iptab[c]);
+            sprintf(buf,"\n            (\x1b[36m%d\x1b[0m) %-30s     %s",c+1,nametab[c],iptab[c]);
             outs(buf);
           }
      getdata(20 , 10, "¡¹ ½Ð¿ï¾Ü¡A[0]Â÷¶}¡G", buf, 3,
@@ -531,7 +531,7 @@ woju
         mymail.savemode = 'H';        /* hold-mail flag */
         mymail.filemode = FILE_READ;
         strcpy(mymail.owner, "[³Æ.§Ñ.¿ý]");
-        strcpy(mymail.title, "·|Ä³[1;33m°O¿ý[m");
+        strcpy(mymail.title, "·|Ä³\x1b[1;33m°O¿ý\x1b[m");
         sethomedir(title, cuser.userid);
         rec_add(title, &mymail, sizeof(mymail));
         f_mv(fpath, genbuf);

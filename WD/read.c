@@ -10,7 +10,7 @@
 
 #include <sys/mman.h>
 #define MSG_POSTER      \
-COLOR2"  ¤å³¹¿ïÅª  "COLOR1"[1m (y)[37m¦^«H [33m(=[]<>)[37m¬ÛÃö¥DÃD [33m(/?)[37m·j´M¼ÐÃD [33m(aA)[37m·j´M§@ªÌ [33m(x)[37mÂà¿ý [33m(V)[37m§ë²¼ [0m"
+COLOR2"  ¤å³¹¿ïÅª  "COLOR1"\x1b[1m (y)\x1b[37m¦^«H \x1b[33m(=[]<>)\x1b[37m¬ÛÃö¥DÃD \x1b[33m(/?)\x1b[37m·j´M¼ÐÃD \x1b[33m(aA)\x1b[37m·j´M§@ªÌ \x1b[33m(x)\x1b[37mÂà¿ý \x1b[33m(V)\x1b[37m§ë²¼ \x1b[0m"
 
 struct keeploc
 {

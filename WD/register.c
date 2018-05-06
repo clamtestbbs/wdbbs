@@ -365,7 +365,7 @@ check_register()
     move(t_lines - 4, 0);
     prints("\
 ¡° ¬°¤F±zªºÅv¯q¡A½Ð¶ñ¼g¯u¹êªº E-mail address¡A ¥H¸ê½T»{»Õ¤U¨­¥÷¡A\n\
-   ®æ¦¡¬° [44muser@domain_name[0m ©Î [44muser@\\[ip_number\\][0m¡C\n\n\
+   ®æ¦¡¬° \x1b[44muser@domain_name\x1b[0m ©Î \x1b[44muser@\\[ip_number\\]\x1b[0m¡C\n\n\
 ¡° ¦pªG±z¯uªº¨S¦³ E-mail¡A½Ðª½±µ«ö [return] §Y¥i¡C");
 
     do

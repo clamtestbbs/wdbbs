@@ -31,7 +31,7 @@ counter(filename,modes,n)
     fclose(fp);
   }
 
-  prints("[1;46m ¢i  [33m±z¬O%s²Ä[37m %-10ld [33m¦ì %s ªº¨Ï¥ÎªÌ                         [0;36m¢o¢n¢m¢l[m",
+  prints("\x1b[1;46m ¢i  \x1b[33m±z¬O%s²Ä\x1b[37m %-10ld \x1b[33m¦ì %s ªº¨Ï¥ÎªÌ                         \x1b[0;36m¢o¢n¢m¢l\x1b[m",
   n ? "¤µ¤Ñ" : "    ",++visited,modes);
   unlink(filename);
 

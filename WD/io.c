@@ -81,7 +81,7 @@ hit_alarm_clock()
   stay_time += MOVIE_INT;
 
   if(idle_time > IDLE_TIMEOUT - 60) 
-    sprintf(buf, "[1;5;37;41mÄµ§i¡G±z¤w¶¢¸m¹L¤[¡A­YµL¦^À³¡A¨t²Î§Y±N¤ÁÂ÷¡I¡I[m");
+    sprintf(buf, "\x1b[1;5;37;41mÄµ§i¡G±z¤w¶¢¸m¹L¤[¡A­YµL¦^À³¡A¨t²Î§Y±N¤ÁÂ÷¡I¡I\x1b[m");
   else if(stay_time > 10 * 60 && chkmail(0)) 
   {
     sprintf(buf, "\033[1;33;41m[%s] «H½cùØÁÙ¦³¨S¬Ý¹Lªº«H­ò\033[m",
@@ -104,7 +104,7 @@ hit_alarm_clock()
     "¡E®Ñ¦b¤ß¤¤®ð¦Û¬Ó¡EÅª®Ñ¥h¡E"};
     int i = rand() % 10;
 
-    sprintf(buf, "[1;33;41m[%s] %s[m", Etime(&now), msg[i]);
+    sprintf(buf, "\x1b[1;33;41m[%s] %s\x1b[m", Etime(&now), msg[i]);
     stay_time = 0 ;
   }
 

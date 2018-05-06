@@ -12,7 +12,7 @@
 extern int cmpfmode();
 
 char currmaildir[32];
-/* static */ char msg_cc[] = "[32m[¸s²Õ¦W³æ][0m\n";
+/* static */ char msg_cc[] = "\x1b[32m[¸s²Õ¦W³æ]\x1b[0m\n";
 static char listfile[] = "list.0";
 static int mailkeep=0, mailsum=0;
 static int mailsumlimit=0,mailmaxkeep=0;
@@ -619,12 +619,12 @@ mail_all()
    stand_title("µ¹©Ò¦³¨Ï¥ÎªÌªº¨t²Î³q§i");
    setutmpmode(SMAIL);
    getdata(2, 0, "¥DÃD¡G", fpath, 64, DOECHO,0);
-   sprintf(save_title, "[¨t²Î³q§i][1;32m %s[m", fpath);
+   sprintf(save_title, "[¨t²Î³q§i]\x1b[1;32m %s\x1b[m", fpath);
 
    setuserfile(fpath, fn_notes);
 
    if (fp = fopen(fpath, "w")) {
-      fprintf(fp, "¡° [[1m¨t²Î³q§i[m] ³o¬O«Êµ¹©Ò¦³¨Ï¥ÎªÌªº«H\n");
+      fprintf(fp, "¡° [\x1b[1m¨t²Î³q§i\x1b[m] ³o¬O«Êµ¹©Ò¦³¨Ï¥ÎªÌªº«H\n");
       fprintf(fp, "---------------------------------------------------------------------------\n");
       fclose(fp);
     }
@@ -876,19 +876,19 @@ mailtitle()
   showtitle("\0¶l¥ó¿ï³æ", tmpbuf);
 #ifdef HYPER_BBS
   outs(HB_BACK"\
- [¡ô,¡õ]¿ï¾Ü \033[200m\033[444m\033[507m[¡÷,r]¾\\Åª«H¥ó\033[201m [R]¦^«H [x]Âà¹F [y]¸s²Õ¦^«H [^Z]¨D§U\n[1m\
+ [¡ô,¡õ]¿ï¾Ü \033[200m\033[444m\033[507m[¡÷,r]¾\\Åª«H¥ó\033[201m [R]¦^«H [x]Âà¹F [y]¸s²Õ¦^«H [^Z]¨D§U\n\x1b[1m\
 "COLOR1" ½s¸¹   ¤é ´Á  §@ ªÌ          «H  ¥ó  ¼Ð  ÃD ");
 #else
   outs("\
-[¡ö]Â÷¶} [¡ô,¡õ]¿ï¾Ü [¡÷,r]¾\\Åª«H¥ó [R]¦^«H [x]Âà¹F [y]¸s²Õ¦^«H [^Z]¨D§U\n[1m\
+[¡ö]Â÷¶} [¡ô,¡õ]¿ï¾Ü [¡÷,r]¾\\Åª«H¥ó [R]¦^«H [x]Âà¹F [y]¸s²Õ¦^«H [^Z]¨D§U\n\x1b[1m\
 "COLOR1" ½s¸¹   ¤é ´Á  §@ ªÌ          «H  ¥ó  ¼Ð  ÃD ");
 #endif
   if(mailsumlimit)
   {
-    sprintf(buf,"[32m(®e¶q:%d/%dk %d/%d½g)",mailsum, mailsumlimit
+    sprintf(buf,"\x1b[32m(®e¶q:%d/%dk %d/%d½g)",mailsum, mailsumlimit
                     ,mailkeep,mailmaxkeep);
   }
-  sprintf(buf,"%s%*s[m",buf,34-strlen(buf),"");
+  sprintf(buf,"%s%*s\x1b[m",buf,34-strlen(buf),"");
   outs(buf);
 }
 

@@ -281,18 +281,18 @@ pressanykey(char *fmt, ...)
   {
     move(b_lines, 0); clrtoeol();
 #ifdef HYPER_BBS
-    prints(COLOR1"[200m[300m[302m[445m[1m¡¹ [37m%-54s  "COLOR2"[ªÅ¥Õ]©Î ESC_c¼È¦s [m[201m", msg);
+    prints(COLOR1"\x1b[200m\x1b[300m\x1b[302m\x1b[445m\x1b[1m¡¹ \x1b[37m%-54s  "COLOR2"[ªÅ¥Õ]©Î ESC_c¼È¦s \x1b[m\x1b[201m", msg);
 #else
-    prints(COLOR1"[1m¡¹ [37m%-54s  "COLOR2"[ªÅ¥Õ]©Î ESC_c¼È¦s [m", msg);
+    prints(COLOR1"\x1b[1m¡¹ \x1b[37m%-54s  "COLOR2"[ªÅ¥Õ]©Î ESC_c¼È¦s \x1b[m", msg);
 #endif
   }
   else
 #ifdef HYPER_BBS
-    outmsg(COLOR1"[200m[300m[302m[445m[1m                        ¡¹ ½Ð«ö [37m(Space/Return)"
-    COLOR1" Ä~Äò ¡¹                         [m[201m");
+    outmsg(COLOR1"\x1b[200m\x1b[300m\x1b[302m\x1b[445m\x1b[1m                        ¡¹ ½Ð«ö \x1b[37m(Space/Return)"
+    COLOR1" Ä~Äò ¡¹                         \x1b[m\x1b[201m");
 #else
-    outmsg(COLOR1"[1m                        ¡¹ ½Ð«ö [37m(Space/Return)"
-    COLOR1" Ä~Äò ¡¹                         [m");
+    outmsg(COLOR1"\x1b[1m                        ¡¹ ½Ð«ö \x1b[37m(Space/Return)"
+    COLOR1" Ä~Äò ¡¹                         \x1b[m");
 #endif
   do
   {
@@ -329,7 +329,7 @@ search_num(ch, max)
   extern unsigned char scr_cols;
   char genbuf[10];
 
-  outmsg("[7m ¸õ¦Ü²Ä´X¶µ¡G[0m");
+  outmsg("\x1b[7m ¸õ¦Ü²Ä´X¶µ¡G\x1b[0m");
   outc(ch);
   genbuf[0] = ch;
   getyx(&y, &x);
@@ -385,7 +385,7 @@ stand_title(title)
   char *title;
 {
   clear();
-  prints(COLOR1"[1m¡i %s ¡j[m\n", title);
+  prints(COLOR1"\x1b[1m¡i %s ¡j\x1b[m\n", title);
 }
 
 
@@ -712,7 +712,7 @@ Security (x, y, sysopid, userid)
 	      sprintf (genbuf, "®É¶¡: %s\n", ctime (&now));
 	      fputs (genbuf, fp);
 	    }
-	  sprintf (genbuf, "   ¯¸ªø[1;32m%s%s%s%s[mªºÅv­­\n", sysopid, (((x >> i) & 1) ? "[1;33mÃö³¬" : "[1;33m¶}±Ò"), userid, permstrings[i]);
+	  sprintf (genbuf, "   ¯¸ªø\x1b[1;32m%s%s%s%s\x1b[mªºÅv­­\n", sysopid, (((x >> i) & 1) ? "\x1b[1;33mÃö³¬" : "\x1b[1;33m¶}±Ò"), userid, permstrings[i]);
 	  fputs (genbuf, fp);
 	  flag++;
 	}
@@ -724,7 +724,7 @@ Security (x, y, sysopid, userid)
       while (!getdata (5, 0
 		       ,"½Ð¿é¤J²z¥Ñ¥H¥Ü­t³d¡G", reason, 60, DOECHO
 		       ,"¬Ýª©ª©¥D:"));
-      sprintf (genbuf, "\n   [1;37m¯¸ªø%s­×§ïÅv­­²z¥Ñ¬O¡G%s[m", cuser.userid, reason);
+      sprintf (genbuf, "\n   \x1b[1;37m¯¸ªø%s­×§ïÅv­­²z¥Ñ¬O¡G%s\x1b[m", cuser.userid, reason);
       fputs (genbuf, fp);
       fclose (fp);
       sprintf (genbuf, "boards/%s", "Security");
@@ -770,10 +770,10 @@ show_hint_message()
         clrtobot();
         fgets(msg, 135, hintp);
         log_usies("HINT",NULL);
-        prints("[1;36m­·§j¨Óªº®ø®§¡G [1;31m±zª¾¹D¶Ü¡H[40;0m\n");
-        prints("                   %s[0m", msg);
+        prints("\x1b[1;36m­·§j¨Óªº®ø®§¡G \x1b[1;31m±zª¾¹D¶Ü¡H\x1b[40;0m\n");
+        prints("                   %s\x1b[0m", msg);
         fgets(msg, 135, hintp);
-        prints("                   %s[0m", msg);
+        prints("                   %s\x1b[0m", msg);
         pressanykey(NULL);
         fclose(hintp);
 }

@@ -842,7 +842,7 @@ scan_register_form (regfile)
 	  prints ("±b¸¹¦ì¸m    ¡G%d\n", unum);
 	  user_display (&muser, 1);
 	  move (13, 0);
-	  prints ("[1;32m---- ½Ð¯¸ªøÄY®æ¼f®Ö¨Ï¥ÎªÌ¸ê®Æ - ³o¬O¸Ó User ²Ä %d ¦¸µù¥U ---[m\n", muser.rtimes);
+	  prints ("\x1b[1;32m---- ½Ð¯¸ªøÄY®æ¼f®Ö¨Ï¥ÎªÌ¸ê®Æ - ³o¬O¸Ó User ²Ä %d ¦¸µù¥U ---\x1b[m\n", muser.rtimes);
 	  for (n = 0; field[n]; n++)
 	    prints ("%-12s¡G%s\n", finfo[n], fdata[n]);
 	  if (muser.userlevel & PERM_LOGINOK)
@@ -1040,7 +1040,7 @@ search_bad_id()
     if(bad_user_id(user.userid))
     {
       uinfo_query(&user, 1, coun);
-      outs("[44m               ¥ô¤@Áä[37m:·j´M¤U¤@­Ó          [33m Q[37m: Â÷¶}                         [m");
+      outs("\x1b[44m               ¥ô¤@Áä\x1b[37m:·j´M¤U¤@­Ó          \x1b[33m Q\x1b[37m: Â÷¶}                         \x1b[m");
       ch=igetch();
       if(ch=='q' || ch =='Q') return 0;
       clear();
@@ -1088,7 +1088,7 @@ search_key_user ()
 	{
 	  uinfo_query (&user, 1, coun);
 	  outs (
-"[1;44;33m       ¥ô¤@Áä[37m:·j´M¤U¤@­Ó          [33m Q[37m: Â÷¶}                        [m ");
+"\x1b[1;44;33m       ¥ô¤@Áä\x1b[37m:·j´M¤U¤@­Ó          \x1b[33m Q\x1b[37m: Â÷¶}                        \x1b[m ");
 	  ch = igetch ();
 	  if (ch == 'q' || ch == 'Q')
 	    return 0;
