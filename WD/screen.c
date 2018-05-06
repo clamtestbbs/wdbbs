@@ -534,7 +534,7 @@ outc(ch)
     switch (mode)
     {
     case NORMAL:
-      if (ch == '\033')
+      if (ch == '\x1b')
 	mode = ESCAPE;
       else
 	outch(ch);

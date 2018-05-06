@@ -2329,7 +2329,7 @@ woju
     if (--total)
       read(fd, (char *) &myitem, sizeof(myitem));
   }
-  fputs("  \033[1;34;46m¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\033[m", fp);
+  fputs("  \x1b[1;34;46m¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\x1b[m", fp);
   fclose(fp);
   close(fd);
   close(fx);

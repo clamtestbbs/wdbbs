@@ -876,7 +876,7 @@ mailtitle()
   showtitle("\0郵件選單", tmpbuf);
 #ifdef HYPER_BBS
   outs(HB_BACK"\
- [↑,↓]選擇 \033[200m\033[444m\033[507m[→,r]閱\讀信件\033[201m [R]回信 [x]轉達 [y]群組回信 [^Z]求助\n\x1b[1m\
+ [↑,↓]選擇 \x1b[200m\x1b[444m\x1b[507m[→,r]閱\讀信件\x1b[201m [R]回信 [x]轉達 [y]群組回信 [^Z]求助\n\x1b[1m\
 "COLOR1" 編號   日 期  作 者          信  件  標  題 ");
 #else
   outs("\

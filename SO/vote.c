@@ -94,7 +94,7 @@ b_closepolls()
       lseek(fd, (off_t) sizeof(fh) * (getbnum(fh.brdname) - 1), SEEK_SET);
       if (write(fd, &fh, sizeof(fh)) != sizeof(fh))
       {
-        sprintf(currmsg, "\033[1;5;37;41mWarning!\033[m");
+        sprintf(currmsg, "\x1b[1;5;37;41mWarning!\x1b[m");
         kill(currpid, SIGUSR2);
         igetch();
         break;
@@ -503,11 +503,11 @@ do_vote(ent, fhdr, direct)
     count = 0;
     
     if (fhdr->filemode & VOTE_SCORE)
-      prints("\033[1;32m計分方式：確定好您的選擇後，輸入其代碼(1, 2, 3...)即可給分數。\033[0m\n"
-      "\033[1;37;44m 分數的範圍為 1~10 分 , 按 [F] 結束投票 \033[0m。");
+      prints("\x1b[1;32m計分方式：確定好您的選擇後，輸入其代碼(1, 2, 3...)即可給分數。\x1b[0m\n"
+      "\x1b[1;37;44m 分數的範圍為 1~10 分 , 按 [F] 結束投票 \x1b[0m。");
     else
-      prints("\033[1;32m計票方式：確定好您的選擇後，輸入其代碼(1, 2, 3...)即可。\033[0m\n"
-      "\033[1;37;44m 按 [F] 結束投票 \033[0m，此次投票你可以投 %1d 票。", 
+      prints("\x1b[1;32m計票方式：確定好您的選擇後，輸入其代碼(1, 2, 3...)即可。\x1b[0m\n"
+      "\x1b[1;37;44m 按 [F] 結束投票 \x1b[0m，此次投票你可以投 %1d 票。", 
       fhdr->savemode);
 
     while (fgets(inbuf, sizeof(inbuf), fp))
@@ -1042,7 +1042,7 @@ votetitle()
   showtitle("投票所", BoardName);
   outs("\
 [←]離開 [→/ENTER]開始投票 板主專用鍵: [^P]舉辦一次投票 [M]取消投票/提早開票\n\
-" COLOR1 "\033[1m編號   開始日期   結束日期   投  票  主  題                                   \033[0m");
+" COLOR1 "\x1b[1m編號   開始日期   結束日期   投  票  主  題                                   \x1b[0m");
 }
 
 

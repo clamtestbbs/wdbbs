@@ -2292,14 +2292,14 @@ woju
         {
           char ans[4];
           move(b_lines - 2, 55);
-          outs("\033[1;33;40mB\033[41mR\033[42mG\033[43mY\033[44mL\033[45mP\033[46mC\033[47mW\033[m");
+          outs("\x1b[1;33;40mB\x1b[41mR\x1b[42mG\x1b[43mY\x1b[44mL\x1b[45mP\x1b[46mC\x1b[47mW\x1b[m");
           if (getdata(b_lines - 1, 0, "請輸入  亮度/前景/背景[正常白字黑底][0wb]：", ans, 4, LCECHO,0))
           {
             char t[] = "BRGYLPCW";
             char color[15];
             char *tmp, *apos = ans;
             int fg, bg;
-            strcpy(color, "\033[");
+            strcpy(color, "\x1b[");
             if (isdigit(*apos))
             {
               sprintf(color, "%s%c", color, *(apos++));

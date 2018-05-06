@@ -501,11 +501,11 @@ u_editfile()
       setuserfile(buf, "sig.0");
       buf[strlen(buf) - 1] = ans;
       move(3, 0);
-      prints("      \x1b[1;33m°¥¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w\x1b[42m   √±¶W¿… %c   \x1b[40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w°¥\033[m", ans);
+      prints("      \x1b[1;33m°¥¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w\x1b[42m   √±¶W¿… %c   \x1b[40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w°¥\x1b[m", ans);
 //    clear();
       show_file(buf, 4, MAXSIGLINES, ONLY_COLOR);
       move(4 + MAXSIGLINES, 0);
-      prints("      \x1b[1;33m°¥¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w°¥\033[m", ans);
+      prints("      \x1b[1;33m°¥¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w°¥\x1b[m", ans);
       mode = EDITSIG;
       strcpy(msg2, "√±¶W¿…");
       break;

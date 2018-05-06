@@ -84,7 +84,7 @@ hit_alarm_clock()
     sprintf(buf, "\x1b[1;5;37;41m警告：您已閒置過久，若無回應，系統即將切離！！\x1b[m");
   else if(stay_time > 10 * 60 && chkmail(0)) 
   {
-    sprintf(buf, "\033[1;33;41m[%s] 信箱裏還有沒看過的信唷\033[m",
+    sprintf(buf, "\x1b[1;33;41m[%s] 信箱裏還有沒看過的信唷\x1b[m",
       Etime(&now));
     stay_time = 0 ;
   }

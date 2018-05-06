@@ -24,27 +24,27 @@ Ptt_prints(char* str,int mode)
 {
   char *po , *px, strbuf[512];
 
-  while (po = strstr(str, "\033[12"))
+  while (po = strstr(str, "\x1b[12"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033[10"))
+  while (po = strstr(str, "\x1b[10"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033n"))
+  while (po = strstr(str, "\x1bn"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033]"))
+  while (po = strstr(str, "\x1b]"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033[="))
+  while (po = strstr(str, "\x1b[="))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033*"))
+  while (po = strstr(str, "\x1b*"))
   {
     switch(*(po+2))
     {

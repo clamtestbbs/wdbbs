@@ -627,7 +627,7 @@ show_brdlist(head, clsflag, newflag)
     sprintf(tmpbuf,"%s [線上 %d 人]",BOARDNAME,count_ulist());
     showtitle("看板列表", tmpbuf);
 #ifdef HYPER_BBS
-    prints(HB_BACK"\033[200m\033[444m\033[507m[→]閱\讀\033[201m[\033[200m\033[444m\033[504m↑\033[201m\033[200m\033[444m\033[505m↓\033[201m]選擇[y]載入[S]排序[/]搜尋 [^Z]求助 [\033[200m\033[444m\033[500mPgUp\033[201m/\033[200m\033[444m\033[501mPgDn\033[201m]上下頁\n"
+    prints(HB_BACK"\x1b[200m\x1b[444m\x1b[507m[→]閱\讀\x1b[201m[\x1b[200m\x1b[444m\x1b[504m↑\x1b[201m\x1b[200m\x1b[444m\x1b[505m↓\x1b[201m]選擇[y]載入[S]排序[/]搜尋 [^Z]求助 [\x1b[200m\x1b[444m\x1b[500mPgUp\x1b[201m/\x1b[200m\x1b[444m\x1b[501mPgDn\x1b[201m]上下頁\n"
       COLOR1"\x1b[1m%-20s 類別轉信%-33s投票 板    主    \x1b[m",
       newflag ? "總數 未讀 看  板" : "  編號  看  板", 
       clsflag == 1 ? " 中   文   敘   述" : " Ｚ統轉私隱匿優個 ");
@@ -662,7 +662,7 @@ show_brdlist(head, clsflag, newflag)
         ptr = &nbrd[head++];
 
 #ifdef HYPER_BBS
-	sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[613m",
+	sprintf(hbuf,"\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
 	  (head/10000)+648,
 	  ((head%10000)/1000)+648,
 	  ((head%1000)/100)+648,

@@ -1553,7 +1553,7 @@ pickup_user()
 #ifdef HYPER_BBS
       char hbuf[512];      
 
-      sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[713m",
+      sprintf(hbuf,"\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[713m",
 	  ((ch+1)/10000)+648,
 	  (((ch+1)%10000)/1000)+648,
 	  (((ch+1)%1000)/100)+648,

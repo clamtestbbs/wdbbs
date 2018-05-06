@@ -86,7 +86,7 @@ g_showmenu (pm)
 	{
 #ifdef	HYPER_BBS
           char hbuf[256];	// HyperBBS
-          sprintf(hbuf, "\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[613m",
+          sprintf(hbuf, "\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
                   (n/10000)+648,
                   ((n%10000)/1000)+648,
                   ((n%1000)/100)+648,
@@ -97,7 +97,7 @@ g_showmenu (pm)
 	  title = item->title;
 	  ch = title[1];
 #ifdef	HYPER_BBS
-	  prints ("\n%5d.%s %-72.71s\033[201m", n, hbuf, title);
+	  prints ("\n%5d.%s %-72.71s\x1b[201m", n, hbuf, title);
 #else
 	  prints ("\n%5d. %-72.71s", n, title);
 #endif
@@ -757,7 +757,7 @@ a_showmenu (pm)
 	{
 #ifdef	HYPER_BBS
           char hbuf[256];	// HyperBBS
-          sprintf(hbuf, "\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[613m",
+          sprintf(hbuf, "\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
                   ((pm->page + n + 1)/10000)+648,
                   (((pm->page + n + 1)%10000)/1000)+648,
                   (((pm->page + n + 1)%1000)/100)+648,
@@ -771,7 +771,7 @@ a_showmenu (pm)
 	  dtime = dasht (buf);
 	  a_timestamp (buf, &dtime);
 #ifdef	HYPER_BBS
-          prints ("\n%6d%s%s %-47.46s%-13s[%s]\033[201m",
+          prints ("\n%6d%s%s %-47.46s%-13s[%s]\x1b[201m",
             pm->page + n + 1, (item->filemode & FILE_REFUSE) ? ")" : ".",
             hbuf, title, editor, buf);
 #else
