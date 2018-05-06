@@ -1060,16 +1060,21 @@ search_key_user ()
   FILE *fp1;
   char buf[100], key[22];
 
-  ch = answer("開啟 昨天(y) 今天(t) 其他(o) 的紀錄");
+//  ch = answer("開啟 昨天(y) 今天(t) 其他(o) 的紀錄");
+  ch = answer("開啟 今天(t) 其他(o) 的紀錄");
   if(ch == 't')
     fp1 = fopen (BBSHOME"/.PASSWDS", "r");
   else if(ch == 'o')
     fp1 = fopen (BBSHOME"/PASSWDS", "r");
+#if 0
   else
     fp1 = fopen (BBSHOME"/.PASSWDS.yes","r");
+#endif
+  else
+    return 0;
   clear ();
   getdata (0, 0, "請輸入使用者關鍵字 [姓名|email|ID|電話|地址]:", key, 21, DOECHO, 0);
-  while ((fread (&user, sizeof (user), 1, fp1)) > 0)
+  while ((fread (&user, sizeof (user), 1, fp1) > 0))
     {
       coun++;
       move (1, 0);
