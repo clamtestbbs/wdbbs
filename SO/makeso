@@ -1,0 +1,35 @@
+# ------------------------------------------------------ #
+#  Makefile	( WD-BBS Ver 1.31)			 #
+# ------------------------------------------------------ #
+#  target : Makefile for WD-BBS main programs		 #
+#  create : 95/03/29				 	 #
+#  update : 98/12/21					 #
+# ------------------------------------------------------ #
+BBSHOME = /home/bbs
+
+OS_DEF	= -DBSD44 -DTWO_LONGJMP_ARGS 
+CC	= gcc
+CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g
+LDFLAGS	= -lcrypt -ltermcap -lcompat -L../lib -ldao -export-dynamic
+
+# ------------------------------------------------------ #
+# 下列的 make rules 不需修改				 #
+# ------------------------------------------------------ #
+
+SO =	bwboard.so railway.so game.so game2.so pip.so five.so bbcall.so tv.so pnote.so\
+	indict.so chat.so minegame.so xyz.so song.so money.so
+
+ETC =	Makefile $(HDR)
+
+       
+.SUFFIXES: .o .c .ln .so
+
+.c.o:   ;   $(CC) $(CFLAGS) $(OS_DEF) -c $*.c
+.c.ln:  ;   lint -abhi $*.c
+.o.so:	;   ld -s -G $*.o -o $*.so -L../lib -ldao
+
+so: $(SO)
+	cp -f *.so ../../SO
+
+clean: /tmp
+	rm -fr $(GARBAGE) *.o $(SO) $(LNFILES) *~ 

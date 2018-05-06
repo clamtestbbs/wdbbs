@@ -1,0 +1,21 @@
+# ------------------------------------------------------ #
+#  Makefile     ( WD-LIB Ver 0.03)                       #
+# ------------------------------------------------------ #
+#  target : Makefile for WD-BBS library                  #
+#  create : 99/04/27                                     #
+#  update : 99/04/28                                     #
+# ------------------------------------------------------ #
+
+LIB=	WD
+SHLIB_MAJOR=	0
+SHLIB_MINOR=	1
+CFLAGS+=-Wunused -DLIBC_SCCS -I../include -I../WD
+SRCS=	bwboard.c railway.c game.c game2.c pip.c five.c bbcall.c tv.c pnote.c\
+	indict.c chat.c xyz.c song.c money.c
+
+NOMAN=1
+
+.include <bsd.lib.mk>
+
+all:
+	cp -f libWD.so.0 ../../SO/libWD.so
