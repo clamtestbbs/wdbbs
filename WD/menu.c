@@ -501,9 +501,25 @@ static struct MENU userlist[] = {
   u_list,       PERM_BASIC,     "UUsers         [註冊名單]",0,
 NULL, 0, NULL,0};
 
+/* ----------------------------------------------------- */
+/* Service menu                                          */
+/* ----------------------------------------------------- */
+
+#ifdef HAVE_GAME
+int
+game_list()
+{
+//  domenu(GAME, "網路遊樂場", 'R', gamelist);
+  return 0;
+}
+#endif
+
 int note(),show_hint_message();
 
 static struct MENU servicelist[] = {
+#ifdef HAVE_GAME
+  game_list,    0,              "PPlay          [育樂中心]",0,
+#endif
   "SO/vote.so:all_vote",
                 PERM_LOGINOK,   "VVote          [投票中心]",1,
   note,         PERM_LOGINOK,   "NNote          [寫留言板]",0,
