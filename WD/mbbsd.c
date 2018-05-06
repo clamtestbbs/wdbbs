@@ -613,7 +613,7 @@ user_login()
   extern int fcache_semid;
   
   log_usies("ENTER", getenv("RFC931")/* fromhost */);
-#ifdef __FreeBSD
+#ifdef __FreeBSD__
   setproctitle("%s: %s", cuser.userid, fromhost);
 #endif
 
