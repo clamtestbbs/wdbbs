@@ -38,7 +38,7 @@ libdaoop.a:	$(OBJ)
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) libdao.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
 
 
 tags:
