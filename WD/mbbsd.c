@@ -22,8 +22,6 @@
 #define SOCKET_QLEN	4
 #define PID_FILE	BBSHOME"/run/mbbsd.pid" 
 
-#define BANNER  "【"BOARDNAME"】◎ 電子布告欄系統 ◎ ("MYIP")\r\nPowered by FreeBSD\r\n\n"
-
 jmp_buf byebye;
 
 static uschar enter_uflag;
