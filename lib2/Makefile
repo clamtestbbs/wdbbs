@@ -8,7 +8,7 @@
 
 OPSYS	!= uname -o
 
-SUBDIR 	= other file
+SUBDIR 	= other file str
 
 all clean:
 	@for i in $(SUBDIR); do\
