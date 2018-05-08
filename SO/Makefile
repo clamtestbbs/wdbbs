@@ -50,7 +50,7 @@ all:$(SO)
 so: $(SO)
 
 install: $(SO)
-	install -m 0700 $(SO) $(BBSHOME)/bin
+	install -m 0700 $(SO) $(BBSHOME)/SO
 
 clean: /tmp
 	rm -fr $(GARBAGE) *.o $(SO) $(LNFILES) *~ 
