@@ -77,6 +77,8 @@
 #include "struct.h"		/* data structure */
 #include "global.h"		/* global variable & definition */
 #include "modes.h"		/* The list of valid user modes */
+
+#include "proto.h"
 #include "dao.h"
 
 #endif				/* _BBS_H_ */
