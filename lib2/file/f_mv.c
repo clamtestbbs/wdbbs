@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include <fcntl.h>
-
 
 int
 f_mv(src, dst)

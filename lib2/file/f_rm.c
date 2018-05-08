@@ -1,10 +1,9 @@
-#include "dao.h"
 #include <sys/stat.h>
 #include <dirent.h>
-
+#include <unistd.h>
+#include "dao.h"
 
 static int rm_dir();
-
 
 int
 f_rm(fpath)
@@ -20,7 +19,6 @@ f_rm(fpath)
 
   return rm_dir(fpath);
 }
-
 
 static int
 rm_dir(fpath)
