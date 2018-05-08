@@ -100,7 +100,7 @@ proto.x: $(PRO)
 	/bin/cat $(PRO) > proto.x
 
 clean: /tmp
-	rm -fr $(GARBAGE) $(MOBJ) $(ALL) $(PRO) proto.x $(LNFILES) *~ 
+	rm -fr $(GARBAGE) $(MOBJ) $(ALL) $(PRO) proto.x *.p $(LNFILES) *~ 
 
 tags:
 	ctags $(SRC)

@@ -10,9 +10,7 @@ unsigned short rev(unsigned short i);
 struct userec cuser;
 
 
-int main(argc, argv)
-int argc;
-char **argv;
+int main(int argc, char **argv)
 {
     FILE *foo1, *foo2;
     int cnum,i,match;

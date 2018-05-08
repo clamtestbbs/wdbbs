@@ -9,21 +9,6 @@
 
 #include "bbs.h"
 
-/* ----------------------------------------------------- */
-/* Menu Commands struct                                  */
-/* ----------------------------------------------------- */
-
-struct MENU
-{
-  void *cmdfunc;
-//  int (*cmdfunc) ();
-  usint level;
-  char *desc;                   /* next/key/description */
-  int mode;
-};
-typedef struct MENU MENU;
-
-
 /* ------------------------------------- */
 /* help & menu processring               */
 /* ------------------------------------- */
@@ -424,9 +409,6 @@ NULL, 0, NULL,0};
 /* class menu                                            */
 /* ----------------------------------------------------- */
 
-int board(), local_board(), Boards(), ReadSelect() ,
-    New(),Favor(),favor_edit(),good_board(),voteboard();
-
 static struct MENU classlist[] = {
    voteboard, 0,      "VVoteBoard    [看板連署系統]",0,
    board, 0,          "CClass        [本站分類看板]",0,
@@ -464,20 +446,6 @@ NULL, 0, NULL,0};
 /* User menu                                             */
 /* ----------------------------------------------------- */
 
-extern int u_editfile();
-int u_info(), u_cloak(), u_list(), u_habit(), PowerBook(), ListMain();
-#ifdef REG_FORM
-int u_register();
-#endif
-
-#ifdef REG_MAGICKEY
-int u_verify();
-#endif
-
-#ifdef POSTNOTIFY
-int re_m_postnotify();
-#endif
-
 static struct MENU userlist[] = {
   u_info,       0,              "IInfo          [修改資料]",0,
   u_habit,      PERM_BASIC,     "HHabit         [喜好設定]",0,
@@ -500,8 +468,6 @@ static struct MENU userlist[] = {
 
   u_list,       PERM_BASIC,     "UUsers         [註冊名單]",0,
 NULL, 0, NULL,0};
-
-int note(),show_hint_message();
 
 static struct MENU servicelist[] = {
   "SO/vote.so:all_vote",

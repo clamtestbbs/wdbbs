@@ -523,3 +523,26 @@ typedef struct commands {
     int level;
     char *desc;                   /* next/key/description */
 } commands;
+
+/* ----------------------------------------------------- */
+/* Menu Commands struct                                  */
+/* ----------------------------------------------------- */
+
+typedef struct MENU {
+  void *cmdfunc;
+//  int (*cmdfunc) ();
+  usint level;
+  char *desc;                   /* next/key/description */
+  int mode;
+} MENU;
+
+/* moved from WD/read.c */
+typedef struct keeploc {
+  char *key;
+  int top_ln;
+  int crs_ln;
+  struct keeploc *next;
+} keeploc;
+
+
+

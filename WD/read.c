@@ -12,16 +12,6 @@
 #define MSG_POSTER      \
 COLOR2"  文章選讀  "COLOR1"\x1b[1m (y)\x1b[37m回信 \x1b[33m(=[]<>)\x1b[37m相關主題 \x1b[33m(/?)\x1b[37m搜尋標題 \x1b[33m(aA)\x1b[37m搜尋作者 \x1b[33m(x)\x1b[37m轉錄 \x1b[33m(V)\x1b[37m投票 \x1b[0m"
 
-struct keeploc
-{
-  char *key;
-  int top_ln;
-  int crs_ln;
-  struct keeploc *next;
-};
-typedef struct keeploc keeploc;
-
-
 char currdirect[64];
 static fileheader *headers = NULL;
 /* static */ 

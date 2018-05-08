@@ -2047,8 +2047,6 @@ block_color()
 
 
 extern int my_write();
-extern
-a_menu(char *maintitle, char *path, int lastlevel);
 
 int
 vedit(fpath, saveheader)
@@ -2514,8 +2512,8 @@ woju
         {
           int mode0 = currutmp->mode;
           int currstat0 = currstat;
-          setutmpmode(EDITEXP);
-          a_menu("編籍輔助器", "etc/editexp", (HAS_PERM(PERM_SYSOP) ? SYSOP : NOBODY));
+          //setutmpmode(EDITEXP);
+          a_menu("編輯輔助器", "etc/editexp", (HAS_PERM(PERM_SYSOP) ? SYSOP : NOBODY),EDITEXP);
           currutmp->mode = mode0;
           currstat = currstat0;
         }

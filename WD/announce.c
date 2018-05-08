@@ -2015,13 +2015,13 @@ user_allpost(char *uid)
 void
 my_gem()
 {
-  more(BBSHOME"/etc/my_gem");
+  more(BBSHOME"/etc/my_gem",YEA);
   user_gem(cuser.userid);
 }
 
 void
 my_allpost()
 {
-  more(BBSHOME"/etc/my_allpost");
+  more(BBSHOME"/etc/my_allpost",YEA);
   user_allpost(cuser.userid);
 }

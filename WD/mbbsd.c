@@ -32,7 +32,7 @@ char remoteusername[40];
 int mbbsd = 1; 
 
 static int use_shell_login_mode=0;
-void check_register();
+//void check_register();
 
 /* ----------------------------------------------------- */
 /* Â÷¶} BBS µ{¦¡                                         */

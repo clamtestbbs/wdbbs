@@ -1102,8 +1102,8 @@ man()
     if (xboard && (bp = getbcache (xboard)))
     {
       setapath (fpath, xboard);
-      setutmpmode (ANNOUNCE);
-      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0);
+      //setutmpmode (ANNOUNCE);
+      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0,ANNOUNCE);
     }
     else if(HAS_PERM(PERM_MAILLIMIT) || HAS_PERM(PERM_BM)) // wildcat : 之前忘記加 PERM 限制啦 ^^;
     {
@@ -1112,7 +1112,7 @@ man()
       sethomeman (buf, cuser.userid);
       sprintf (buf1, "%s 的信件夾", cuser.userid);
       setutmpmode (ANNOUNCE);
-      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1);
+      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1, ANNOUNCE);
       currutmp->mode = mode0;
       currstat = stat0;
       return RC_FULL;
@@ -1121,9 +1121,8 @@ man()
   else
   {
     setapath (buf, currboard);
-    setutmpmode (ANNOUNCE);
-    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 :
-      currmode & MODE_BOARD ? 1 : 0);
+    //setutmpmode (ANNOUNCE);
+    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 : currmode & MODE_BOARD ? 1 : 0, ANNOUNCE);
   }
   return RC_FULL;
 }
@@ -2225,8 +2224,7 @@ cancel_post(fhdr, fpath)
 /* ----------------------------------------------------- */
 
 
-void
-note()
+void note(void)
 {
   static char *fn_note_tmp = "note.tmp";
   static char *fn_note_dat = "note.dat";
