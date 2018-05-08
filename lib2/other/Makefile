@@ -21,8 +21,6 @@ CFLAGS	+= -m32
 SRC =	\
 	is_alnum.c is_alpha.c is_fname.c is_fpath.c not_addr.c \
 	\
-	dns.c dns_addr.c dns_name.c dns_smtp.c dns_ident.c dns_open.c \
-	\
 	archiv32.c archiv32m.c chrono32.c hash32.c radix32.c \
 	\
 	rec_add.c rec_num.c rec_del.c rec_get.c \
@@ -38,8 +36,6 @@ SRC =	\
 	
 OBJ =	\
 	is_alnum.o is_alpha.o is_fname.o is_fpath.o not_addr.o \
-	\
-	dns.o dns_addr.o dns_name.o dns_smtp.o dns_ident.o dns_open.o \
 	\
 	archiv32.o archiv32m.o chrono32.o hash32.o radix32.o \
 	\

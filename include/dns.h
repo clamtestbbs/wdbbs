@@ -84,4 +84,4 @@ int dns_open(char *host, int port);
 /* dns_smtp.c */
 int dns_smtp(char *host);
 
-#endif	_DNS_H_
+#endif	//_DNS_H_
