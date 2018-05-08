@@ -2224,9 +2224,9 @@ talkreply()
 
   clear();
   outs("\n"
-"       (Y) 讓我們 talk 吧！     (A) 我現在很忙，請等一會兒再 call 我"
-"       (N) 我現在不想 talk      (B) 對不起，我有事情不能跟你 talk"
-"       (C) 請不要吵我好嗎？     (D) 有事嗎？請先來信"
+"       (Y) 讓我們 talk 吧！     (A) 我現在很忙，請等一會兒再 call 我\n"
+"       (N) 我現在不想 talk      (B) 對不起，我有事情不能跟你 talk\n"
+"       (C) 請不要吵我好嗎？     (D) 有事嗎？請先來信\n"
 "       (E) \x1b[1;33m我自己輸入理由好了...\x1b[m\n\n");
 
   getuser(uip->userid);
