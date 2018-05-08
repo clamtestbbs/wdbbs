@@ -1,5 +1,4 @@
 /wdbbs.conf
-*.c
 *.o
 *.a
 *.p
