@@ -18,7 +18,7 @@ CPROTO	= cproto -E"gcc -pipe -E -I../include"
 
 CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 
-LDFLAGS	= -lcrypt -L../lib -ldao -lncurses
+LDFLAGS	= -lcrypt -L../lib2/file -ldaofile -L../lib2/other -ldao -lncurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32

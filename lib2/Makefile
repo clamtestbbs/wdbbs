@@ -8,14 +8,12 @@
 
 OPSYS	!= uname -o
 
-SUBDIR	= lib2 WD util
+SUBDIR 	= other file
 
-.if $(OPSYS) != "Cygwin"
-SUBDIR	+= SO
-.endif
-
-all install clean:
+all clean:
 	@for i in $(SUBDIR); do\
-		cd $$i && $(MAKE) $@ && cd .. ;\
-	done;
-		
+	    cd $$i && $(MAKE) $@ && cd ..;\
+	done
+
+install:
+	@echo 'ok!'

@@ -14,7 +14,7 @@ BBSHOME	?= $(HOME)
 
 CC	= clang
 CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
-LDFLAGS	= -lcrypt -L../lib -ldao -ltermcap  
+LDFLAGS	= -lcrypt -L../lib2/file -ldaofile -L../lib2/other -ldao -lcurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -40,9 +40,9 @@ ETC =	Makefile $(HDR)
 
 
 .if $(OPSYS) == "FreeBSD"
-.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386_fbsd
+.o.so:	;   ld -G $*.o -o $*.so -L../lib2/file -ldaofile -L../lib2/other -ldao -melf_i386_fbsd
 .else
-.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386
+.o.so:	;   ld -G $*.o -o $*.so -L../lib2/file -ldaofile -L../lib2/other -ldao -melf_i386
 .endif
 
 all:$(SO)
