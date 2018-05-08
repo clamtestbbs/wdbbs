@@ -12,13 +12,21 @@ OPSYS	!= uname -o
 
 BBSHOME	?= $(HOME)
 
+DAOLIB	= -L../lib2/str -ldaostr \
+	  -L../lib2/file -ldaofile \
+	  -L../lib2/rec -ldaorec \
+	  -L../lib2/op -ldaoop \
+	  -L../lib2/sys -ldaosys \
+	  -L../lib2/wdlib -lwd 
+
 CC	= clang
 
 CPROTO	= cproto -E"gcc -pipe -E -I../include"
 
-CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
+CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding -Wno-implicit-function-declaration \
+	  -Wno-implicit-int
 
-LDFLAGS	= -lcrypt -L../lib -ldao -lncurses
+LDFLAGS	= -lcrypt $(DAOLIB) -lncurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32

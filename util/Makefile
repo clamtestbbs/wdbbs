@@ -8,10 +8,17 @@
 
 BBSHOME	?= $(HOME)
 
+DAOLIB	= -L../lib2/str -ldaostr \
+	  -L../lib2/file -ldaofile \
+	  -L../lib2/rec -ldaorec \
+	  -L../lib2/op -ldaoop \
+	  -L../lib2/sys -ldaosys \
+	  -L../lib2/wdlib -lwd 
+
 # For FreeBSD
 CC	= clang
 CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
-LDFLAGS	= -L../lib -ldao -lcrypt
+LDFLAGS	= $(DAOLIB) -lcrypt
 
 .SUFFIXES: .o .c
 

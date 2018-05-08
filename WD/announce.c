@@ -1451,7 +1451,7 @@ a_copyitem (char *fpath, char *title, char *owner)
 
 /* ===== end ===== */
 
-a_menu (maintitle, path, lastlevel, mode)
+int a_menu (maintitle, path, lastlevel, mode)
      char *maintitle;
      char *path;
      int lastlevel;

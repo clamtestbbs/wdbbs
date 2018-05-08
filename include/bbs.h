@@ -77,6 +77,11 @@
 #include "struct.h"		/* data structure */
 #include "global.h"		/* global variable & definition */
 #include "modes.h"		/* The list of valid user modes */
-#include "dao.h"
+
+#include "proto.h"
+#include "daoop.h"
+#include "daostr.h"
+#include "daofile.h"
+#include "daosys.h"
 
 #endif				/* _BBS_H_ */
