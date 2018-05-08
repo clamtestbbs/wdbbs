@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
+#include "daosys.h"
 
 #define SEM_ENTER      -1      /* enter semaphore */
 #define SEM_LEAVE      1       /* leave semaphore */

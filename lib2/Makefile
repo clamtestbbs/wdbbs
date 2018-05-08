@@ -8,7 +8,7 @@
 
 OPSYS	!= uname -o
 
-SUBDIR 	= file str dns other wdlib
+SUBDIR 	= file str rec op sys wdlib
 
 all clean:
 	@for i in $(SUBDIR); do\

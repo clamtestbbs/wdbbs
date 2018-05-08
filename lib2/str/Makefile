@@ -46,8 +46,8 @@ libdaostr.a: $(OBJ)
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
 
 
 tags:
-	ctags $(SRC) ../include/*.h
+	ctags $(SRC) ../../include/*.h

@@ -18,23 +18,28 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
 CFLAGS	+= -m32
 .endif
 
-SRC =	dns.c dns_addr.c dns_name.c dns_smtp.c dns_ident.c dns_open.c 
+SRC =	is_alnum.c  is_alpha.c  is_fname.c  is_fpath.c  not_addr.c
 
-OBJ =	dns.o dns_addr.o dns_name.o dns_smtp.o dns_ident.o dns_open.o 
+OBJ =	is_alnum.o  is_alpha.o  is_fname.o  is_fpath.o  not_addr.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libdaodns.a
+all:	libdaoop.a
 
-libdaodns.a: $(OBJ)
+
+dao.p:	$(SRC)
+	$(CPROTO) -o $@ $?
+
+
+libdaoop.a:	$(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~
+	rm -fr $(GARBAGE) $(OBJ) libdao.a *.bak *.BAK *~ tags
 
 
 tags:
-	ctags $(SRC) ../include/*.h
+	ctags $(SRC) ../../include/*.h

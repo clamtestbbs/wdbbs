@@ -18,33 +18,27 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
 CFLAGS	+= -m32
 .endif
 
-SRC =	setpf.c strip_ansi.c ci_strncmp.c cut_ansistr.c \
-	isprint2.c not_alnum.c not_alpha.c strstr_lower.c \
-	friend_count.c nextfield.c bad_user.c counter.c file_list_count.c\
-	b_suckinfile.c url_encode.c
+SRC =	args.c sem.c  shm.c
 
-OBJ =	setpf.o strip_ansi.o ci_strncmp.o cut_ansistr.o \
-	isprint2.o not_alnum.o not_alpha.o strstr_lower.o \
-	friend_count.o nextfield.o bad_user.o counter.o file_list_count.o \
-	b_suckinfile.o url_encode.o
+OBJ =	args.o sem.o  shm.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libwd.a
+all:	libdaosys.a
 
 
-wdlib.p:	$(SRC)
+daosys.p: $(SRC)
 	$(CPROTO) -o $@ $?
 
 
-libwd.a: $(OBJ)
+libdaosys.a:	$(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *.p *~ tags
 
 
 tags:

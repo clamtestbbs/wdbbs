@@ -1,1 +1,10 @@
 /wdbbs.conf
+*.c
+*.o
+*.a
+*.p
+tags
+mbbsd
+xchatd
+util
+*~

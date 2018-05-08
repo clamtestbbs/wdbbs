@@ -18,33 +18,29 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
 CFLAGS	+= -m32
 .endif
 
-SRC =	setpf.c strip_ansi.c ci_strncmp.c cut_ansistr.c \
-	isprint2.c not_alnum.c not_alpha.c strstr_lower.c \
-	friend_count.c nextfield.c bad_user.c counter.c file_list_count.c\
-	b_suckinfile.c url_encode.c
-
-OBJ =	setpf.o strip_ansi.o ci_strncmp.o cut_ansistr.o \
-	isprint2.o not_alnum.o not_alpha.o strstr_lower.o \
-	friend_count.o nextfield.o bad_user.o counter.o file_list_count.o \
-	b_suckinfile.o url_encode.o
-
+SRC =	rec_add.c rec_num.c rec_del.c rec_get.c \
+	rec_ins.c rec_mov.c rec_put.c rec_apply.c
+	
+OBJ =	rec_add.o rec_num.o rec_del.o rec_get.o \
+	rec_ins.o rec_mov.o rec_put.o rec_apply.o 
+	
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libwd.a
+all:	libdaorec.a
 
 
-wdlib.p:	$(SRC)
+dao.p:	$(SRC)
 	$(CPROTO) -o $@ $?
 
 
-libwd.a: $(OBJ)
+libdaorec.a:	$(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) libdao.a *.bak *.BAK *~ tags
 
 
 tags:
