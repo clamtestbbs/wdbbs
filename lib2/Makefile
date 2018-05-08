@@ -8,7 +8,7 @@
 
 OPSYS	!= uname -o
 
-SUBDIR 	= other file str
+SUBDIR 	= file str wdlib other
 
 all clean:
 	@for i in $(SUBDIR); do\

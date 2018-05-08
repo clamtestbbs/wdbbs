@@ -14,6 +14,7 @@ BBSHOME	?= $(HOME)
 
 DAOLIB	= -L../lib2/str -ldaostr \
 	  -L../lib2/file -ldaofile \
+	  -L../lib2/wdlib -lwd \
 	  -L../lib2/other -ldao
 
 CC	= clang

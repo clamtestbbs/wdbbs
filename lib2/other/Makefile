@@ -35,12 +35,7 @@ SRC =	\
 	splay.c dl_lib.c attr_lib.c\
 	\
 	acl_addr.c acl_has.c xsort.c xwrite.c \
-	\
-	setpf.c strip_ansi.c ci_strncmp.c cut_ansistr.c \
-	isprint2.c not_alnum.c not_alpha.c strstr_lower.c \
-	friend_count.c nextfield.c bad_user.c counter.c file_list_count.c\
-	b_suckinfile.c url_encode.c
-
+	
 OBJ =	\
 	is_alnum.o is_alpha.o is_fname.o is_fpath.o not_addr.o \
 	\
@@ -57,12 +52,7 @@ OBJ =	\
 	\
 	splay.o dl_lib.o attr_lib.o\
 	\
-	acl_addr.o acl_has.o xsort.o xwrite.o \
-	\
-	setpf.o strip_ansi.o ci_strncmp.o cut_ansistr.o \
-	isprint2.o not_alnum.o not_alpha.o strstr_lower.o \
-	friend_count.o nextfield.o bad_user.o counter.o file_list_count.o \
-	b_suckinfile.o url_encode.o
+	acl_addr.o acl_has.o xsort.o xwrite.o	
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
