@@ -409,6 +409,8 @@ NULL, 0, NULL,0};
 /* class menu                                            */
 /* ----------------------------------------------------- */
 
+int board(); //todo: refine variable name in util/mandex.c ,and move this to include/proto.h .
+
 static struct MENU classlist[] = {
    voteboard, 0,      "VVoteBoard    [看板連署系統]",0,
    board, 0,          "CClass        [本站分類看板]",0,
