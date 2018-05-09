@@ -6,11 +6,30 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
+ARCHI	!= uname -m
+
+OPSYS	!= uname -o
+
+SUBDIR	= statool fixtool
+
 BBSHOME	?= $(HOME)
 
+SRCROOT	= ../..
+
+INCLUDE	= $(SRCROOT)/include
+
+DAOLIB	= -L$(SRCROOT)/lib2/str -ldaostr \
+	  -L$(SRCROOT)/lib2/file -ldaofile \
+	  -L$(SRCROOT)/lib2/rec -ldaorec \
+	  -L$(SRCROOT)/lib2/op -ldaoop \
+	  -L$(SRCROOT)/lib2/sys -ldaosys \
+	  -L$(SRCROOT)/lib2/wdlib -lwd 
+
 CC	= clang
-CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I../../include -D_BBS_UTIL_C_ -Wno-invalid-source-encoding
-LDFLAGS	= -L../../lib -ldao -lcrypt
+
+CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I$(INCLUDE) -D_BBS_UTIL_C_ -Wno-invalid-source-encoding
+
+LDFLAGS	=  -lcrypt $(DAOLIB)
 
 .SUFFIXES: .o .c
 

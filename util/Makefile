@@ -6,13 +6,17 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
-SUBDIR	= statool fixtool
-
 ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
+SUBDIR	= statool fixtool
+
 BBSHOME	?= $(HOME)
+
+SRCROOT	= ..
+
+INCLUDE	= $(SRCROOT)/include
 
 DAOLIB	= -L../lib2/str -ldaostr \
 	  -L../lib2/file -ldaofile \
@@ -23,7 +27,7 @@ DAOLIB	= -L../lib2/str -ldaostr \
 
 CC	= clang
 
-CPROTO	= cproto -E"gcc -pipe -E -I../include"
+CPROTO	= cproto -E"clang -pipe -E -I$(INCLUDE)"
 
 CFLAGS	= -m32 -O -Wunused -I../include -I../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 

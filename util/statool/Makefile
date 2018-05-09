@@ -10,13 +10,26 @@ ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
+SUBDIR	= statool fixtool
+
 BBSHOME	?= $(HOME)
+
+SRCROOT	= ../..
+
+INCLUDE	= $(SRCROOT)/include
+
+DAOLIB	= -L$(SRCROOT)/lib2/str -ldaostr \
+	  -L$(SRCROOT)/lib2/file -ldaofile \
+	  -L$(SRCROOT)/lib2/rec -ldaorec \
+	  -L$(SRCROOT)/lib2/op -ldaoop \
+	  -L$(SRCROOT)/lib2/sys -ldaosys \
+	  -L$(SRCROOT)/lib2/wdlib -lwd 
 
 CC	= clang
 
-CFLAGS	= -m32 -O -Wunused -I../../include -I../../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
+CFLAGS	= -m32 -O -Wunused -I$(INCLUDE) -I$(SRCROOT)/WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 
-LDFLAGS	= -lcrypt -L../../lib -ldao -lncurses
+LDFLAGS	= -lcrypt -lncurses $(DAOLIB)
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -35,19 +48,18 @@ LDFLAGS	+= -Wl,-export-dynamic -lcompat
 
 .c:   ;   $(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
-TOOL =	poststat birth gnp horoscope topmsg voteboard\
-	topquery yearsold toppost toptime toplogin topexp\
+TOOL =	poststat birth horoscope topmsg voteboard\
+	topquery toppost toptime toplogin topexp\
 	topmoney topboard topgold sexcount toplimit\
-	toppersonal #account admin bm_check 
+	toppersonal #account admin bm_check gnp yearsold 
 
 all: 	$(TOOL)
 #	$(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
 
 install:$(TOOL)
-	strip $(TOOL)
-	chown bbs.bbs $(TOOL)
-	cp -fp $(TOOL) $(BBSHOME)/bin
+	install -d $(BBSHOME)/bin/
+	install -c -m 0755 $(TOOL) $(BBSHOME)/bin/
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~
