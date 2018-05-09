@@ -5,14 +5,57 @@
 /* create : 95/03/29                                     */
 /* update : 95/12/15                                     */
 /*-------------------------------------------------------*/
+
 #include "bbs.h"
+#include "proto.h"
 
-#include <time.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+/* ------------------------------------------------------------------------- */
 
+// from WD/record.c
+// todo: move to common library
 
-#include "record.c"
+void
+stampfile(fpath, fh)
+  char *fpath;
+  fileheader *fh;
+{
+  register char *ip = fpath;
+  time_t dtime;
+  struct tm *ptime;
+  int fp;
+
+#if 1
+  if (access(fpath, X_OK | R_OK | W_OK))
+    mkdir(fpath, 0755);
+#endif
+
+  time(&dtime);
+  while (*(++ip));
+  *ip++ = '/';
+  do
+  {
+    sprintf(ip, "M.%d.A", ++dtime );
+  } while ((fp = open(fpath, O_CREAT | O_EXCL | O_WRONLY, 0644)) == -1);
+  close(fp);
+  memset(fh, 0, sizeof(fileheader));
+  strcpy(fh->filename, ip);
+  ptime = localtime(&dtime);
+
+#if 0// !defined(_BBS_UTIL_C_)
+  {//shakalaca.000428: find out the BBSHOME/M.* problem.. :p
+    char genbuf[80];
+    
+    sprintf(genbuf, "MODE:%d", currstat);
+    debug(genbuf);
+  }
+#endif
+  sprintf(fh->date, "%2d/%02d", ptime->tm_mon + 1, ptime->tm_mday);
+}
+
+// from WD/record.c
+// todo: move to common library
+
+/* ------------------------------------------------------------------------- */
 
 #define MAX_LINE        16
 #define ADJUST_M        6       /* adjust back 5 minutes */
@@ -113,7 +156,7 @@ char *title;
 
 
 void
-outs(fp, buf, mode)
+account_outs(fp, buf, mode)
   FILE *fp;
   char buf[], mode;
 {
@@ -227,12 +270,12 @@ main()
       hour = act[j];
       if (hour && (max > hour) && (max - item <= hour))
       {
-        outs(fp, buf, '7');
+        account_outs(fp, buf, '7');
         fprintf(fp, "%-3d", hour);
       }
       else if (max <= hour)
       {
-        outs(fp, buf, '6');
+        account_outs(fp, buf, '6');
         fprintf(fp, "¢i ");
       }
       else

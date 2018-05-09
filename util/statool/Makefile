@@ -27,7 +27,7 @@ DAOLIB	= -L$(SRCROOT)/lib2/str -ldaostr \
 
 CC	= clang
 
-CFLAGS	= -m32 -O -Wunused -I$(INCLUDE) -I$(SRCROOT)/WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
+CFLAGS	= -m32 -O -Wunused -I$(INCLUDE) -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 
 LDFLAGS	= -lcrypt -lncurses $(DAOLIB)
 
@@ -51,11 +51,9 @@ LDFLAGS	+= -Wl,-export-dynamic -lcompat
 TOOL =	poststat birth horoscope topmsg voteboard\
 	topquery toppost toptime toplogin topexp\
 	topmoney topboard topgold sexcount toplimit\
-	toppersonal #account admin bm_check gnp yearsold 
+	toppersonal account #admin bm_check gnp yearsold 
 
-all: 	$(TOOL)
-#	$(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
-
+all: $(TOOL)
 
 install:$(TOOL)
 	install -d $(BBSHOME)/bin/
