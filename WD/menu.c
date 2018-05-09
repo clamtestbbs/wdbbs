@@ -9,21 +9,6 @@
 
 #include "bbs.h"
 
-/* ----------------------------------------------------- */
-/* Menu Commands struct                                  */
-/* ----------------------------------------------------- */
-
-struct MENU
-{
-  void *cmdfunc;
-//  int (*cmdfunc) ();
-  usint level;
-  char *desc;                   /* next/key/description */
-  int mode;
-};
-typedef struct MENU MENU;
-
-
 /* ------------------------------------- */
 /* help & menu processring               */
 /* ------------------------------------- */
@@ -44,7 +29,7 @@ showtitle(title, mid)
     title++;
    else if (chkmail(0))
   {
-    mid = "\033[41;33;5m   信箱裡面有新信唷！  \033[m\033[1m"COLOR1;
+    mid = "\x1b[41;33;5m   信箱裡面有新信唷！  \x1b[m\x1b[1m"COLOR1;
 
 /*
  * CyberMax:
@@ -54,7 +39,7 @@ showtitle(title, mid)
   }
   else if (dashf(BBSHOME"/register.new") && HAS_PERM(PERM_ACCOUNTS))
   {
-    mid = "\033[45;33;5m  有新的使用者註冊囉!  \033[m\033[1m"COLOR1;
+    mid = "\x1b[45;33;5m  有新的使用者註冊囉!  \x1b[m\x1b[1m"COLOR1;
     spc = 22;
   }
 
@@ -71,7 +56,7 @@ woju
   move(0,0);
   clrtobot();
 //  clear();
-  prints(COLOR2"  \033[1;37m%s  "COLOR1"%s\033[33m%s%s%s\033[3%s\033[1m "COLOR2"  \033[37m%s  \033[m\n",
+  prints(COLOR2"  \x1b[1;37m%s  "COLOR1"%s\x1b[33m%s%s%s\x1b[3%s\x1b[1m "COLOR2"  \x1b[37m%s  \x1b[m\n",
     title, buf, mid, buf, " " + pad,
     currmode & MODE_SELECT ? "1m系列" :
     currmode & MODE_DIGEST ? "5m文摘" : "7m看板", currboard);
@@ -144,8 +129,8 @@ movie(i)
   }
   i = ptime->tm_wday << 1;
   update_data();
-  sprintf(mystatus, "\033[1;36m %d 點 %02d 分 (%c%c) %0d 月 %0d 日"
-"\033[1;37m 姓名: %-13s \033[32m[呼叫器]%-2.2s \033[m",
+  sprintf(mystatus, "\x1b[1;36m %d 點 %02d 分 (%c%c) %0d 月 %0d 日"
+"\x1b[1;37m 姓名: %-13s \x1b[32m[呼叫器]%-2.2s \x1b[m",
     ptime->tm_hour, ptime->tm_min, myweek[i], myweek[i + 1],
     ptime->tm_mon + 1, ptime->tm_mday, cuser.userid, msgs[currutmp->pager]);
   move(1,0);
@@ -180,9 +165,9 @@ show_menu(p)
   movie(0);
   move(2,0);
 #ifdef HYPER_BBS
-  prints(COLOR1"\033[1m"HB_BACK" 功\ 能       說    明                 按 \033[1;33m\033[200m\033[444m\033[626m[Ctrl-Z]\033[201m\033[37m \033[31m求助               \033[m");
+  prints(COLOR1"\x1b[1m"HB_BACK" 功\ 能       說    明                 按 \x1b[1;33m\x1b[200m\x1b[444m\x1b[626m[Ctrl-Z]\x1b[201m\x1b[37m \x1b[31m求助               \x1b[m");
 #else
-  prints(COLOR1"\033[1m         功\  能        說    明                 按 [\033[1;33mCtrl-Z\033[37m] \033[31m求助               \033[m");
+  prints(COLOR1"\x1b[1m         功\  能        說    明                 按 [\x1b[1;33mCtrl-Z\x1b[37m] \x1b[31m求助               \x1b[m");
 #endif
   move(menu_row, 0);
   while ((s = p[n].desc)!=NULL || buf2[m][0]!='\0')
@@ -195,11 +180,11 @@ show_menu(p)
 #ifdef HAVE_NOTE_2
         if(buf2[m][0]=='\0')
 #endif
-          prints("%*s  [\033[1;36m%c\033[m]%s\n", 
+          prints("%*s  [\x1b[1;36m%c\x1b[m]%s\n", 
             menu_column, "", s[1], buf);
 #ifdef HAVE_NOTE_2
         else
-          prints("%*s  [\033[1;36m%c\033[m]%-28s%s",
+          prints("%*s  [\x1b[1;36m%c\x1b[m]%-28s%s",
             menu_column, "", s[1], buf,buf2[m++]);
 #endif
       }
@@ -424,9 +409,6 @@ NULL, 0, NULL,0};
 /* class menu                                            */
 /* ----------------------------------------------------- */
 
-int board(), local_board(), Boards(), ReadSelect() ,
-    New(),Favor(),favor_edit(),good_board(),voteboard();
-
 static struct MENU classlist[] = {
    voteboard, 0,      "VVoteBoard    [看板連署系統]",0,
    board, 0,          "CClass        [本站分類看板]",0,
@@ -464,20 +446,6 @@ NULL, 0, NULL,0};
 /* User menu                                             */
 /* ----------------------------------------------------- */
 
-extern int u_editfile();
-int u_info(), u_cloak(), u_list(), u_habit(), PowerBook(), ListMain();
-#ifdef REG_FORM
-int u_register();
-#endif
-
-#ifdef REG_MAGICKEY
-int u_verify();
-#endif
-
-#ifdef POSTNOTIFY
-int re_m_postnotify();
-#endif
-
 static struct MENU userlist[] = {
   u_info,       0,              "IInfo          [修改資料]",0,
   u_habit,      PERM_BASIC,     "HHabit         [喜好設定]",0,
@@ -500,8 +468,6 @@ static struct MENU userlist[] = {
 
   u_list,       PERM_BASIC,     "UUsers         [註冊名單]",0,
 NULL, 0, NULL,0};
-
-int note(),show_hint_message();
 
 static struct MENU servicelist[] = {
   "SO/vote.so:all_vote",

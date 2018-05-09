@@ -1,5 +1,7 @@
 # Wind & Dust BBS 風與塵埃的對話-電子布告欄系統 (fork version)
 
+![](https://i.imgur.com/njf9uZJ.png)
+
 * 編譯前請先將 sample/wdbbs.conf 移到上一層的原始碼主目錄底下
 
 * 新站台將 sample/bbs 下的目錄結構套用到 BBS 家目錄 (如 `/home/bbs`) 底下

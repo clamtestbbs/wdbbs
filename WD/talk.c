@@ -52,9 +52,9 @@ int friends_number;
 int override_number;
 int rejected_number;
 int bfriends_number;
-char *fcolor[11] = {"","[36m","[32m","[1;32m",
-                   "[33m","[1;33m","[1;37m" ,"[1;37m",
-                   "[1;31m", "[1;35m", "[1;36m"};
+char *fcolor[11] = {"","\x1b[36m","\x1b[32m","\x1b[1;32m",
+                   "\x1b[33m","\x1b[1;33m","\x1b[1;37m" ,"\x1b[1;37m",
+                   "\x1b[1;31m", "\x1b[1;35m", "\x1b[1;36m"};
 char *talk_uent_buf;
 char save_page_requestor[40];
 char page_requestor[40];
@@ -326,26 +326,26 @@ my_query(uident)
       prints("[ ©Ê  §O ]%-30.30s",sex[muser.sex%8]);
     }
 
-    prints("[ ¤ß  ±¡ ][1;33m%s[m\n",muser.feeling);
+    prints("[ ¤ß  ±¡ ]\x1b[1;33m%s\x1b[m\n",muser.feeling);
     uentp = (user_info *) search_ulist(cmpuids, tuid);
     if (uentp && !(PERM_HIDE(currutmp) ||
       is_rejected(uentp) & HRM && is_friend(uentp) & 5) && PERM_HIDE(uentp))
-      prints("[¥Ø«e°ÊºA][1;30m¤£¦b¯¸¤W                      [m\n");
+      prints("[¥Ø«e°ÊºA]\x1b[1;30m¤£¦b¯¸¤W                      \x1b[m\n");
     else
-      prints("[¥Ø«e°ÊºA][1;36m%-30.30s[m",
-         uentp ? modestring(uentp, 0) : "[1;30m¤£¦b¯¸¤W");
-    prints("[ «Ê  ¸¹ ][1;32m%s[m\n",muser.title);
+      prints("[¥Ø«e°ÊºA]\x1b[1;36m%-30.30s\x1b[m",
+         uentp ? modestring(uentp, 0) : "\x1b[1;30m¤£¦b¯¸¤W");
+    prints("[ «Ê  ¸¹ ]\x1b[1;32m%s\x1b[m\n",muser.title);
 
     prints("[·s«H¥¼Åª]");
     sethomedir(currmaildir, muser.userid);
     usize = dashs(currmaildir);
-    outs(chkmail(1) || muser.userlevel & PERM_SYSOP ? "[1;5;33m¦³" : "[1;30mµL");
+    outs(chkmail(1) || muser.userlevel & PERM_SYSOP ? "\x1b[1;5;33m¦³" : "\x1b[1;30mµL");
     sethomedir(currmaildir, cuser.userid);
     chkmail(1);
 // wildcat:realnameÀ³¸Ó¤£»Ý­n¤F(user¦Ñ¬O¥H¬°¯u¹ê©m¦W·|³Q§O¤H¬Ý¨ì)
 //    if (HAS_PERM(PERM_SYSOP) || !strcmp(muser.userid, cuser.userid))
 //      prints("[©m¦W]%s", muser.realname);
-    prints("[1;36m%s[m\n", msg_seperator);
+    prints("\x1b[1;36m%s\x1b[m\n", msg_seperator);
     prints("[¤W¯¸¦aÂI]%-30.30s",muser.lasthost[0] ? muser.lasthost : "(¤£¸Ô)");
     prints("[¤W¯¸®É¶¡]%s\n",Etime(&muser.lastlogin));
     prints("[¤W¯¸¦¸¼Æ]%-30d",muser.numlogins);
@@ -357,7 +357,7 @@ my_query(uident)
       prints("[¥Ø¿ý¤j¤p]%d\n",usize);
       prints("[«e¦¸¬d¸ß]%-30.30s[³Q¬d¸ß]%s\n",muser.toqid,muser.beqid);
     }
-    prints("[1;36m%s[m\n", msg_seperator);
+    prints("\x1b[1;36m%s\x1b[m\n", msg_seperator);
 
     if(strcmp(muser.beqid,cuser.userid))
     {
@@ -481,8 +481,8 @@ woju
    if (*hint != 1) {
       sethomefile(genbuf, uin->userid, fn_writelog);
       if (fp = fopen(genbuf, "a")) {
-        fprintf(fp, COLOR2"[1m¡¹ [37m%s %s %s [0m[%s]\n",
-          cuser.userid, (*hint == 2) ? "[33;41m¼s¼½" : "", msg, Cdatelite(&now));
+        fprintf(fp, COLOR2"\x1b[1m¡¹ \x1b[37m%s %s %s \x1b[0m[%s]\n",
+          cuser.userid, (*hint == 2) ? "\x1b[33;41m¼s¼½" : "", msg, Cdatelite(&now));
         fclose(fp);
       }
       sethomefile(genbuf, cuser.userid, fn_writelog);
@@ -518,7 +518,7 @@ woju
          pressanykey("ÁV¿|! ¨S¥´¤¤! ~>_<~");
       else if (uin->msgcount == 1 && *hint != 1)
       {
-         outz("[1m[44m¤ô²y¯{¹L¥h¤F! *^o^Y[m");
+         outz("\x1b[1m\x1b[44m¤ô²y¯{¹L¥h¤F! *^o^Y\x1b[m");
       }
    }
 //   clrtoeol();
@@ -547,24 +547,24 @@ t_display_new()
          move(1,0);
          clrtoeol();
          outs(
-" [1;34m¢w¢w¢w¢w¢w¢w¢w[37m¤ô[34m¢w[37m²y[34m¢w[37m¦^[34m¢w[37mÅU[34m¢w¢w¢w¢w¢w¢w¢w¢w¢w"COLOR1" [Ctrl-R]©¹¤U¤Á´« [34;40m¢w¢w¢w¢w¢w¢w [m");
+" \x1b[1;34m¢w¢w¢w¢w¢w¢w¢w\x1b[37m¤ô\x1b[34m¢w\x1b[37m²y\x1b[34m¢w\x1b[37m¦^\x1b[34m¢w\x1b[37mÅU\x1b[34m¢w¢w¢w¢w¢w¢w¢w¢w¢w"COLOR1" [Ctrl-R]©¹¤U¤Á´« \x1b[34;40m¢w¢w¢w¢w¢w¢w \x1b[m");
          for(i=0 ; i < oldmsg_count ;i++)
                 {
                  int a = (no_oldmsg - i - 1 + MAX_REVIEW )%MAX_REVIEW;
                  move(i+2,0);
                  clrtoeol();
                  if(watermode-1 != i)
-                    sprintf(buf,"[1;37m %s %s[m",
+                    sprintf(buf,"\x1b[1;37m %s %s\x1b[m",
                          oldmsg[a].last_userid,oldmsg[a].last_call_in);
                  else
-                    sprintf(buf,"[1m[36m>%s %s[m",
+                    sprintf(buf,"\x1b[1m\x1b[36m>%s %s\x1b[m",
                          oldmsg[a].last_userid,oldmsg[a].last_call_in);
                  outs(buf);
                 }
           move(i+2,0);
           clrtoeol();
           outs(
-" [1;34m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w"COLOR1" [Ctrl-T]©¹¤W¤Á´« [40;34m¢w¢w¢w¢w¢w¢w[m ");
+" \x1b[1;34m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w"COLOR1" [Ctrl-T]©¹¤W¤Á´« \x1b[40;34m¢w¢w¢w¢w¢w¢w\x1b[m ");
      }
   t_display_new_flag =0;
 }
@@ -582,7 +582,7 @@ t_display()
     switch (getans("²M°£(C) ²¾¦Ü³Æ§Ñ¿ý(M) «O¯d(R) (C/M/R)?[R]"))
     {
     case 'm':
-      mail2user(cuser, "¼ö½u[37;41m°O¿ý[m", genbuf);
+      mail2user(cuser, "¼ö½u\x1b[37;41m°O¿ý\x1b[m", genbuf);
       /* shakalaca.000814: ¤£¥Î break ¬O¦]¬° mail2user() ¥Î¤F f_cp,
       	©Ò¥H±µµÛ 'c' ±N­ì©lÀÉ®× unlink */
 
@@ -746,10 +746,10 @@ do_talk_char(twin, ch)
   str_trim(buf);
   if (*buf)
      fprintf(flog, "%s%s: %s%s\n",
-        (twin->eline == b_lines - 1) ? "[1;33m" : "",
+        (twin->eline == b_lines - 1) ? "\x1b[1;33m" : "",
         (twin->eline == b_lines - 1) ?
         getuserid(currutmp->destuid) : cuser.userid, buf,
-        (ch == Ctrl('P')) ? "[37;45m(Up)[m" : "[m");
+        (ch == Ctrl('P')) ? "\x1b[37;45m(Up)\x1b[m" : "\x1b[m");
 }
 
 
@@ -791,7 +791,7 @@ do_talk(fd)
    memset(data, ' ', i);
    data[i] = '\0';
 
-   sprintf(mid_line, COLOR2"  ­·¹Ð¹ï¸Ü  [1m"COLOR1"%s%s¡j [37m»P  "COLOR1"%s%s[m",
+   sprintf(mid_line, COLOR2"  ­·¹Ð¹ï¸Ü  \x1b[1m"COLOR1"%s%s¡j \x1b[37m»P  "COLOR1"%s%s\x1b[m",
      data, genbuf, save_page_requestor,  data);
 
    memset(&mywin, 0, sizeof(mywin));
@@ -902,7 +902,7 @@ do_talk(fd)
 
      time(&now);
 #if 0
-     fprintf(flog, "\n[33;44mÂ÷§Oµe­± [%s] ...     [m\n", Cdatelite(&now));
+     fprintf(flog, "\n\x1b[33;44mÂ÷§Oµe­± [%s] ...     \x1b[m\n", Cdatelite(&now));
      for (i = 0; i < scr_lns; i++)
        fprintf(flog, "%.*s\n", big_picture[i].len, big_picture[i].data);
 #endif
@@ -910,7 +910,7 @@ do_talk(fd)
 
      more(fpath, NA);
 
-     sprintf(buf, "¹ï¸Ü°O¿ý [1;36m(%s)[m", getuserid(currutmp->destuid));
+     sprintf(buf, "¹ï¸Ü°O¿ý \x1b[1;36m(%s)\x1b[m", getuserid(currutmp->destuid));
           
      if (getans("²M°£(C) ²¾¦Ü³Æ§Ñ¿ý(M) (C/M)?[C]") == 'm')
        mail2user(cuser, buf, fpath);
@@ -1489,9 +1489,9 @@ pickup_user()
     {
       sprintf(tmpbuf,"%s [½u¤W %d ¤H]",BOARDNAME, unumber);
       showtitle((cuser.uflag & FRIEND_FLAG)? "¦n¤Í¦Cªí": "¥ð¶¢²á¤Ñ", tmpbuf);
-      prints(" ±Æ§Ç¡G[%s]     [1;32m§ÚªºªB¤Í¡G%-3d "
-        "[33m»P§Ú¬°¤Í¡G%-3d [36mªO¤Í¡G%-3d [31mÃa¤H¡G%-3d[m\n"
-        COLOR1"[1m  %sTP%c¥N¸¹         %-17s%-17s%-13s%-10s[m\n",
+      prints(" ±Æ§Ç¡G[%s]     \x1b[1;32m§ÚªºªB¤Í¡G%-3d "
+        "\x1b[33m»P§Ú¬°¤Í¡G%-3d \x1b[36mªO¤Í¡G%-3d \x1b[31mÃa¤H¡G%-3d\x1b[m\n"
+        COLOR1"\x1b[1m  %sTP%c¥N¸¹         %-17s%-17s%-13s%-10s\x1b[m\n",
         msg_pickup_way[pickup_way], 
         friends_number, override_number,bfriends_number, badman,
 #ifdef SHOWUID
@@ -1553,7 +1553,7 @@ pickup_user()
 #ifdef HYPER_BBS
       char hbuf[512];      
 
-      sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[713m",
+      sprintf(hbuf,"\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[713m",
 	  ((ch+1)/10000)+648,
 	  (((ch+1)%10000)/1000)+648,
 	  (((ch+1)%1000)/100)+648,
@@ -1586,9 +1586,9 @@ pickup_user()
       hate = is_rejected(uentp);
       diff = uentp->pager & !(hate & HRM);
 #ifdef HYPER_BBS
-      prints("%5d %c%c%s%-13s%-17.16s[m%-16.16s %-13.13s %s%-4.4s%s%s[201m[m\n",
+      prints("%5d %c%c%s%-13s%-17.16s\x1b[m%-16.16s %-13.13s %s%-4.4s%s%s\x1b[201m\x1b[m\n",
 #else
-      prints("%5d %c%c%s%-13s%-17.16s[m%-16.16s %-13.13s %s%-4.4s%s[m\n",
+      prints("%5d %c%c%s%-13s%-17.16s\x1b[m%-16.16s %-13.13s %s%-4.4s%s\x1b[m\n",
 #endif
 #ifdef SHOWUID
       show_uid ? uentp->uid :
@@ -1631,9 +1631,9 @@ pickup_user()
       continue;
 
     move(b_lines, 0);
-    outs(COLOR1"[1;33m (TAB/f)[37m±Æ§Ç/¦n¤Í [33m(t)[37m²á¤Ñ "
-"[33m(a/d/o)[37m¥æ¤Í [33m(q)[37m¬d¸ß [33m(w)[37m¦©À³ "
-"[33m(m)[37m±H«H [33m(Ctrl+Z)[37m½u¤W»²§U [m");
+    outs(COLOR1"\x1b[1;33m (TAB/f)\x1b[37m±Æ§Ç/¦n¤Í \x1b[33m(t)\x1b[37m²á¤Ñ "
+"\x1b[33m(a/d/o)\x1b[37m¥æ¤Í \x1b[33m(q)\x1b[37m¬d¸ß \x1b[33m(w)\x1b[37m¦©À³ "
+"\x1b[33m(m)\x1b[37m±H«H \x1b[33m(Ctrl+Z)\x1b[37m½u¤W»²§U \x1b[m");
     state = 0;
     while (!state)
     {
@@ -2224,10 +2224,10 @@ talkreply()
 
   clear();
   outs("\n"
-"       (Y) Åý§Ú­Ì talk §a¡I     (A) §Ú²{¦b«Ü¦£¡A½Ðµ¥¤@·|¨à¦A call §Ú"
-"       (N) §Ú²{¦b¤£·Q talk      (B) ¹ï¤£°_¡A§Ú¦³¨Æ±¡¤£¯à¸ò§A talk"
-"       (C) ½Ð¤£­n§n§Ú¦n¶Ü¡H     (D) ¦³¨Æ¶Ü¡H½Ð¥ý¨Ó«H"
-"       (E) [1;33m§Ú¦Û¤v¿é¤J²z¥Ñ¦n¤F...[m\n\n");
+"       (Y) Åý§Ú­Ì talk §a¡I     (A) §Ú²{¦b«Ü¦£¡A½Ðµ¥¤@·|¨à¦A call §Ú\n"
+"       (N) §Ú²{¦b¤£·Q talk      (B) ¹ï¤£°_¡A§Ú¦³¨Æ±¡¤£¯à¸ò§A talk\n"
+"       (C) ½Ð¤£­n§n§Ú¦n¶Ü¡H     (D) ¦³¨Æ¶Ü¡H½Ð¥ý¨Ó«H\n"
+"       (E) \x1b[1;33m§Ú¦Û¤v¿é¤J²z¥Ñ¦n¤F...\x1b[m\n\n");
 
   getuser(uip->userid);
   currutmp->msgs[0].last_pid = uip->pid;
@@ -2301,7 +2301,7 @@ t_aloha()
   pid_t pid;
   char buf[100];
 
-  sprintf(buf + 1, "[1;37;41m¡¸ %s(%s) ¤W¯¸¤F! [0m",
+  sprintf(buf + 1, "\x1b[1;37;41m¡¸ %s(%s) ¤W¯¸¤F! \x1b[0m",
     cuser.userid, cuser.username);
   *buf = 0;
 
@@ -2381,7 +2381,7 @@ shortulist(uentp)
 
     sprintf(uentry, "%s%-13s%c%-10s%s ", fcolor[state],
       uentp->userid, uentp->invisible ? '#' : ' ',
-      modestring(uentp, 1), state ? "[m" : "");
+      modestring(uentp, 1), state ? "\x1b[m" : "");
   }
   if (++linecnt < 3)
   {
@@ -2419,8 +2419,8 @@ do_list(modestr)
 
     count = shortulist(NULL);
     move(b_lines, 0);
-    prints(COLOR1"[1m  ¤W¯¸Á`¤H¼Æ¡G%-7d[32m§ÚªºªB¤Í¡G%-6d"
-      "[33m»P§Ú¬°¤Í¡G%-8d[30m%-23s[37;40;0m",
+    prints(COLOR1"\x1b[1m  ¤W¯¸Á`¤H¼Æ¡G%-7d\x1b[32m§ÚªºªB¤Í¡G%-6d"
+      "\x1b[33m»P§Ú¬°¤Í¡G%-8d\x1b[30m%-23s\x1b[37;40;0m",
       count, friends_number, override_number, Etime(&thetime));
     refresh();
   }

@@ -1029,7 +1029,7 @@ chat_topic(cu, msg)
 
   room_changed(room);
 
-  sprintf(chatbuf, "¡» %s ±N¸ÜÃD§ï¬° [1;32m%s[m", cu->chatid, topic);
+  sprintf(chatbuf, "¡» %s ±N¸ÜÃD§ï¬° \x1b[1;32m%s\x1b[m", cu->chatid, topic);
   if (!CLOAK(cu))               /* Thor: ²á¤Ñ«ÇÁô¨­³N */
     send_to_room(room, chatbuf, 0, MSG_MESSAGE);
 }
@@ -1069,7 +1069,7 @@ chat_nick(cu, msg)
 
   str = cu->chatid;
 
-  sprintf(chatbuf, "¡° %s ±N²á¤Ñ¥N¸¹§ï¬° [1;33m%s[m", str, chatid);
+  sprintf(chatbuf, "¡° %s ±N²á¤Ñ¥N¸¹§ï¬° \x1b[1;33m%s\x1b[m", str, chatid);
   if (!CLOAK(cu))               /* Thor: ²á¤Ñ«ÇÁô¨­³N */
     send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
 
@@ -1100,7 +1100,7 @@ chat_color(cu, msg)
     return;
   }
 
-  sprintf(chatbuf, "¡° %s §ó§ïÃC¦â¬° [1;3%dm³o¼Ë[m", cu->chatid, color);
+  sprintf(chatbuf, "¡° %s §ó§ïÃC¦â¬° \x1b[1;3%dm³o¼Ë\x1b[m", cu->chatid, color);
   if (!CLOAK(cu))               /* Thor: ²á¤Ñ«ÇÁô¨­³N */
     send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
 
@@ -1123,7 +1123,7 @@ chat_list_rooms(cuser, msg)
   if (common_client_command)
     send_to_user(cuser, "", 0, MSG_ROOMLISTSTART);
   else
-    send_to_user(cuser, "[7m ½Í¤Ñ«Ç¦WºÙ  ¢x¤H¼Æ¢x¸ÜÃD        [m", 0, MSG_MESSAGE);
+    send_to_user(cuser, "\x1b[7m ½Í¤Ñ«Ç¦WºÙ  ¢x¤H¼Æ¢x¸ÜÃD        \x1b[m", 0, MSG_MESSAGE);
 
   room = cuser->room;
   cr = &mainroom;
@@ -1181,7 +1181,7 @@ chat_do_user_list(cu, msg, theroom)
   if (common_client_command)
     send_to_user(cu, "", 0, MSG_USERLISTSTART);
   else
-    send_to_user(cu, "[7m ²á¤Ñ¥N¸¹¢x¨Ï¥ÎªÌ¥N¸¹  ¢x²á¤Ñ«Ç [m", 0, MSG_MESSAGE);
+    send_to_user(cu, "\x1b[7m ²á¤Ñ¥N¸¹¢x¨Ï¥ÎªÌ¥N¸¹  ¢x²á¤Ñ«Ç \x1b[m", 0, MSG_MESSAGE);
 
   for (user = mainuser; user; user = user->unext)
   {
@@ -1301,7 +1301,7 @@ chat_map_chatids(cu, whichroom)
   /* myroom = cu->room; */
   myroom = whichroom;
   send_to_user(cu,
-    "[7m ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹  ¢x ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹  ¢x ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹ [m", 0, MSG_MESSAGE);
+    "\x1b[7m ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹  ¢x ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹  ¢x ²á¤Ñ¥N¸¹ ¨Ï¥ÎªÌ¥N¸¹ \x1b[m", 0, MSG_MESSAGE);
 
   c = 0;
 
@@ -1529,7 +1529,7 @@ chat_private(cu, msg)
   else if (*msg)
   {
     userno = cu->userno;
-    sprintf(chatbuf, "[1m*%s*[m ", cu->chatid);
+    sprintf(chatbuf, "\x1b[1m*%s*\x1b[m ", cu->chatid);
     msg[79] = 0;                /* Thor:¨¾¤î¤Óªø */
     strncat(chatbuf, msg, 80);
     send_to_user(xuser, chatbuf, userno, MSG_MESSAGE);
@@ -1611,7 +1611,7 @@ arrive_room(cuser, room)
     send_to_user(cuser, chatbuf, 0, 0);
   }
 
-  sprintf(chatbuf, "¡° [32;1m%s[m ¶i¤J [33;1m[%s][m ¥]´[",
+  sprintf(chatbuf, "¡° \x1b[32;1m%s\x1b[m ¶i¤J \x1b[33;1m[%s]\x1b[m ¥]´[",
     cuser->chatid, rname);
   if (!CLOAK(cuser))            /* Thor: ²á¤Ñ«ÇÁô¨­³N */
     send_to_room(room, chatbuf, cuser->userno, MSG_MESSAGE);
@@ -1800,10 +1800,10 @@ print_user_counts(cuser)
   number = (cuser->clitype) ? MSG_MOTD : MSG_MESSAGE;
 
   sprintf(chatbuf,
-    "¡ó Åwªï¥úÁ{¡i­·¹Ð¯ù¼Ó¡j¡A¥Ø«e¶}¤F [1;31m%d[m ¶¡¥]´[", roomc);
+    "¡ó Åwªï¥úÁ{¡i­·¹Ð¯ù¼Ó¡j¡A¥Ø«e¶}¤F \x1b[1;31m%d\x1b[m ¶¡¥]´[", roomc);
   send_to_user(cuser, chatbuf, 0, number);
 
-  sprintf(chatbuf, "¡ó ¦@¦³ [1;36m%d[m ¤H¨ÓÂ\\Àsªù°}", userc);
+  sprintf(chatbuf, "¡ó ¦@¦³ \x1b[1;36m%d\x1b[m ¤H¨ÓÂ\\Àsªù°}", userc);
   if (suserc)
     sprintf(chatbuf + strlen(chatbuf), " [%d ¤H¦b¯µ±K²á¤Ñ«Ç]", suserc);
   send_to_user(cuser, chatbuf, 0, number);
@@ -2011,7 +2011,7 @@ chat_act(cu, msg)
 {
   if (*msg && (!RHANDUP(cu->room) || SAY(cu) || ROOMOP(cu)))
   {
-    sprintf(chatbuf, "%s [36m%s[m", cu->chatid, msg);
+    sprintf(chatbuf, "%s \x1b[36m%s\x1b[m", cu->chatid, msg);
     send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
   }
 }
@@ -2310,7 +2310,7 @@ chat_broadcast(cu, msg)
     send_to_user(cu, "¡° ½Ð«ü©w¼s¼½¤º®e", 0, MSG_MESSAGE);
     return;
   }
-  sprintf(chatbuf, "[1m¡° " BOARDNAME "½Í¤Ñ«Ç¼s¼½¤¤ [%s].....[m",
+  sprintf(chatbuf, "\x1b[1m¡° " BOARDNAME "½Í¤Ñ«Ç¼s¼½¤¤ [%s].....\x1b[m",
     cu->chatid);
   send_to_room(ROOM_ALL, chatbuf, 0, MSG_MESSAGE);
   sprintf(chatbuf, "¡» %s", msg);
@@ -2650,7 +2650,7 @@ party_action(cu, cmd, party)
           party = xuser->chatid;
         }
       }
-      sprintf(chatbuf, "[1;32m%s [31m%s[33m %s [31m%s[m",
+      sprintf(chatbuf, "\x1b[1;32m%s \x1b[31m%s\x1b[33m %s \x1b[31m%s\x1b[m",
         cu->chatid, cap->part1_msg, party, cap->part2_msg);
       send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
       return 0;                 /* Thor: cu->room ¬O§_¬° NULL? */
@@ -2771,7 +2771,7 @@ speak_action(cu, cmd, msg)
 
     if (str_equal(cmd, verb))
     {
-      sprintf(chatbuf, "[1;32m%s [31m%s¡G[33m %s[m",
+      sprintf(chatbuf, "\x1b[1;32m%s \x1b[31m%s¡G\x1b[33m %s\x1b[m",
         cu->chatid, cap->part1_msg, msg);
       send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
       return 0;                 /* Thor: cu->room ¬O§_¬° NULL? */
@@ -2962,7 +2962,7 @@ condition_action(cu, cmd)
 
     if (str_equal(cmd, verb))
     {
-      sprintf(chatbuf, "[1;32m%s [31m%s[m",
+      sprintf(chatbuf, "\x1b[1;32m%s \x1b[31m%s\x1b[m",
         cu->chatid, cap->part1_msg);
       send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
       return 1;                 /* Thor: cu->room ¬O§_¬° NULL? */
@@ -2979,9 +2979,9 @@ condition_action(cu, cmd)
 
 static char *dscrb[] =
 {
-  "[1;37m¡i Verb + Nick¡G   °Êµü + ¹ï¤è¦W¦r ¡j[36m   ¨Ò¡G//kick piggy[m",
-  "[1;37m¡i Verb + Message¡G°Êµü + ­n»¡ªº¸Ü ¡j[36m   ¨Ò¡G//sing ¤Ñ¤Ñ¤ÑÂÅ[m",
-  "[1;37m¡i Verb¡G°Êµü ¡j    ¡ô¡õ¡GÂÂ¸Ü­«´£[m", NULL
+  "\x1b[1;37m¡i Verb + Nick¡G   °Êµü + ¹ï¤è¦W¦r ¡j\x1b[36m   ¨Ò¡G//kick piggy\x1b[m",
+  "\x1b[1;37m¡i Verb + Message¡G°Êµü + ­n»¡ªº¸Ü ¡j\x1b[36m   ¨Ò¡G//sing ¤Ñ¤Ñ¤ÑÂÅ\x1b[m",
+  "\x1b[1;37m¡i Verb¡G°Êµü ¡j    ¡ô¡õ¡GÂÂ¸Ü­«´£\x1b[m", NULL
 };
 ChatAction *catbl[] =
 {
@@ -3233,7 +3233,7 @@ command_execute(cu)
       char buf[16];
 
       sprintf(buf, "%s:", cu->chatid);
-      sprintf(chatbuf, "[1;3%dm%-10s%s[m", cu->color,buf, msg);
+      sprintf(chatbuf, "\x1b[1;3%dm%-10s%s\x1b[m", cu->color,buf, msg);
       if (!CLOAK(cu))           /* Thor: ²á¤Ñ«ÇÁô¨­³N */
         send_to_room(cu->room, chatbuf, cu->userno, MSG_MESSAGE);
       /* Thor: ­n check cu->room NULL¶Ü? */

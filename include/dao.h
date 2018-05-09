@@ -25,7 +25,9 @@ extern char radix32[32];
 
 
 #include "hdr.h"			/* prototype */
-#include "../lib/dao.p"			/* prototype */
+
+
+//#include "../lib/dao.p"			/* prototype */
 
 
 #endif	// _DAO_H_

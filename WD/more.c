@@ -24,27 +24,27 @@ Ptt_prints(char* str,int mode)
 {
   char *po , *px, strbuf[512];
 
-  while (po = strstr(str, "\033[12"))
+  while (po = strstr(str, "\x1b[12"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033[10"))
+  while (po = strstr(str, "\x1b[10"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033n"))
+  while (po = strstr(str, "\x1bn"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033]"))
+  while (po = strstr(str, "\x1b]"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033[="))
+  while (po = strstr(str, "\x1b[="))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\033*"))
+  while (po = strstr(str, "\x1b*"))
   {
     switch(*(po+2))
     {
@@ -223,10 +223,10 @@ more(fpath, promptend)
 {
   extern char* strcasestr();
   static char *head[4] = 
-    {"[1;36m¢~ [46;33m§@ªÌ[m", 
-     "[1;36m¢x [46;33m¼ÐÃD[m", 
-     "[1;36m¢x [46;33m®É¶¡[m" ,
-     "[1;36m¢x [46;33mÂà«H[m"};
+    {"\x1b[1;36m¢~ \x1b[46;33m§@ªÌ\x1b[m", 
+     "\x1b[1;36m¢x \x1b[46;33m¼ÐÃD\x1b[m", 
+     "\x1b[1;36m¢x \x1b[46;33m®É¶¡\x1b[m" ,
+     "\x1b[1;36m¢x \x1b[46;33mÂà«H\x1b[m"};
   char *ptr, *word, buf[1024],*ch1;
   struct stat st;
   usint pagebreak[MAXPAGES], pageno, lino;
@@ -301,10 +301,10 @@ more(fpath, promptend)
             {
               ptr[-1] = '\0';
               prints("%s%-52.52s",head[0], word);
-              prints("[1;46;33m%.4s[0;1;33m%-13s[1;36m¢¡[0m\n", ptr, ptr + 5);
+              prints("\x1b[1;46;33m%.4s\x1b[0;1;33m%-13s\x1b[1;36m¢¡\x1b[0m\n", ptr, ptr + 5);
             }
             else if (pos < (local ? 3 : 4))
-              prints("%s%-69.69s[1;36m¢x[0m\n", head[pos], word);
+              prints("%s%-69.69s\x1b[1;36m¢x\x1b[0m\n", head[pos], word);
 
             viewed += numbytes;
             numbytes = readln(fd, buf);
@@ -324,7 +324,7 @@ more(fpath, promptend)
           {
             header = 1;
 
-            prints("[1;36m%s[m\n", msg_sep3);
+            prints("\x1b[1;36m%s\x1b[m\n", msg_sep3);
 //            prints("\n");
             line = pos = (local ? 4 : 5);
           }
@@ -340,11 +340,11 @@ more(fpath, promptend)
       /* ¡°³B²z¤Þ¥ÎªÌ & ¤Þ¨¥ */
 
       if ((buf[1] == ' ') && (buf[0] == ':' || buf[0] == '>'))
-        word = "[36m";
+        word = "\x1b[36m";
       if ((buf[1] == ' ') && (buf[0] == ':' || buf[0] == '>') && (buf[2] == ':' || buf[2] == '>'))
-        word = "[33m";
+        word = "\x1b[33m";
       if ((buf[0] == '¡' && buf[1] == '°') || !strncmp(buf, "==>", 3))
-        word = "[1;36m";
+        word = "\x1b[1;36m";
 
       ch1 = buf ;
       while(1) /* Ptt */
@@ -385,10 +385,10 @@ woju
            strncpy(SearchStr, pos, strlen(search_str));
            SearchStr[strlen(search_str)] = 0;
            searching = 0;
-           sprintf(msg, "%.*s[7m%s[0m", pos - buf, buf,
+           sprintf(msg, "%.*s\x1b[7m%s\x1b[0m", pos - buf, buf,
               SearchStr);
            while (pos = fptr(pos1 = pos + strlen(search_str), search_str)) {
-              sprintf(buf1, "%.*s[7m%s[0m", pos - pos1, pos1, SearchStr);
+              sprintf(buf1, "%.*s\x1b[7m%s\x1b[0m", pos - pos1, pos1, SearchStr);
               strcat(msg, buf1);
            }
            strcat(msg, pos1);
@@ -399,7 +399,7 @@ woju
         }
       }
       if (word) {
-        outs("[0m");
+        outs("\x1b[0m");
         word = NULL;
       }
       outch('\n');
@@ -472,12 +472,12 @@ woju
       }
       prints(COLOR2"  ÂsÄý P.%d(%d%%)  ", pageno,(viewed * 100) / st.st_size);
 #ifdef HYPER_BBS
-      prints(COLOR1" [1m[33m(^Z)[37m¨D§U [33m¡÷[200m[505m¡õ[201m");
-      prints("[200m[500m[PgUp][201m[200m[501m[PgDn][201m[200m[502m[Home][201m");
-      prints("[200m[503m[End][201m  [200m[506m[33m¡ö[37mµ²§ô[201m  [m\n");
+      prints(COLOR1" \x1b[1m\x1b[33m(^Z)\x1b[37m¨D§U \x1b[33m¡÷\x1b[200m\x1b[505m¡õ\x1b\x1b[201m");
+      prints("\x1b[200m\x1b[500m[PgUp]\x1b[201m\x1b[200m\x1b[501m[PgDn]\x1b[201m\x1b[200m\x1b\x1b[502m[Home]\x1b[201m");
+      prints("\x1b[200m\x1b[503m[End]\x1b[201m  \x1b[200m\x1b[506m\x1b[33m¡ö\x1b[37mµ²§ô\x1b[201m  \x1b[m\n");
 #else
-      prints(COLOR1" [1m[33m (^Z)[37m¨D§U \
-[33m¡÷¡õ [PgUp][PgDn][Home][End][33m ¡ö(q)[37mµ²§ô   [m\n");
+      prints(COLOR1" \x1b[1m\x1b[33m (^Z)\x1b[37m¨D§U \
+\x1b[33m¡÷¡õ [PgUp][PgDn][Home][End]\x1b[33m ¡ö(q)\x1b[37mµ²§ô   \x1b[m\n");
 #endif
       move(b_lines,0);
       while (line == b_lines || (line > 0 && viewed == st.st_size))
@@ -791,7 +791,7 @@ more_web(fpath, promptend)
         if(!HAS_PERM(PERM_LOGINOK))
            {
              move(b_lines - 1,0);
-             outs("[41m ±zªºÅv­­¤£¨¬µLªk¨Ï¥Îinternet mail... [m");
+             outs("\x1b[41m ±zªºÅv­­¤£¨¬µLªk¨Ï¥Îinternet mail... \x1b[m");
              refresh();
              return 0;
            }
@@ -803,7 +803,7 @@ more_web(fpath, promptend)
         else
            {
              move(b_lines - 1,0);
-             outs("[41m ¦¬«H¤Hemail ©Î ¼ÐÃD ¦³»~... [m");
+             outs("\x1b[41m ¦¬«H¤Hemail ©Î ¼ÐÃD ¦³»~... \x1b[m");
              refresh();
            }
         return 0;

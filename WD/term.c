@@ -874,8 +874,6 @@ int strtstandoutlen;
 char endstandout[TERMCOMSIZE];
 int endstandoutlen;
 
-extern ochar();
-
 int t_lines = 24;
 int b_lines = 23;
 int p_lines = 20;

@@ -12,9 +12,16 @@ OPSYS	!= uname -o
 
 BBSHOME	?= $(HOME)
 
+DAOLIB	= -L../lib2/str -ldaostr \
+	  -L../lib2/file -ldaofile \
+	  -L../lib2/rec -ldaorec \
+	  -L../lib2/op -ldaoop \
+	  -L../lib2/sys -ldaosys \
+	  -L../lib2/wdlib -lwd
+
 CC	= clang
 CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
-LDFLAGS	= -lcrypt -L../lib -ldao -ltermcap  
+LDFLAGS	= -lcrypt $(DAOLIB) -lcurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -40,9 +47,9 @@ ETC =	Makefile $(HDR)
 
 
 .if $(OPSYS) == "FreeBSD"
-.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386_fbsd
+.o.so:	;   ld -G $*.o -o $*.so $(DAOLIB) -melf_i386_fbsd
 .else
-.o.so:	;   ld -G $*.o -o $*.so -L../lib -ldao -melf_i386
+.o.so:	;   ld -G $*.o -o $*.so $(DAOLIB) -melf_i386
 .endif
 
 all:$(SO)
@@ -50,7 +57,7 @@ all:$(SO)
 so: $(SO)
 
 install: $(SO)
-	install -m 0700 $(SO) $(BBSHOME)/bin
+	install -m 0700 $(SO) $(BBSHOME)/SO
 
 clean: /tmp
 	rm -fr $(GARBAGE) *.o $(SO) $(LNFILES) *~ 

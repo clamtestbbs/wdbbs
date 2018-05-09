@@ -476,7 +476,7 @@ listdoent(num, ent)
 {
   if (currstat != LISTMAIN)
   {
-    prints(" %4d \033[1;33m%c\033[31m%c\033[36m%c\033[m  %-6s %-13s %-40s\n", num,
+    prints(" %4d \x1b[1;33m%c\x1b[31m%c\x1b[36m%c\x1b[m  %-6s %-13s %-40s\n", num,
 	   ent->filemode & M_PAL ? 'f' : ' ',
 	   ent->filemode & M_BAD ? 'b' : ' ',
 	   ent->filemode & M_ALOHA ? 'a' : ' ',
@@ -495,11 +495,11 @@ listtitle()
   if (currstat != LISTMAIN)
     outs("\
   [a]新增 [c]修改 [d]刪除 [m]移動 [i]引入名單 [s]群組寄信 [→]觀看 [h]elp\n\
-" COLOR1 "\033[1m 編號 模式 日  期 名  稱        描        述                                   \033[0m");
+" COLOR1 "\x1b[1m 編號 模式 日  期 名  稱        描        述                                   \x1b[0m");
   else
     outs("\
   [a]新增 [c]修改 [d]刪除 [m]移動 [→]觀看 [h]elp\n\
-" COLOR1 "\033[1m 編號 日  期 名  稱        描        述                                        \033[0m");
+" COLOR1 "\x1b[1m 編號 日  期 名  稱        描        述                                        \x1b[0m");
 }
 
 

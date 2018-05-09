@@ -32,26 +32,26 @@ user_display(u, real)
 
   clrtobot();
   sethomedir(genbuf, u->userid);
-  outs("[1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w[42m   ¨Ï¥ÎªÌ¸ê®Æ   [40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\n");
+  outs("\x1b[1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w\x1b[42m   ¨Ï¥ÎªÌ¸ê®Æ   \x1b[40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\n");
   prints(""
-"  [32m­^¤å¥N¸¹¡G[37m%-16.16s[32m¼ÊºÙ¡G[37m%-20.20s[32m©Ê§O¡G[37m%-8.8s\n"
-"  [32m¯u¹ê©m¦W¡G[37m%-16.16s[32m¦í§}¡G[37m%-40s\n"
-"  [32m¥X¥Í¤é´Á¡G[37m19%02i¦~%02i¤ë%02i¤é  [32m¢ÓMail¡G[37m%-40s\n",
+"  \x1b[32m­^¤å¥N¸¹¡G\x1b[37m%-16.16s\x1b[32m¼ÊºÙ¡G\x1b[37m%-20.20s\x1b[32m©Ê§O¡G\x1b[37m%-8.8s\n"
+"  \x1b[32m¯u¹ê©m¦W¡G\x1b[37m%-16.16s\x1b[32m¦í§}¡G\x1b[37m%-40s\n"
+"  \x1b[32m¥X¥Í¤é´Á¡G\x1b[37m19%02i¦~%02i¤ë%02i¤é  \x1b[32m¢ÓMail¡G\x1b[37m%-40s\n",
     u->userid,u->username,sex[u->sex],
     u->realname, u->address,
     u->year, u->month, u->day, u->email); 
-  prints("  [32m¤W¯¸¦¸¼Æ¡G[37m%-16d[32mµù¥U¤é´Á¡G[37m%s"
+  prints("  \x1b[32m¤W¯¸¦¸¼Æ¡G\x1b[37m%-16d\x1b[32mµù¥U¤é´Á¡G\x1b[37m%s"
     ,u->numlogins,ctime(&u->firstlogin)); 
-  prints("  [32m¤å³¹¼Æ¥Ø¡G[37m%-16d[32m«e¦¸¤W¯¸¡G[37m%s"
+  prints("  \x1b[32m¤å³¹¼Æ¥Ø¡G\x1b[37m%-16d\x1b[32m«e¦¸¤W¯¸¡G\x1b[37m%s"
     ,u->numposts,ctime(&u->lastlogin)); 
-  prints("  [32m¨p¤H«H½c¡G[37m%-4d «Ê         [32m§Q®§µo©ñ¡G[37m%s"
+  prints("  \x1b[32m¨p¤H«H½c¡G\x1b[37m%-4d «Ê         \x1b[32m§Q®§µo©ñ¡G\x1b[37m%s"
     ,rec_num(genbuf, sizeof(fileheader)),ctime(&u->dtime));
   prints(
-"  [32m«H½c¤W­­¡G[37m%d «Ê\n"
-"  [32m¤H®ð«ü¼Æ¡G[37m%-16ld[32m¦n©_«ü¼Æ¡G[37m%-16ld[32m¤ß±¡¡G[37m%-4.4s\n"
-"  [32mµo°T®§¼Æ¡G[37m%-16d[32m¦¬°T®§¼Æ¡G[37m%d\n"
-"  [32m¤W¯¸¦aÂI¡G[37m%s \n"
-"  [32m¶Ç©I¸¹½X¡G[37m0%d-%s \n"
+"  \x1b[32m«H½c¤W­­¡G\x1b[37m%d «Ê\n"
+"  \x1b[32m¤H®ð«ü¼Æ¡G\x1b[37m%-16ld\x1b[32m¦n©_«ü¼Æ¡G\x1b[37m%-16ld\x1b[32m¤ß±¡¡G\x1b[37m%-4.4s\n"
+"  \x1b[32mµo°T®§¼Æ¡G\x1b[37m%-16d\x1b[32m¦¬°T®§¼Æ¡G\x1b[37m%d\n"
+"  \x1b[32m¤W¯¸¦aÂI¡G\x1b[37m%s \n"
+"  \x1b[32m¶Ç©I¸¹½X¡G\x1b[37m0%d-%s \n"
 ,(u->exmailbox+MAXKEEPMAIL)
 ,u->bequery,u->toquery,u->feeling,u->sendmsg,u->receivemsg
 ,u->lasthost,u->pagermode,u->pagernum);
@@ -62,14 +62,14 @@ user_display(u, real)
     for (diff = 0; diff < 31; diff++)
       if (!(u->userlevel & (1 << diff)))
         genbuf[diff] = '-';
-    prints("  [32m»{ÃÒ¸ê®Æ¡G[37m%-50.50s\n",u->justify);
-    prints("  [32m¨Ï¥ÎÅv­­¡G[37m%-32s\n",genbuf);
+    prints("  \x1b[32m»{ÃÒ¸ê®Æ¡G\x1b[37m%-50.50s\n",u->justify);
+    prints("  \x1b[32m¨Ï¥ÎÅv­­¡G\x1b[37m%-32s\n",genbuf);
   }
   diff = u->totaltime / 60;
   day = diff / 1440;
   hour = (diff/60)%24;
   min = diff%60;
-  prints("  [32m¤W¯¸®É¶¡¡G[37m%d¤Ñ %d¤p®É %d¤À\n",day,hour,min);
+  prints("  \x1b[32m¤W¯¸®É¶¡¡G\x1b[37m%d¤Ñ %d¤p®É %d¤À\n",day,hour,min);
 
   if (u->userlevel >= PERM_BM)
   {
@@ -77,7 +77,7 @@ user_display(u, real)
     boardheader *bhdr;
     resolve_boards();
 
-    outs("  [32m¾á¥ôªO¥D¡G[37m");
+    outs("  \x1b[32m¾á¥ôªO¥D¡G\x1b[37m");
 
     for (i = 0, bhdr = bcache; i < numboards; i++, bhdr++)
     {
@@ -89,7 +89,7 @@ user_display(u, real)
     }
     outc('\n');
   }
-  prints("[33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´[m\n");
+  prints("\x1b[33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\x1b[m\n");
 
   if (!real)
     outs((u->userlevel & PERM_LOGINOK) ?
@@ -501,11 +501,11 @@ u_editfile()
       setuserfile(buf, "sig.0");
       buf[strlen(buf) - 1] = ans;
       move(3, 0);
-      prints("      [1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w[42m   Ã±¦WÀÉ %c   [40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\033[m", ans);
+      prints("      \x1b[1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w\x1b[42m   Ã±¦WÀÉ %c   \x1b[40m¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\x1b[m", ans);
 //    clear();
       show_file(buf, 4, MAXSIGLINES, ONLY_COLOR);
       move(4 + MAXSIGLINES, 0);
-      prints("      [1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\033[m", ans);
+      prints("      \x1b[1;33m¡´¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡´\x1b[m", ans);
       mode = EDITSIG;
       strcpy(msg2, "Ã±¦WÀÉ");
       break;
@@ -615,7 +615,7 @@ u_register()
   {
     clear();
     move(3, 0);
-    prints("%s[1;32m¡i[m%s[1;32m¡j[m ±z¦n¡A½Ð¾Ú¹ê¶ñ¼g¥H¤Uªº¸ê®Æ:(µLÅÜ§ó½Ð«öenter¸õ¹L)",
+    prints("%s\x1b[1;32m¡i\x1b[m%s\x1b[1;32m¡j\x1b[m ±z¦n¡A½Ð¾Ú¹ê¶ñ¼g¥H¤Uªº¸ê®Æ:(µLÅÜ§ó½Ð«öenter¸õ¹L)",
       cuser.userid, cuser.username);
     getfield(6, "½Ð½T¹ê¶ñ¼g¤¤¤å©m¦W", "¯u¹ê©m¦W", rname, 20);
     getfield(8, "¾Ç®Õ¨t¯Å©Î³æ¦ìÂ¾ºÙ", "ªA°È³æ¦ì", career, 40);
@@ -708,7 +708,7 @@ u_list_CB(uentp)
   {
     move(2, 0);
     clrtoeol();
-    prints("[7m  ¨Ï¥ÎªÌ¥N¸¹   %-25s   ¤W¯¸  ¤å³¹  %s  ³Ìªñ¥úÁ{¤é´Á     [0m\n",
+    prints("\x1b[7m  ¨Ï¥ÎªÌ¥N¸¹   %-25s   ¤W¯¸  ¤å³¹  %s  ³Ìªñ¥úÁ{¤é´Á     \x1b[0m\n",
       showrealname ? "¯u¹ê©m¦W" : "ºï¸¹¼ÊºÙ"
       ,HAS_PERM(PERM_SEEULEVELS) ? "µ¥¯Å" : "");
     i = 3;
@@ -723,7 +723,7 @@ u_list_CB(uentp)
 
   if (i == b_lines)
   {
-    prints(COLOR1"  ¤wÅã¥Ü %d/%d ¤H(%d%%)  "COLOR2"  (Space)[30m ¬Ý¤U¤@­¶  [32m(Q)[30m Â÷¶}  [0m",
+    prints(COLOR1"  ¤wÅã¥Ü %d/%d ¤H(%d%%)  "COLOR2"  (Space)\x1b[30m ¬Ý¤U¤@­¶  \x1b[32m(Q)\x1b[30m Â÷¶}  \x1b[0m",
       usercounter, totalusers, usercounter * 100 / totalusers);
     i = igetch();
     if (i == 'q' || i == 'Q')
@@ -794,7 +794,7 @@ u_list()
   }
   move(b_lines, 0);
   clrtoeol();
-  prints(COLOR1"  ¤wÅã¥Ü %d/%d ªº¨Ï¥ÎªÌ(¨t²Î®e¶qµL¤W­­)  "COLOR2"  (½Ð«ö¥ô·NÁäÄ~Äò)  [m",
+  prints(COLOR1"  ¤wÅã¥Ü %d/%d ªº¨Ï¥ÎªÌ(¨t²Î®e¶qµL¤W­­)  "COLOR2"  (½Ð«ö¥ô·NÁäÄ~Äò)  \x1b[m",
     usercounter, totalusers);
   igetkey();
   return 0;
@@ -848,9 +848,9 @@ m_postnotify()
         continue;
       }  
       move(2,0); 
-      prints("[1;32m­^¤å¥N¸¹ : [37m%-13.13s   [32m¼ÊºÙ: [37m%s\n",xuser.userid,xuser.username);
-      prints("[1;32m¤W¯¸¦¸¼Æ : [37m%-13d   [32m¤å³¹: [37m%d\n",xuser.numlogins,xuser.numposts);
-      prints("[1;32m¹q¤l«H½c : [37m%s[m\n",xuser.email);
+      prints("\x1b[1;32m­^¤å¥N¸¹ : \x1b[37m%-13.13s   \x1b[32m¼ÊºÙ: \x1b[37m%s\n",xuser.userid,xuser.username);
+      prints("\x1b[1;32m¤W¯¸¦¸¼Æ : \x1b[37m%-13d   \x1b[32m¤å³¹: \x1b[37m%d\n",xuser.numlogins,xuser.numposts);
+      prints("\x1b[1;32m¹q¤l«H½c : \x1b[37m%s\x1b[m\n",xuser.email);
       getdata(10,0,"¬O§_­nÅý¥L¥[¤J? (y/n/Skip)¡H[S]",ans,3,LCECHO,0);
       if(ans[0] == 'y' || ans[0] == 'Y')
       {

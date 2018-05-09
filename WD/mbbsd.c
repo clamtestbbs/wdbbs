@@ -22,8 +22,6 @@
 #define SOCKET_QLEN	4
 #define PID_FILE	BBSHOME"/run/mbbsd.pid" 
 
-#define BANNER  "¡i"BOARDNAME"¡j¡· ¹q¤l¥¬§iÄæ¨t²Î ¡· ("MYIP")\r\nPowered by FreeBSD\r\n\n"
-
 jmp_buf byebye;
 
 static uschar enter_uflag;
@@ -34,7 +32,7 @@ char remoteusername[40];
 int mbbsd = 1; 
 
 static int use_shell_login_mode=0;
-void check_register();
+//void check_register();
 
 /* ----------------------------------------------------- */
 /* Â÷¶} BBS µ{¦¡                                         */
@@ -171,7 +169,7 @@ talk_request()
      char buf[512];
      time_t now = time(0);
 
-     sprintf(buf, "[33;41m¡¹%s[34;47m [%s] %s [0m",
+     sprintf(buf, "\x1b[33;41m¡¹%s\x1b[34;47m [%s] %s \x1b[0m",
         (currutmp->destuip)->userid,  my_ctime(&now),
         (currutmp->sig == 2) ? "­«­n®ø®§¼s¼½¡I(½ÐCtrl-U,l¬d¬Ý¼ö°T°O¿ý)" : "©I¥s¡B©I¥s¡AÅ¥¨ì½Ð¦^µª");
      move(0, 0);
@@ -197,7 +195,7 @@ talk_request()
 show_last_call_in()
 {
    char buf[256];
-   sprintf(buf, COLOR2"[1m¡¹ [37m%s %s [m",
+   sprintf(buf, COLOR2"\x1b[1m¡¹ \x1b[37m%s %s \x1b[m",
       currutmp->msgs[0].last_userid,
       currutmp->msgs[0].last_call_in);
 
@@ -613,7 +611,9 @@ user_login()
   extern int fcache_semid;
   
   log_usies("ENTER", getenv("RFC931")/* fromhost */);
-  //setproctitle("%s: %s", cuser.userid, fromhost);
+#ifdef __FreeBSD__
+  setproctitle("%s: %s", cuser.userid, fromhost);
+#endif
 
   /* ------------------------ */
   /* ªì©l¤Æ uinfo¡Bflag¡Bmode */
@@ -689,9 +689,9 @@ user_login()
   if (cuser.userlevel)          /* not guest */
   {
     move(t_lines - 3, 0);
-    prints("      Åwªï±z²Ä [1;33m%d[0;37m «×«ô³X¥»¯¸¡A\
-¤W¦¸±z¬O±q [1;33m%s[0;37m ³s©¹¥»¯¸¡A\n\
-     §Ú°O±o¨º¤Ñ¬O [1;33m%s[0;37m¡C\n",
+    prints("      Åwªï±z²Ä \x1b[1;33m%d\x1b[0;37m «×«ô³X¥»¯¸¡A\
+¤W¦¸±z¬O±q \x1b[1;33m%s\x1b[0;37m ³s©¹¥»¯¸¡A\n\
+     §Ú°O±o¨º¤Ñ¬O \x1b[1;33m%s\x1b[0;37m¡C\n",
       ++cuser.numlogins, cuser.lasthost,
       Etime(&cuser.lastlogin));
     pressanykey(NULL);
@@ -1345,7 +1345,9 @@ main(argc, argv,envp)
 
     f_cat(PID_FILE, genbuf); 
 
-    //setproctitle("listening%s", margs);
+#ifdef __FreeBSD__    
+    setproctitle("listening%s", margs);
+#endif
 
     /* --------------------------------------------------- */
     /* main loop                                           */
@@ -1399,7 +1401,9 @@ again:
 
       if (!pid)
       {
-        //setproctitle("...login...");
+#ifdef __FreeBSD__
+        setproctitle("...login...");
+#endif
         nice(2);      /*  Ptt lower priority */
         write(csock, BANNER , strlen(BANNER));
         while (--nfds >= 0)

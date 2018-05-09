@@ -22,9 +22,9 @@ char real_name[20];
 int local_article;
 char currmaildir[32];
 //extern char *fcolor[11];
-char *rcolor[11] = { "[36m", "","[32m","[1;32m",
-                   "[33m","[1;33m","[1;37m" ,"[1;36m",
-                   "[1;31m", "[1;35m", "[1;36m"};
+char *rcolor[11] = { "\x1b[36m", "","\x1b[32m","\x1b[1;32m",
+                   "\x1b[33m","\x1b[1;33m","\x1b[1;37m" ,"\x1b[1;36m",
+                   "\x1b[1;31m", "\x1b[1;35m", "\x1b[1;36m"};
 #define UPDATE_USEREC   (currmode |= MODE_DIRTY)
 
 void
@@ -160,12 +160,12 @@ readtitle ()
   showtitle (currBM, brd_title);
   outs ("\
 [¡ö]Â÷¶} [¡÷]¾\\Åª [^P]µoªí¤å³¹ [b]³Æ§Ñ¿ý [d]§R°£ [z]ºëµØ°Ï [TAB]¤åºK [^Z]¨D§U\n\
-" COLOR1 "[1m  ½s¸¹   SC");
+" COLOR1 "\x1b[1m  ½s¸¹   SC");
   if (currmode & MODE_TINLIKE)
     outs (" ½g ¼Æ");
   else
     outs (" ¤é ´Á");
-  outs (" §@  ªÌ      ¤å  ³¹  ¼Ð  ÃD                                    [m");
+  outs (" §@  ªÌ      ¤å  ³¹  ¼Ð  ÃD                                    \x1b[m");
 }
 
 
@@ -178,10 +178,10 @@ doent (num, ent)
   user_info *checkowner;
   char *mark, *title, color, type[10],buf[255];
   static char *colors[7] =
-  {"[1;36m", "[1;34m", "[1;33m", "[1;32m", "[1;35m", "[1;36m", "[1;37m"};
+  {"\x1b[1;36m", "\x1b[1;34m", "\x1b[1;33m", "\x1b[1;32m", "\x1b[1;35m", "\x1b[1;36m", "\x1b[1;37m"};
 
   if(ent->score != 0)
-    sprintf(buf , "%s%02d %s",ent->score > 0 ? "[1;31m" : "[1;32m", ent->score,colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7]);
+    sprintf(buf , "%s%02d %s",ent->score > 0 ? "\x1b[1;31m" : "\x1b[1;32m", ent->score,colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7]);
   else
     sprintf(buf , "   %s",colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7]);
   if (currstat != RMAIL)
@@ -193,23 +193,23 @@ doent (num, ent)
     tag = '*';
 */
     if ((currmode & MODE_BOARD) && (ent->filemode & FILE_DIGEST))
-      sprintf(type ,"[1;35m%c",(type[0] == ' ') ? '*' : '#');
+      sprintf(type ,"\x1b[1;35m%c",(type[0] == ' ') ? '*' : '#');
     if (ent->filemode & FILE_MARKED)
-      sprintf(type ,"[1;36m%c",(type[0] == ' ') ? 'm' : 'M');
+      sprintf(type ,"\x1b[1;36m%c",(type[0] == ' ') ? 'm' : 'M');
   }
   else
   {
     sprintf(type,"%c","+ Mm"[ent->filemode]);
 
     if (ent->filemode & FILE_REPLYOK)
-      sprintf(type ,"[1;31m%c",(type[0] == ' ') ? 'r' : 'R');
+      sprintf(type ,"\x1b[1;31m%c",(type[0] == ' ') ? 'r' : 'R');
   }
   /* shakalaca.990421: §ï¤F¤@¤U, ¦]¬° mail ¤¤¬Ý°_¨Ó¤£¦n¬Ý */
 
   if (ent->filemode & FILE_TAGED && brc_unread (ent->filename))
-    sprintf(type,"[1;32m%c", 'T');
+    sprintf(type,"\x1b[1;32m%c", 'T');
   else if (ent->filemode & FILE_TAGED)
-    sprintf(type,"[1;32m%c", 't');
+    sprintf(type,"\x1b[1;32m%c", 't');
 
   title = str_ttl (mark = ent->title);
   if (title == mark)
@@ -227,11 +227,11 @@ doent (num, ent)
     strcpy (title + 44, " ¡K");  /* §â¦h¾lªº string ¬å±¼ */
   checkowner =(user_info *) searchowner(ent->owner);
   if (strncmp (currtitle, title, TTLEN))
-    prints ("%6d %s%c%s%-6s[m%s%-12.12s%s%s %s\n", num, type,tag,buf,
-      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "[m" : "", mark, title);
+    prints ("%6d %s%c%s%-6s\x1b[m%s%-12.12s%s%s %s\n", num, type,tag,buf,
+      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "\x1b[m" : "", mark, title);
   else
-    prints ("%6d %s%c%s%-6s[m%s%-12.12s%s[1;3%cm%s %s[m\n", num, type,tag,buf,
-      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "[m" : "", color, mark, title);
+    prints ("%6d %s%c%s%-6s\x1b[m%s%-12.12s%s\x1b[1;3%cm%s %s\x1b[m\n", num, type,tag,buf,
+      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "\x1b[m" : "", color, mark, title);
 }
 
 
@@ -773,10 +773,10 @@ do_post ()
         move (7, 0);
         update_data ();
         prints (""\
-"              [1;36m¡i[37mµo  ªí  §¹  ²¦[36m¡j\n\n" \
-"              [37m ³o¬O±zªº[33m²Ä %d ½g[37m¤å³¹¡C\n" \
-"              [36m¡i¶O®É¡j[33m %d [37m¤À[33m % d [37m¬í¡C\n" \
-"              [36m¡i¦r¼Æ¡j[33m %d \n",\
+"              \x1b[1;36m¡i\x1b[37mµo  ªí  §¹  ²¦\x1b[36m¡j\n\n" \
+"              \x1b[37m ³o¬O±zªº\x1b[33m²Ä %d ½g\x1b[37m¤å³¹¡C\n" \
+"              \x1b[36m¡i¶O®É¡j\x1b[33m %d \x1b[37m¤À\x1b[33m % d \x1b[37m¬í¡C\n" \
+"              \x1b[36m¡i¦r¼Æ¡j\x1b[33m %d \n",\
         ++cuser.numposts, spendtime / 60, spendtime % 60 , wordsnum);
         substitute_record (fn_passwd, &cuser, sizeof (userec), usernum);
 
@@ -1102,8 +1102,8 @@ man()
     if (xboard && (bp = getbcache (xboard)))
     {
       setapath (fpath, xboard);
-      setutmpmode (ANNOUNCE);
-      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0);
+      //setutmpmode (ANNOUNCE);
+      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0,ANNOUNCE);
     }
     else if(HAS_PERM(PERM_MAILLIMIT) || HAS_PERM(PERM_BM)) // wildcat : ¤§«e§Ñ°O¥[ PERM ­­¨î°Õ ^^;
     {
@@ -1112,7 +1112,7 @@ man()
       sethomeman (buf, cuser.userid);
       sprintf (buf1, "%s ªº«H¥ó§¨", cuser.userid);
       setutmpmode (ANNOUNCE);
-      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1);
+      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1, ANNOUNCE);
       currutmp->mode = mode0;
       currstat = stat0;
       return RC_FULL;
@@ -1121,9 +1121,8 @@ man()
   else
   {
     setapath (buf, currboard);
-    setutmpmode (ANNOUNCE);
-    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 :
-      currmode & MODE_BOARD ? 1 : 0);
+    //setutmpmode (ANNOUNCE);
+    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 : currmode & MODE_BOARD ? 1 : 0, ANNOUNCE);
   }
   return RC_FULL;
 }
@@ -2225,8 +2224,7 @@ cancel_post(fhdr, fpath)
 /* ----------------------------------------------------- */
 
 
-void
-note()
+void note(void)
 {
   static char *fn_note_tmp = "note.tmp";
   static char *fn_note_dat = "note.dat";
@@ -2286,19 +2284,19 @@ woju
       total = MAX_NOTE;
   }
 
-  fputs("[1m                             "COLOR1" [33m¡» [37m¤ß ±¡ ¯d ¨¥ ªO [33m¡» [m \n\n",fp);
+  fputs("\x1b[1m                             "COLOR1" \x1b[33m¡» \x1b[37m¤ß ±¡ ¯d ¨¥ ªO \x1b[33m¡» \x1b[m \n\n",fp);
   collect = 1;
 
   while (total)
   {
-    sprintf(buf, "[46m[1;34m¢z¢r [33m%s[37m(%s)",
+    sprintf(buf, "\x1b[46m\x1b[1;34m¢z¢r \x1b[33m%s\x1b[37m(%s)",
       myitem.userid, myitem.username);
     len = strlen(buf);
-    strcat(buf," [34m" + (len&1));
+    strcat(buf," \x1b[34m" + (len&1));
 
     for (i = len >> 1; i < 38; i++)
       strcat(buf, "¢w");
-    sprintf(buf2, "¢w[33m %.14s  [34m¢r¢{[m\n",
+    sprintf(buf2, "¢w\x1b[33m %.14s  \x1b[34m¢r¢{\x1b[m\n",
       Etime(&(myitem.date)));
     strcat(buf, buf2);
     fputs(buf, fp);
@@ -2306,15 +2304,15 @@ woju
     if (collect)
       fputs(buf, foo);
 
-    sprintf(buf, "[1;46m[34m¢|¢{[37m%-70s[34m¢z¢}[m\n",myitem.buf[0]);
+    sprintf(buf, "\x1b[1;46m\x1b[34m¢|¢{\x1b[37m%-70s\x1b[34m¢z¢}\x1b[m\n",myitem.buf[0]);
     if(*myitem.buf[1])
     {
-      sprintf(buf2, "  [1;46m[34m¢x[37m%-70s[34m¢x[m\n",myitem.buf[1]);
+      sprintf(buf2, "  \x1b[1;46m\x1b[34m¢x\x1b[37m%-70s\x1b[34m¢x\x1b[m\n",myitem.buf[1]);
       strcat(buf, buf2);
     }
     if(*myitem.buf[2])
     {
-      sprintf(buf2, "  [1;46m[34m¢x[37m%-70s[34m¢x[m\n",myitem.buf[2]);
+      sprintf(buf2, "  \x1b[1;46m\x1b[34m¢x\x1b[37m%-70s\x1b[34m¢x\x1b[m\n",myitem.buf[2]);
       strcat(buf, buf2);
     }
     fputs(buf,fp);
@@ -2329,7 +2327,7 @@ woju
     if (--total)
       read(fd, (char *) &myitem, sizeof(myitem));
   }
-  fputs("  \033[1;34;46m¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\033[m", fp);
+  fputs("  \x1b[1;34;46m¢|¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢}\x1b[m", fp);
   fclose(fp);
   close(fd);
   close(fx);
@@ -2388,10 +2386,10 @@ m_sysop()
 
     for (i = 0; i < j; i++)
     {
-      prints("%15d.   [1;%dm%-16s%s[0m\n",
+      prints("%15d.   \x1b[1;%dm%-16s%s\x1b[0m\n",
         i + 1, 31 + i % 7, sysoplist[i].userid, sysoplist[i].duty);
     }
-    prints("%-14s0.   [1;%dmÂ÷¶}[0m", "", 31 + j % 7);
+    prints("%-14s0.   \x1b[1;%dmÂ÷¶}\x1b[0m", "", 31 + j % 7);
     getdata(b_lines - 1, 0, "                   ½Ð¿é¤J¥N½X[0]¡G", genbuf, 4, DOECHO,"1");
     i = genbuf[0] - '0' - 1;
     if (i >= 0 && i < j)
@@ -2424,8 +2422,8 @@ Goodbye()
 
   t_display();
   clear();
-  prints("[1;31m¿Ë·Rªº [31m%s([37m%s)[31m¡A§O§Ñ¤F¦A«×¥úÁ{"COLOR1
-    " %s [40;33m¡I\n\n¥H¤U¬O±z¦b¯¸¤ºªºµù¥U¸ê®Æ:[m\n",
+  prints("\x1b[1;31m¿Ë·Rªº \x1b[31m%s(\x1b[37m%s)\x1b[31m¡A§O§Ñ¤F¦A«×¥úÁ{"COLOR1
+    " %s \x1b[40;33m¡I\n\n¥H¤U¬O±z¦b¯¸¤ºªºµù¥U¸ê®Æ:\x1b[m\n",
     cuser.userid, cuser.username, BoardName);
   user_display(&cuser, 0);
   pressanykey(NULL);

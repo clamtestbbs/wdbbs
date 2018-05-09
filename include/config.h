@@ -73,6 +73,20 @@
   #define MAX_SWAPUSED    (10)            /* SWAP最高使用率 */
 #endif
 
+#ifndef PLATFORM_NAME
+
+  #if defined(__FreeBSD__)
+    #define PLATFORM_NAME "FreeBSD"
+  #elif defined (__CYGWIN__)
+    #define PLATFORM_NAME "Cygwin on MS Windows"
+  #elif defined (__linux__)
+    #define PLATFORM_NAME "Linux"
+  #else
+    #define PLATFORM_NAME "Unknown"
+  #endif
+
+#endif
+
 #define WITHOUT_CHROOT                /* 不需要 root set-uid */
 #define HAVE_MOVIE                    /* 顯示動態告示板 */
 #define INTERNET_PRIVATE_EMAIL        /* 可以寄私人信件到 Internet */
@@ -218,5 +232,9 @@
 
 #define COLOR1        "\x1b[46;37m"
 #define COLOR2        "\x1b[1m\x1b[44;33m"
+
+#ifndef BANNER
+#define BANNER  "【"BOARDNAME"】◎ 電子布告欄系統 ◎ ("MYIP")\r\nPowered by "PLATFORM_NAME"\r\n\n"
+#endif
 
 #endif //_CONFIG_H_
