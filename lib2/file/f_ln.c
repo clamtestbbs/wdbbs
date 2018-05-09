@@ -2,10 +2,10 @@
 /* f_ln() : link() cross partition / disk		 */
 /* ----------------------------------------------------- */
 
-
+#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-
+#include "daofile.h"
 
 int
 f_ln(src, dst)
@@ -13,7 +13,7 @@ f_ln(src, dst)
 {
   int ret;
 
-  if (ret = link(src, dst))
+  if ( ( ret = link(src, dst) ) )
   {
     if (errno != EEXIST)
       ret = f_cp(src, dst, O_EXCL);

@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <dirent.h>
+#include <string.h>
 #include <unistd.h>
 #include "dao.h"
 
@@ -32,7 +33,7 @@ rm_dir(fpath)
   if (!(dirp = opendir(fpath)))
     return -1;
 
-  for (fname = buf; *fname = *fpath; fname++, fpath++)
+  for (fname = buf; (*fname = *fpath); fname++, fpath++)
     ;
 
   *fname++ = '/';
@@ -40,7 +41,7 @@ rm_dir(fpath)
   readdir(dirp);
   readdir(dirp);
 
-  while (de = readdir(dirp))
+  while ( ( de = readdir(dirp) ) )
   {
     fpath = de->d_name;
     if (*fpath)

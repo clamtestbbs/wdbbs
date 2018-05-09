@@ -1,6 +1,6 @@
-#include "dao.h"
+#include <unistd.h>
 #include <fcntl.h>
-
+#include "dao.h"
 
 void
 f_suck(fp, fpath)

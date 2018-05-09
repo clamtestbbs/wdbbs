@@ -17,7 +17,7 @@ DAOLIB	= -L../lib2/str -ldaostr \
 	  -L../lib2/rec -ldaorec \
 	  -L../lib2/op -ldaoop \
 	  -L../lib2/sys -ldaosys \
-	  -L../lib2/wdlib -lwd
+	  -L../lib2/wdlib -ldaowd
 
 CC	= clang
 CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 

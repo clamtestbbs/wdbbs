@@ -2,12 +2,14 @@
 /* exclusively create file [*.n]			 */
 /* ----------------------------------------------------- */
 
-
 #include <stdio.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <errno.h>
-
+#include <time.h>
+#include <sys/time.h>
+#include "daostr.h"
 
 FILE *
 f_new(fold, fnew)

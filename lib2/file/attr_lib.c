@@ -8,10 +8,12 @@
 /* Thor.990311: 之所以用暴力而簡單的方式, 是為了考慮讓一般util也能用到此attr
                 特別要注意, working directory必須為 BBSHOME */
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "dao.h"
+#include "daofile.h"
+#include "daowd.h"
 
 #if 0
   int key;
@@ -42,7 +44,7 @@ attr_get(userid, key, value)
   FILE *fp;
 
   sethomefile(fpath, userid, ".ATTR");
-  if(fp = fopen(fpath, "rb"))
+  if( ( fp = fopen(fpath, "rb") ) )
   {
     while(fread(&k,sizeof k, 1,fp))
     {
@@ -72,9 +74,10 @@ attr_put(userid, key, value)
   FILE *fp;
 
   sethomefile(fpath, userid, ".ATTR");
-  if((fd = open(fpath, O_RDWR | O_CREAT, 0600)) < 0) return -1;
+  if( (fd = open(fpath, O_RDWR | O_CREAT, 0600) ) < 0) 
+    return -1;
   k = 0;
-  if(fp = fdopen(fd, "rb+"))
+  if( ( fp = fdopen(fd, "rb+") ) )
   {
     f_exlock(fd);
     for(;;)

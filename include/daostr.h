@@ -1,3 +1,6 @@
+#include <time.h>
+#include <sys/time.h>
+
 /* str_cat.c */
 void str_cat(char *dst, char *s1, char *s2);
 /* str_cmp.c */

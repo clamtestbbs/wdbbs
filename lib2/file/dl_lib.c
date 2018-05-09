@@ -102,7 +102,7 @@ DL_func(char *name, ...)
 
   if(!(f = DL_get(name)))
   { /* not get func */
-    ret -1;
+    ret = -1;
   }
   else
   {
