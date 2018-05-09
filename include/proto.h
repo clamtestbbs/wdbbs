@@ -78,7 +78,7 @@ int brc_unread(char *fname);
 int Ben_Perm(boardheader *bptr);
 //int check_newpost(boardstat *ptr);
 int have_author(char *brdname, int n);
-int board(void);
+//int board(void);
 int local_board(void);
 int good_board(void);
 int Boards(void);

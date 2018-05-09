@@ -44,7 +44,7 @@ struct boardinfo
 typedef struct boardinfo boardinfo;
 
 boardinfo
-board[MAXBOARD];
+char board[MAXBOARD];
 
 int k_cmp(b, a)
 boardinfo *b,*a;
