@@ -13,7 +13,7 @@ str_str(str, tag)
 
   cc = *tag++;
  
-  while (c1 = *str)
+  while ( (c1 = *str) )
   {
     if (c1 >= 'A' && c1 <= 'Z')
       c1 |= 0x20;

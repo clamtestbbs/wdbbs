@@ -1,3 +1,6 @@
+#include <string.h>
+#include "daostr.h"
+
 int
 str_has(list, tag)
   char *list;

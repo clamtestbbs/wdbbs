@@ -9,10 +9,14 @@
 
 ARCHI	!= uname -m
 
+SRCROOT	= ../..
+
+INCLUDE	= $(SRCROOT)/include
+
 CC	=  clang
 RANLIB	=  ranlib
 CPROTO	=  cproto -E"gcc -pipe -E" 
-CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
+CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE) -Wno-invalid-source-encoding
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -37,7 +41,7 @@ all:	libdaostr.a
 
 
 dao.p:	$(SRC)
-	$(CPROTO) -o $@ $?
+	$(CPROTO) -o $@ $? -I$(INCLUDE)
 
 
 libdaostr.a: $(OBJ)
@@ -50,4 +54,4 @@ clean:
 
 
 tags:
-	ctags $(SRC) ../../include/*.h
+	ctags $(SRC) $(INCLUDE)/*.h

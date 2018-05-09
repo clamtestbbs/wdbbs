@@ -5,9 +5,8 @@
 /* Output: fpath = full path;		      */
 /* ------------------------------------------ */
 
-
+#include <stdio.h>
 #include <time.h>
-
 
 void
 str_stamp(str, chrono)

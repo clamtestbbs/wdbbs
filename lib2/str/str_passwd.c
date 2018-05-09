@@ -1,12 +1,14 @@
+#include <string.h>
+#include <unistd.h>
+#include "daostr.h"
+
 #ifndef	PASSLEN
 #define	PASSLEN 14
 #endif
 
-
 /* ----------------------------------------------------- */
 /* password encryption					 */
 /* ----------------------------------------------------- */
-
 
 char *crypt();
 static char pwbuf[PASSLEN];
