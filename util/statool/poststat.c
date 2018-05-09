@@ -6,13 +6,7 @@
 /* update : 95/12/15                                     */
 /*-------------------------------------------------------*/
 
-
 #include "bbs.h"
-#include <stdio.h>
-#include <time.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
-
 
 char *myfile[] = {"day", "week", "month", "year"};
 int mycount[4] = {7, 4, 12};

@@ -20,7 +20,7 @@
 5 * * * * bin/topboard 200 etc/topboard > /dev/null 2>&1
 # 每小時跑中文看板排行榜
 
-#4 * * * * bin/poststat /home/bbs > /dev/null 2>&1
+4 * * * * bin/poststat /home/bbs > /dev/null 2>&1
 # 每個小時執行熱門話題統計
 
 #0 3 * * 1 bin/BM_money > etc/BM_money
