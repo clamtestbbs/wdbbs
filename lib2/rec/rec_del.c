@@ -1,10 +1,10 @@
-#include "dao.h"
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
+#include "dao.h"
 
 int
 rec_del(data, size, pos, fchk, fdel)
@@ -56,7 +56,7 @@ rec_del(data, size, pos, fchk, fdel)
     lseek(fd, off, SEEK_SET);
     while (read(fd, data, size) == size)
     {
-      if (pos = (*fchk) (data))
+      if ( ( pos = (*fchk) (data) ) )
 	break;
 
       off += size;
