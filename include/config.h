@@ -166,7 +166,9 @@
 /* chat.c & xchatd.c 中採用的 port 及 protocol           */
 /* ------------------------------------------------------*/
 
+#ifndef CHATPORT
 #define CHATPORT        3838
+#endif
 
 #define MAXROOM         16              /* 最多有幾間包廂？ */
 
@@ -187,21 +189,45 @@
 /* ----------------------------------------------------- */
 /* 系統參數      cache                                   */
 /* ----------------------------------------------------- */
+
 #define MAGIC_KEY       1999   /* 身分認證信函編碼 */
 
 #define SEM_ENTER      -1      /* enter semaphore */
 #define SEM_LEAVE      1       /* leave semaphore */
 #define SEM_RESET      0       /* reset semaphore */
 
-#define BRDSHM_KEY      1215
-#define UIDSHM_KEY      1217
-#define UTMPSHM_KEY     1219
-#define FILMSHM_KEY     1221    /* 動態看版 , 節日 */
-#define FROMSHM_KEY     1223    /* whereis, 最多使用者 */
+#ifndef BRDSHM_KEY
+#define BRDSHM_KEY      1215 
+#endif
 
-#define BRDSEM_KEY      2005
-#define FILMSEM_KEY     2000    /* semaphore key */
-#define FROMSEM_KEY     2003    /* semaphore key */
+#ifndef UIDSHM_KEY
+#define UIDSHM_KEY      1217 
+#endif
+
+#ifndef UTMPSHM_KEY
+#define UTMPSHM_KEY     1219 
+#endif
+
+#ifndef FILMSHM_KEY
+#define FILMSHM_KEY     1221    /* 動態看版 , 節日 */ 
+#endif
+
+#ifndef FROMSHM_KEY
+#define FROMSHM_KEY     1223    /* whereis, 最多使用者 */ 
+#endif
+
+#ifndef BRDSEM_KEY
+#define BRDSEM_KEY      2005 
+#endif
+
+#ifndef FILMSEM_KEY
+#define FILMSEM_KEY     2000    /* semaphore key */ 
+#endif
+
+#ifndef FROMSEM_KEY
+#define FROMSEM_KEY     2003    /* semaphore key */ 
+#endif
+
 
 /* ----------------------------------------------------- */
 /* 申請帳號時要求申請者真實資料                          */
