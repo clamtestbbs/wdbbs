@@ -2,6 +2,8 @@
 
 ![](https://i.imgur.com/njf9uZJ.png)
 
+* 編譯本程式需要用到 NetBSD make (bmake)，Linux 下需安裝相關套件，或[至此](http://crufty.net/ftp/pub/sjg/)下載原始碼編譯
+
 * 編譯前請先將 sample/wdbbs.conf 移到上一層的原始碼主目錄底下
 
 * 新站台將 sample/bbs 下的目錄結構套用到 BBS 家目錄 (如 `/home/bbs`) 底下
