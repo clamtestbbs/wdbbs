@@ -582,10 +582,13 @@ woju
           continue;
        }
        case KEY_ESC:
-         if (KEY_ESC_arg == 'c')
-            capture_screen();
-         if (KEY_ESC_arg == 'n')
-            edit_note();
+         if(currutmp)
+         {
+           if (KEY_ESC_arg == 'c')
+              capture_screen();
+           if (KEY_ESC_arg == 'n')
+              edit_note();
+         }
          if (ch == 'U' && currstat != IDLE  &&
            !(currutmp->mode == 0 &&
            (currutmp->chatid[0] == 2 || currutmp->chatid[0] == 3)))
