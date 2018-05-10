@@ -48,8 +48,7 @@ static char STR_bv_comments[] = ".comments";	/* 投票者的建意 */
 
 boardheader *bcache;
 
-void
-b_closepolls()
+void b_closepolls()
 {
   boardheader fh;
   struct stat st;
@@ -1082,8 +1081,7 @@ b_results()
 }
 
 /* 投票中心 chyiuan */
-int
-all_vote()
+int all_vote(void)
 {
   register int i;
   register boardheader *bhdr;

@@ -28,7 +28,7 @@ CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invali
 
 LDFLAGS	= -lcrypt $(DAOLIB) -lncurses
 
-.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
+.if $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
 LDFLAGS	+= -m32
 .endif
@@ -51,6 +51,27 @@ MOBJ =	announce.o bbs.o board.o cache.o edit.o \
 	register.o screen.o stuff.o talk.o user.o term.o\
 	admin.o list.o
 
+.if $(OPSYS) == "Cygwin"
+NO_SO =	yes
+.endif
+
+.ifdef NO_SO
+SODIR	= ../SO
+SRC	+= $(SODIR)/chat.c $(SODIR)/vote.c $(SODIR)/votebrd.c
+MOBJ	+= chat.o vote.o votebrd.o
+
+chat.o:
+	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
+
+vote.o:
+	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
+
+votebrd.o:
+	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
+
+.endif
+
+
 PRO =	announce.x bbs.x board.x cache.x edit.x \
 	io.x mail.x mbbsd.x menu.x more.x name.x read.x record.x\
 	register.x screen.x stuff.x talk.x user.x term.x\
@@ -68,7 +89,7 @@ ETC =	Makefile $(HDR)
 ALL =	mbbsd bbsrf bbsrf2 xchatd
 
 all: $(ALL)
-
+	
 mbbsd: $(MOBJ) $(ETC)
 	$(CC) -o mbbsd $(CFLAGS) $(MOBJ) $(LDFLAGS)
 

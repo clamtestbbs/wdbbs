@@ -879,7 +879,11 @@ start_client()
 #endif
   if (HAVE_PERM(PERM_SYSOP | PERM_BM))
   {
+#ifdef NO_SO
+    b_closepolls();
+#else
     DL_func("SO/vote.so:b_closepolls");
+#endif
   }
   if (!HAVE_HABIT(HABIT_COLOR))
     showansi = 0;

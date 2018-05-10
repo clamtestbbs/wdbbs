@@ -425,7 +425,11 @@ do_reply (fhdr)
 
 // Ptt 看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
+#ifdef NO_SO
+    va_do_voteboardreply(fhdr);
+#else
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
+#endif
   else
   {
     getdata (b_lines - 1, 0,
@@ -638,8 +642,11 @@ do_post ()
 // Ptt 看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
   {
-//    do_voteboard();
+#ifdef NO_SO
+    do_voteboard();
+#else
     DL_func("SO/votebrd.so:do_voteboard");
+#endif
     return RC_FULL;
   }
   sprintf(genbuf,BBSHOME"/boards/%s/prefix",currboard);
@@ -842,7 +849,11 @@ reply_post (ent, fhdr, direct)
   setdirpath (quote_file, direct, fhdr->filename);
 // Ptt 的看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
+#ifdef NO_SO
+    va_do_voteboardreply(fhdr);
+#else
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
+#endif
   else
     do_reply (fhdr);
   *quote_file = 0;
@@ -2044,7 +2055,11 @@ good_post (ent, fhdr, direct)
 int
 go_chat()
 {
+#ifdef NO_SO
+  t_chat();
+#else
   DL_func("SO/chat.so:t_chat");
+#endif
   return RC_FULL;
 }
 

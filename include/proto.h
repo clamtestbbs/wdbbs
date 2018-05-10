@@ -69,6 +69,12 @@ void cancel_post(fileheader *fhdr, char *fpath);
 void note(void);
 int m_sysop(void);
 int Goodbye(void);
+#ifdef NO_SO
+void va_do_voteboardreply(va_list pvar);
+int do_voteboard();
+int t_chat();
+#endif
+
 /* board.c */
 void brc_update(void);
 void read_brc_buf(void);
@@ -200,11 +206,19 @@ int do_aloha(char *hello);
 void check_max_online(void);
 void start_client(void);
 int bad_host(char *name);
+#ifdef NO_SO
+void b_closepolls(void);
+#endif
+
 /* menu.c */
 void showtitle(char *title, char *mid);
 int null_menu(void);
 void movie(int i);
 void domenu(int cmdmode, char *cmdtitle, int cmd, MENU *cmdtable);
+#ifdef NO_SO
+int all_vote(void);
+#endif
+
 /* more.c */
 char *Ptt_prints(char *str, int mode);
 int more(char *fpath, int promptend);
@@ -233,6 +247,12 @@ void EnumTagName(char *fname, int locus);
 void EnumTagFhdr(fileheader *fhdr, char *direct, int locus);
 int AskTag(char *msg);
 void i_read(int cmdmode, char *direct, void (*dotitle)(void), void *(*doentry)(void), struct one_key *rcmdlist, int *num_record);
+#ifdef NO_SO
+int b_vote();
+int b_results();
+int make_vote();
+#endif
+
 /* record.c */
 int get_sum_records(char *fpath, int size);
 int get_records(char *fpath, char *rptr, int size, int id, int number);

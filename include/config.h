@@ -87,6 +87,10 @@
 
 #endif
 
+#if defined(__CYGWIN__)
+#define NO_SO  //不支援 DSO
+#endif
+
 #define WITHOUT_CHROOT                /* 不需要 root set-uid */
 #define HAVE_MOVIE                    /* 顯示動態告示板 */
 #define INTERNET_PRIVATE_EMAIL        /* 可以寄私人信件到 Internet */

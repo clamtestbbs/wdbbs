@@ -440,7 +440,11 @@ static struct MENU talklist[] = {
 /*
   t_talk,       PERM_PAGE,      "TTalk          [找人聊天]",0,
  */
+#ifdef NO_SO
+  t_chat, PERM_CHAT,"CChatRoom      [連線聊天]",1,
+#else
   "SO/chat.so:t_chat",PERM_CHAT,"CChatRoom      [連線聊天]",1,
+#endif
   t_display,    0,              "DDisplay       [水球回顧]",0,
 NULL, 0, NULL,0};
 
@@ -472,8 +476,12 @@ static struct MENU userlist[] = {
 NULL, 0, NULL,0};
 
 static struct MENU servicelist[] = {
+#ifdef NO_SO
+   all_vote,    PERM_LOGINOK,   "VVote          [投票中心]",1,
+#else
   "SO/vote.so:all_vote",
                 PERM_LOGINOK,   "VVote          [投票中心]",1,
+#endif
   note,         PERM_LOGINOK,   "NNote          [寫留言板]",0,
   show_hint_message,0,          "HHint          [教學精靈]",0,
 
