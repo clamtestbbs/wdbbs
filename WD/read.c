@@ -1036,13 +1036,17 @@ i_read_key(rcmdlist, locmem, ch)
 #endif
 
     case 'V':
+#ifndef __CYGWIN__
       if (currstat != ANNOUNCE)
         DL_func("SO/vote.so:b_vote");
+#endif
       return RC_FULL;
 
     case 'R':
+#ifndef __CYGWIN__
       if (currstat != ANNOUNCE)
         DL_func("SO/vote.so:b_results");
+#endif
       return RC_FULL;
 
     case Ctrl('X'):		/* terminator */
@@ -1213,8 +1217,10 @@ struct one_key *rcmdlist;
             {
               getdata(b_lines - 1, 0, "尚未有投票 (V)舉辦投票 (Q)離開？[Q] ",
                 genbuf, 4, LCECHO, 0);
+#ifndef __CYGWIN__
               if (genbuf[0] == 'v')
                 DL_func("SO/vote.so:make_vote");
+#endif
             }
             else
             {

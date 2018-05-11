@@ -423,11 +423,13 @@ do_reply (fhdr)
 {
   char genbuf[512];
 
+#ifndef __CYGWIN__  
 // Ptt 看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
   else
   {
+#endif	  
     getdata (b_lines - 1, 0,
       "▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ",
       genbuf, 3, LCECHO, 0);
@@ -446,7 +448,9 @@ do_reply (fhdr)
         strcpy (quote_user, fhdr->owner);
         quote_file[79] = fhdr->savemode;
         do_post ();
+#ifndef __CYGWIN__
     }
+#endif
   }
   *quote_file = 0;
 }
@@ -639,7 +643,9 @@ do_post ()
   if(!strcmp(currboard,VOTEBOARD))
   {
 //    do_voteboard();
+#ifndef __CYGWIN__
     DL_func("SO/votebrd.so:do_voteboard");
+#endif
     return RC_FULL;
   }
   sprintf(genbuf,BBSHOME"/boards/%s/prefix",currboard);
@@ -840,10 +846,12 @@ reply_post (ent, fhdr, direct)
     return RC_NONE;
 
   setdirpath (quote_file, direct, fhdr->filename);
+#ifndef __CYGWIN__
 // Ptt 的看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
   else
+#endif
     do_reply (fhdr);
   *quote_file = 0;
   return RC_FULL;
@@ -2045,7 +2053,9 @@ good_post (ent, fhdr, direct)
 int
 go_chat()
 {
+#ifndef __CYGWIN__
   DL_func("SO/chat.so:t_chat");
+#endif
   return RC_FULL;
 }
 

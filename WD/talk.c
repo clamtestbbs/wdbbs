@@ -2018,7 +2018,7 @@ pickup_user()
         break;
 
       case 'c':
-        DL_func("SO/pip.so:pip_data_list_va", uentp->userid);
+        //DL_func("SO/pip.so:pip_data_list_va", uentp->userid);
         /* shakalaca.990704: ¤pÂû­×¥¿ */
         break;
 

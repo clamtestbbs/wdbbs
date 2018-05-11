@@ -319,12 +319,14 @@ domenu(cmdmode, cmdtitle, cmd, cmdtable)
 
         boardprefix = cmdtable[lastcmdptr].desc;
 
+#ifndef __CYGWIN__	
         if(cmdtable[lastcmdptr].mode && DL_get(cmdtable[lastcmdptr].cmdfunc))
         {
           void *p = (void *)DL_get(cmdtable[lastcmdptr].cmdfunc);
           if(p) cmdtable[lastcmdptr].cmdfunc = p;
           else break;
         }
+#endif
 
         currstat = XMODE;
 
@@ -456,7 +458,9 @@ static struct MENU talklist[] = {
 /*
   t_talk,       PERM_PAGE,      "TTalk          [找人聊天]",0,
  */
+#ifndef __CYGWIN__
   "SO/chat.so:t_chat",PERM_CHAT,"CChatRoom      [連線聊天]",1,
+#endif
   t_display,    0,              "DDisplay       [水球回顧]",0,
 NULL, 0, NULL,0};
 
@@ -504,8 +508,10 @@ NULL, 0, NULL,0};
 int note(),show_hint_message();
 
 static struct MENU servicelist[] = {
+#ifndef __CYGWIN__
   "SO/vote.so:all_vote",
                 PERM_LOGINOK,   "VVote          [投票中心]",1,
+#endif
   note,         PERM_LOGINOK,   "NNote          [寫留言板]",0,
   show_hint_message,0,          "HHint          [教學精靈]",0,
 

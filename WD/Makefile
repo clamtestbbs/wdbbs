@@ -10,6 +10,8 @@ ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
+BUILDTIME != date +%s
+
 BBSHOME	?= $(HOME)
 
 CC	= clang
@@ -57,7 +59,7 @@ ETC =	Makefile $(HDR)
 .c.x:   ;   $(CPROTO) -o $*.x $*.c
 .c.ln:  ;   lint -abhi $*.c
 
-ALL =	mbbsd bbsrf bbsrf2 xchatd
+ALL =	mbbsd xchatd
 
 all: $(ALL)
 
@@ -70,19 +72,13 @@ lint: $(LNFILES)
 xchatd: xchatd.c
 	$(CC) -o xchatd $(OS_DEF) $(CFLAGS) xchatd.c $(LDFLAGS)
 
-bbsrf: bbsrf.c 
-	$(CC) $(CFLAGS) -o bbsrf $(OS_DEF) bbsrf.c
-
-bbsrf2: bbsrf2.c 
-	$(CC) $(CFLAGS) -o bbsrf2 $(OS_DEF) bbsrf2.c
-
 update:	install
 
 install: $(ALL)
 	install -d $(BBSHOME)/bin/
 	install -c -m 755 $(ALL) $(BBSHOME)/bin/
-	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.`date '+%s'`
-	ln -sv $(BBSHOME)/bin/mbbsd.`date '+%s'` $(BBSHOME)/bin/mbbsd
+	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.$(BUILDTIME)
+	ln -sv $(BBSHOME)/bin/mbbsd.$(BUILDTIME) $(BBSHOME)/bin/mbbsd
 
 WD.p: $(SRC)
 	$(CPROTO) -o $@ $?

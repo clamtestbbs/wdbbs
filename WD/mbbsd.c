@@ -877,10 +877,12 @@ start_client()
 #else
   signal(SIGALRM, SIG_IGN);
 #endif
+#ifndef __CYGWIN__
   if (HAVE_PERM(PERM_SYSOP | PERM_BM))
   {
     DL_func("SO/vote.so:b_closepolls");
   }
+#endif
   if (!HAVE_HABIT(HABIT_COLOR))
     showansi = 0;
   while (chkmailbox())
