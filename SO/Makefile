@@ -20,7 +20,7 @@ DAOLIB	= -L../lib2/str -ldaostr \
 	  -L../lib2/wdlib -ldaowd
 
 CC	= clang
-CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g 
+CFLAGS	= -g -O2 -Wunused -I../include -pipe -fomit-frame-pointer -Wno-invalid-source-encoding
 LDFLAGS	= -lcrypt $(DAOLIB) -lcurses
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
@@ -36,7 +36,11 @@ LDFLAGS	+= -Wl,-export-dynamic -lcompat
 LDFLAGS	+= -rdynamic -lresolv -ldl
 .endif
 
-SO =	chat.so vote.so votebrd.so
+SO =	bet.so bj.so buy.so bwboard.so chat.so chessmj.so \
+       	dice.so gagb.so votebrd.so vote.so #gamble.so gp.so guessnum.so indict.so \
+#       	marie.so mn.so nine.so ordersong.so pip.so pip_vs_fight.so \
+#       	pnote.so poker.so railway.so rpg.so seven.so song.so stock.so\
+#       	tv.so xyz.so 
 
 ETC =	Makefile $(HDR)
        
