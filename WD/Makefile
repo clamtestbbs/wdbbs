@@ -10,6 +10,8 @@ ARCHI	!= uname -m
 
 OPSYS	!= uname -o
 
+BUILDTIME	!= date '+%s'
+
 BBSHOME	?= $(HOME)
 
 DAOLIB	= -L../lib2/str -ldaostr \
@@ -110,8 +112,8 @@ update:	install
 install: $(ALL)
 	install -d $(BBSHOME)/bin/
 	install -c -m 755 $(ALL) $(BBSHOME)/bin/
-	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.`date '+%s'`
-	ln -sv $(BBSHOME)/bin/mbbsd.`date '+%s'` $(BBSHOME)/bin/mbbsd
+	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.$(BUILDTIME)
+	ln -sv $(BBSHOME)/bin/mbbsd.$(BUILDTIME) $(BBSHOME)/bin/mbbsd
 
 WD.p: $(SRC)
 	$(CPROTO) -o $@ $?
