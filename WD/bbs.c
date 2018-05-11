@@ -290,7 +290,7 @@ do_select (ent, fhdr, direct)
      char *direct;
 {
   char bname[20];
-  char bpath[60], buf[80];
+  char bpath[60]; //, buf[80]; //buf 可以砍了
   struct stat st;
 
   move (0, 0);
@@ -310,16 +310,18 @@ do_select (ent, fhdr, direct)
 /*
    board_visit_time = 0x7fffffff;
  */
-  brc_initial (bname);
-  setbfile (buf, bname, FN_LIST);
-  if (currbrdattr & BRD_HIDE && belong_list(buf, cuser.userid) <= 0)
+  //brc_initial (bname);
+  //setbfile (buf, bname, FN_LIST);
+  //if (currbrdattr & BRD_HIDE && belong_list(buf, cuser.userid) <= 0)
+  if (Ben_Perm (&brdshm->bcache[getbnum (bname)] - 1) != 1) // by SugarII
   {
     pressanykey (P_BOARD);
     return RC_FULL;
   }
+  brc_initial (bname);  //hialan.030703:移到這裡
   set_board ();
+  if(direct)   //direct 不能是 NULL
   setbdir (direct, currboard);
-
   move (1, 0);
   clrtoeol ();
   return RC_NEWDIR;
