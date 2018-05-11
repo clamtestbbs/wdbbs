@@ -1,5 +1,7 @@
-int
-is_fname(str)
+#include <string.h>
+#include "daoop.h"
+	
+int is_fname(str)
   char *str;
 {
   int ch;
@@ -12,6 +14,6 @@ is_fname(str)
   {
     if (!is_alnum(ch) && !strchr("-._/+@", ch))
       return 0;
-  } while (ch = *++str);
+  } while ( (ch = *++str) );
   return 1;
 }

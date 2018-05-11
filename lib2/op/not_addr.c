@@ -1,5 +1,6 @@
-#define	STRICT_FQDN_EMAIL
+#include "daoop.h"
 
+#define	STRICT_FQDN_EMAIL
 
 int
 not_addr(addr)
@@ -9,7 +10,7 @@ not_addr(addr)
 
   mode = -1;
 
-  while (ch = *addr)
+  while ( (ch = *addr) )
   {
     if (ch == '@')
     {

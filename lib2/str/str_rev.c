@@ -9,7 +9,7 @@ str_rev(dst, src)
 
   *dst = '\0';
 
-  while (cc = *src)
+  while ( (cc = *src) )
   {
     *--dst = cc;
     src++;

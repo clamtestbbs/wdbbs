@@ -1,6 +1,8 @@
-/*---------------------------------------------------------
-Remove(strip) left and right English and Chinese blanks in a line
-----------------------------------------------------------*/
+/*------------------------------------------------------------------ */
+/* Remove(strip) left and right English and Chinese blanks in a line */
+/* ----------------------------------------------------------------- */
+
+#include <string.h>
 
 char* trim2(char* buffer)
 {

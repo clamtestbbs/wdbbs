@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 /* f_cat.c */
 void f_cat(char *fpath, char *msg);
 /* f_cp.c */

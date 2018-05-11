@@ -1,8 +1,7 @@
 /* str_pat : wild card string pattern match support ? * \ */
 
-
-#include "dao.h"
-
+#include <string.h>
+#include "daostr.h"
 
 int
 str_pat(str, pat)
@@ -14,7 +13,7 @@ str_pat(str, pat)
 
   xpat = NULL;
 
-  while (cs = *str)
+  while ( (cs = *str) )
   {
     cp = *pat++;
     if (cp == '*')
@@ -63,7 +62,7 @@ str_pat(str, pat)
     str = ++xstr;
   }
 
-  while (cp = *pat)
+  while ( (cp = *pat) )
   {
     if (cp != '*')
       return 0;

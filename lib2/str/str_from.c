@@ -9,9 +9,8 @@
 /* 6. "nick" <user@domain>				 */
 /* ----------------------------------------------------  */
 
-
-#include "dao.h"
-
+#include <string.h>
+#include "daostr.h"
 
 int
 str_from(from, addr, nick)
@@ -75,7 +74,7 @@ str_from(from, addr, nick)
 	str--;
       *str = 0;
 
-      if (ptr = (char *) strchr(from, '('))
+      if ( (ptr = (char *) strchr(from, '(')) )
       {
 	ptr[-1] = 0;
 	if (*++ptr == '"')

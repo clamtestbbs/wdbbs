@@ -4,7 +4,7 @@ str_len(str)
 {
   int cc, len;
 
-  for (len = 0; cc = *str; str++)
+  for (len = 0; (cc = *str); str++)
   {
     if (cc != ' ')
       len++;

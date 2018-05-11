@@ -6,7 +6,7 @@ str_rle(str)			/* run-length encoding */
   int cc, rl;
 
   dst = src = str;
-  while (cc = *src++)
+  while ( (cc = *src++) )
   {
     if (cc > 8 && cc == src[0] && cc == src[1] && cc == src[2])
     {

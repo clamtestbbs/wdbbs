@@ -1,5 +1,6 @@
-char *
-str_ndup(src, len)
+#include <stdlib.h>
+
+char *str_ndup(src, len)
   char *src;
   int len;
 {
@@ -18,7 +19,7 @@ str_ndup(src, len)
 
   dst = (char *) malloc(end - src);
 
-  for (str = dst; *str = *src; src++)
+  for (str = dst; (*str = *src); src++)
   {
     str++;
     if (src >= end)

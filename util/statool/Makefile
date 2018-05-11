@@ -23,7 +23,7 @@ DAOLIB	= -L$(SRCROOT)/lib2/str -ldaostr \
 	  -L$(SRCROOT)/lib2/rec -ldaorec \
 	  -L$(SRCROOT)/lib2/op -ldaoop \
 	  -L$(SRCROOT)/lib2/sys -ldaosys \
-	  -L$(SRCROOT)/lib2/wdlib -lwd 
+	  -L$(SRCROOT)/lib2/wdlib -ldaowd 
 
 CC	= clang
 

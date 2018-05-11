@@ -9,10 +9,14 @@
 
 ARCHI	!= uname -m
 
+SRCROOT	= ../..
+
+INCLUDE	= $(SRCROOT)/include
+
 CC	=  clang
 RANLIB	=  ranlib
 CPROTO	=  cproto -E"clang -pipe -E" -I../../include
-CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
+CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE)
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -32,7 +36,7 @@ all:	libdaofile.a
 
 
 daofile.p: $(SRC)
-	$(CPROTO) -o $@ $?
+	$(CPROTO) -o $@ $? -I$(INCLUDE)
 
 
 libdaofile.a: $(OBJ)
@@ -45,4 +49,4 @@ clean:
 
 
 tags:
-	ctags $(SRC) ../../include/*.h
+	ctags $(SRC) $(INCLUDE)/*.h

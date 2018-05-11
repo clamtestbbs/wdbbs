@@ -9,10 +9,14 @@
 
 ARCHI	!= uname -m
 
+SRCROOT	= ../../
+
+INCLUDE	= $(SRCROOT)/include
+
 CC	=  clang
 RANLIB	=  ranlib
-CPROTO	=  cproto -E"gcc -pipe -E" 
-CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
+CPROTO	=  cproto -E"clang -pipe -E" 
+CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE)
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
@@ -31,21 +35,21 @@ OBJ =	setpf.o strip_ansi.o ci_strncmp.o cut_ansistr.o \
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libwd.a
+all:	libdaowd.a
 
 
-wdlib.p:	$(SRC)
-	$(CPROTO) -o $@ $?
+daowd.p:	$(SRC)
+	$(CPROTO) -o $@ $? -I$(INCLUDE)
 
 
-libwd.a: $(OBJ)
+libdaowd.a: $(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags *.p
 
 
 tags:
-	ctags $(SRC) ../../include/*.h
+	ctags $(SRC) $(INCLUDE)/*.h
