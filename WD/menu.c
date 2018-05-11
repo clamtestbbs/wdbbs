@@ -488,8 +488,6 @@ game_list()
 }
 #endif
 
-int note(),show_hint_message();
-
 static struct MENU servicelist[] = {
 #ifdef HAVE_GAME
   game_list,    0,              "PPlay          [育樂中心]",0,

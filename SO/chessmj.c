@@ -21,7 +21,7 @@ int   selftouch;
 
 
 void
-outz(msg)
+chessmj_outz(msg)
   uschar *msg;
 {
   int ch;
@@ -49,7 +49,7 @@ void
 zmsg(msg)                       /* easy message */
   char *msg;
 {
-  outz(msg); /* SiE: 980731: 用 outz 代替 */
+  chessmj_outz(msg); /* SiE: 980731: 用 outz 代替 */
   refresh();
   zkey();
 }

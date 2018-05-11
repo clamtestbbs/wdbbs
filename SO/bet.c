@@ -334,7 +334,7 @@ do{
      {
        sprintf(cc,"home/%s/bet.scr",cuser.userid);
        pressanykey("請按任一鍵開始編輯此次 [開局宗旨]");
-       if(vedit(cc,NA,0)==-2) cont=0;
+       if(vedit(cc,NA)==-2) cont=0;
      }
 
      if(cont)
