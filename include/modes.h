@@ -95,6 +95,7 @@ enum
 #define NoteMoney	46
 #define LISTMAIN	47
 #define LISTEDIT	48
+#define GAME		49       //add GAME from pure version
 
 /* ----------------------------------------------------- */
 /* menu.c ¤¤ªº¼Ò¦¡                                       */

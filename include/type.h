@@ -59,5 +59,6 @@ char *ModeTypeTable[] =
   "記帳本",			/* NoteMoney */
   "整頓名單",			/* ListMain */
   "編輯名單",			/* ListEdit */
+  "風塵育樂中心",		/* GAME */
   NULL
 };
