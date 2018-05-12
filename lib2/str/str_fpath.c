@@ -1,5 +1,6 @@
-void
-setdirpath(fpath, direct, fname)
+#include <string.h>
+
+void setdirpath(fpath, direct, fname)
   char *fpath, *direct, *fname;
 {
   int ch;

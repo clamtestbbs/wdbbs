@@ -1,5 +1,6 @@
-void
-str_folder(fpath, folder, fname)
+#include <string.h>
+
+void str_folder(fpath, folder, fname)
   char *fpath;
   char *folder;
   char *fname;

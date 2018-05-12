@@ -1,3 +1,6 @@
+#include <string.h>
+#include "daostr.h"
+
 int
 strstr_lower(str, tag)
   char *str, *tag;              /* tag : lower-case string */

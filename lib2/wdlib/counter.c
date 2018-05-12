@@ -3,7 +3,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-#include "daosys.h"
+#include "bbs.h"
 
 #define SEM_ENTER      -1      /* enter semaphore */
 #define SEM_LEAVE      1       /* leave semaphore */
@@ -26,7 +26,7 @@ counter(filename,modes,n)
 
   sem_init(C_SEMKEY,&counter_semid);
   sem_lock(SEM_ENTER,counter_semid);
-  if(fp = fopen(filename,"r"))
+  if( (fp = fopen(filename,"r")) )
   {
     fscanf(fp,"%lu",&visited);
     fclose(fp);
@@ -36,7 +36,7 @@ counter(filename,modes,n)
   n ? "¤µ¤Ñ" : "    ",++visited,modes);
   unlink(filename);
 
-  if(fp = fopen(filename,"w"))
+  if( (fp = fopen(filename,"w")) )
   {
     fprintf(fp,"%ld",visited);
     fclose(fp);
