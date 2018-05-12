@@ -1,6 +1,8 @@
 /* 濾控制碼的程式 */
-int
-strip_ansi(buf, str ,mode)
+
+#include <string.h>
+
+int strip_ansi(buf, str ,mode)
   char *buf, *str;
   int mode;
 {

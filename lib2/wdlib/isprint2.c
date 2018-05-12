@@ -1,3 +1,4 @@
+#include <ctype.h>
 
 int
 isprint2(ch)

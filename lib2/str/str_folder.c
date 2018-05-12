@@ -1,5 +1,6 @@
-void
-str_folder(fpath, folder, fname)
+#include <string.h>
+
+void str_folder(fpath, folder, fname)
   char *fpath;
   char *folder;
   char *fname;
@@ -7,7 +8,7 @@ str_folder(fpath, folder, fname)
   int ch;
   char *token;
 
-  while (ch = *folder++)
+  while ( (ch = *folder++) )
   {
     *fpath++ = ch;
     if (ch == '/')

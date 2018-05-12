@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 void
 setadir(buf, path)
   char *buf, *path;

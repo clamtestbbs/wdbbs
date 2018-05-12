@@ -12,7 +12,7 @@ str_cmp(s1, s2)
       c1 |= 32;
     if (c2 >= 'A' && c2 <= 'Z')
       c2 |= 32;
-    if (diff = c1 - c2)
+    if ( (diff = c1 - c2) )
       return (diff);
   } while (c1);
   return 0;

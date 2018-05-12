@@ -1,11 +1,12 @@
-void
-setdirpath(fpath, direct, fname)
+#include <string.h>
+
+void setdirpath(fpath, direct, fname)
   char *fpath, *direct, *fname;
 {
   int ch;
   char *target;
       
-  while (ch = *direct)
+  while ( (ch = *direct) )
   {
     *fpath++ = ch;
     if (ch == '/')

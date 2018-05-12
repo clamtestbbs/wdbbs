@@ -23,7 +23,7 @@ str_from(from, addr, nick)
 
   langle = ptr = NULL;
 
-  for (str = from; cc = *str; str++)
+  for (str = from; (cc = *str); str++)
   {
     if (cc == '<')
       langle = str;

@@ -8,7 +8,7 @@ b_suckinfile(fp, fname)
 {
   FILE *sfp;
 
-  if (sfp = fopen(fname, "r"))
+  if ( (sfp = fopen(fname, "r")) )
   {
     char inbuf[256];
 

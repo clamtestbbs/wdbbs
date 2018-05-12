@@ -7,6 +7,8 @@
 /*§@ªÌ:herb                                              */
 /*-------------------------------------------------------*/
 
+#include <string.h>
+
 int
 cut_ansistr(char *buf, char *str, int len) {
   register int ansi,count=0;

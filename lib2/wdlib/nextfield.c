@@ -4,7 +4,7 @@ nextfield(data, field)
 {
   register int ch;
 
-  while (ch = *data)
+  while ( (ch = *data) )
   {
     data++;
     if ((ch == '\t') || (ch == '\r' && *data == '\n'))
