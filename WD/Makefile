@@ -14,16 +14,12 @@ BUILDTIME	!= date '+%s'
 
 BBSHOME	?= $(HOME)
 
-DAOLIB	= -L../lib2/str -ldaostr \
-	  -L../lib2/file -ldaofile \
-	  -L../lib2/rec -ldaorec \
-	  -L../lib2/op -ldaoop \
-	  -L../lib2/sys -ldaosys \
-	  -L../lib2/wdlib -ldaowd 
+DAOLIB	= -L../lib2/maple3 -ldaom3 \
+	  -L../lib2/stuff -lstuff  
 
 CC	= clang
 
-CPROTO	= cproto -E"gcc -pipe -E -I../include"
+CPROTO	= cproto -E"clang -pipe -E -I../include"
 
 CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding -Wno-implicit-function-declaration \
 	  -Wno-implicit-int

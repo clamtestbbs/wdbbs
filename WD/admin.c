@@ -698,7 +698,7 @@ domailclean (fhdrp)
 	{
 	  sethomedir (buf, curruser);
 	  while (delcnt--)
-	    rec_del (buf, sizeof (fileheader), delmsgs[delcnt]);
+	    rec_del (buf, sizeof (fileheader), delmsgs[delcnt], NULL, NULL);
 	}
       delcnt = 0;
       return 1;

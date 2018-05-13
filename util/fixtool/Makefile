@@ -18,12 +18,8 @@ SRCROOT	= ../..
 
 INCLUDE	= $(SRCROOT)/include
 
-DAOLIB	= -L$(SRCROOT)/lib2/str -ldaostr \
-	  -L$(SRCROOT)/lib2/file -ldaofile \
-	  -L$(SRCROOT)/lib2/rec -ldaorec \
-	  -L$(SRCROOT)/lib2/op -ldaoop \
-	  -L$(SRCROOT)/lib2/sys -ldaosys \
-	  -L$(SRCROOT)/lib2/wdlib -ldaowd 
+DAOLIB	= -L$(SRCROOT)/lib2/maple3 -ldaom3 \
+	  -L$(SRCROOT)/lib2/stuff -lstuff  \
 
 CC	= clang
 

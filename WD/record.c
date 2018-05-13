@@ -126,7 +126,7 @@ nolfilename(n, fpath)
   sprintf(n->lockfn, "%s.lock", fpath);
 }
 
-
+#if 0
 int
 rec_del(fpath, size, id)
   char fpath[];
@@ -181,7 +181,7 @@ rec_del(fpath, size, id)
   close(fd);
   return 0;
 }
-
+#endif
 
 int
 delete_range(fpath, id1, id2)
