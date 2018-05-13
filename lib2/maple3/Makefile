@@ -9,30 +9,33 @@
 
 ARCHI	!= uname -m
 
+SRCROOT	= ../..
+
+INCLUDE	= $(SRCROOT)/include
+
 CC	=  clang
 RANLIB	=  ranlib
-CPROTO	=  cproto -E"gcc -pipe -E" 
-CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
+CPROTO	=  cproto -E"clang -pipe -E" 
+CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE) -Wno-invalid-source-encoding
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
 .endif
 
-SRC =	record.c
-	
-OBJ =	record.o 
-	
+SRC =	file.c  isnot.c  record.c  string.c  attr_lib.c  dl_lib.c
+
+OBJ =	file.o  isnot.o  record.o  string.o  attr_lib.o  dl_lib.o
+
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libdaorec.a
+all:	libdaom3.a
+
+daom3.p: $(SRC)
+	$(CPROTO) -o $@ $? -I$(INCLUDE)
 
 
-dao.p:	$(SRC)
-	$(CPROTO) -o $@ $?
-
-
-libdaorec.a:	$(OBJ)
+libdaom3.a: $(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
@@ -42,4 +45,4 @@ clean:
 
 
 tags:
-	ctags $(SRC) ../../include/*.h
+	ctags $(SRC) $(INCLUDE)/*.h

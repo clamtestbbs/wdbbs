@@ -1,5 +1,5 @@
-#include "dao.h"
 #include <fcntl.h>
+#include "daom3.h"
 
 int
 friend_count(char *fname)

@@ -10,9 +10,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <dirent.h>
-#include "dao.h"
-#include "daofile.h"
-#include "daostr.h"
+#include "daom3.h"
 
 void
 f_cat(fpath, msg)

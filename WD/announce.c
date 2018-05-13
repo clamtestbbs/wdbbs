@@ -879,7 +879,7 @@ a_delete (pm)
   {
     if(answer("此檔案/目錄不可刪除 , 是否要刪除索引 (y/N)")=='y')
     {
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
         return;
       pm->num--;
     }
@@ -892,7 +892,7 @@ a_delete (pm)
 	       ,ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
 	return;
     }
   else if (dashl (fpath))
@@ -900,7 +900,7 @@ a_delete (pm)
       getdata (b_lines - 1, 1, "您確定要刪除此 symbolic link 嗎(Y/N)？[N] ", ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
 	return;
       unlink (fpath);
     }
@@ -909,7 +909,7 @@ a_delete (pm)
       getdata (b_lines - 1, 1, "您確定要刪除此檔案嗎(Y/N)？[N] ", ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
 	return;
 
       setbpath (buf, "deleted");
@@ -929,7 +929,7 @@ a_delete (pm)
 	       LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
 	return;
       sprintf (buf, "rm -rf %s", fpath);
       system (buf);
@@ -941,7 +941,7 @@ a_delete (pm)
 	       ,ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
 	return;
     }
   pm->num--;

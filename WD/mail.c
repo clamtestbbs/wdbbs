@@ -859,7 +859,7 @@ m_new()
   if (delcnt)
   {
     while (delcnt--)
-      rec_del(currmaildir, sizeof(fileheader), delmsgs[delcnt]);
+      rec_del(currmaildir, sizeof(fileheader), delmsgs[delcnt], NULL, NULL);
   }
   outs(mrd ? "信已閱\畢" : "沒有新信件了");
   pressanykey(NULL);

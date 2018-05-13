@@ -12,12 +12,8 @@ OPSYS	!= uname -o
 
 BBSHOME	?= $(HOME)
 
-DAOLIB	= -L../lib2/str -ldaostr \
-	  -L../lib2/file -ldaofile \
-	  -L../lib2/rec -ldaorec \
-	  -L../lib2/op -ldaoop \
-	  -L../lib2/sys -ldaosys \
-	  -L../lib2/wdlib -ldaowd
+DAOLIB	= -L../lib2/maple3 -ldaom3 \
+	  -L../lib2/stuff -lstuff  \
 
 CC	= clang
 CFLAGS	= -g -O2 -Wunused -I../include -pipe -fomit-frame-pointer -Wno-invalid-source-encoding

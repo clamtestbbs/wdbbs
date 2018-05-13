@@ -5,8 +5,12 @@
 /* update :   /  /                                       */
 /* ----------------------------------------------------- */
 
-#include "bbs.h"
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <dlfcn.h>
+#include "config.h"
+#include "daom3.h"
 
 typedef struct
 {

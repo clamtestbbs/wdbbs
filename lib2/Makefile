@@ -8,7 +8,7 @@
 
 OPSYS	!= uname -o
 
-SUBDIR 	= file str rec op sys wdlib
+SUBDIR 	= maple3 stuff
 
 all clean:
 	@for i in $(SUBDIR); do\

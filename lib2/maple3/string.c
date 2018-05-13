@@ -1,9 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "daostr.h"
 #include <stdio.h>
 #include <time.h>
+#include "daom3.h"
 
 char * str_add(dst, src)
   char *dst, *src;
@@ -936,3 +936,4 @@ char * str_ttl(title)
 
   return title;
 }
+

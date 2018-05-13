@@ -1,6 +1,11 @@
-#include <sys/file.h>
+#include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/file.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "daom3.h"
 
 int
 rec_add(fpath, data, size)
@@ -24,9 +29,6 @@ rec_add(fpath, data, size)
 
   return 0;
 }
-#include "dao.h"
-#include <fcntl.h>
-#include <unistd.h>
 
 int
 rec_apply(fpath, fptr, size)
@@ -51,13 +53,6 @@ rec_apply(fpath, fptr, size)
   close(fd);
   return 0;
 }
-#include <stdlib.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "dao.h"
 
 int
 rec_del(data, size, pos, fchk, fdel)
@@ -157,9 +152,6 @@ rec_del(data, size, pos, fchk, fdel)
 
   return 0;
 }
-#include <fcntl.h>
-#include <unistd.h>
-
 
 int
 rec_get(fpath, data, size, pos)
@@ -187,13 +179,6 @@ rec_get(fpath, data, size, pos)
   }
   return ret;
 }
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 int
 rec_ins(fpath, data, size, pos, num)
@@ -248,13 +233,6 @@ rec_ins(fpath, data, size, pos, num)
 
   return 0;
 }
-#include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 int
 rec_mov(data, size, from, to)
@@ -329,8 +307,6 @@ rec_mov(data, size, from, to)
 
   return 0;
 }
-#include <sys/stat.h>
-
 
 int
 rec_num(fpath, size)
@@ -343,10 +319,6 @@ rec_num(fpath, size)
     return 0;
   return (st.st_size / size);
 }
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/file.h>
-
 
 int
 rec_put(fpath, data, size, pos)

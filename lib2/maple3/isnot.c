@@ -1,3 +1,7 @@
+#include <string.h>
+#include <ctype.h>
+#include "daom3.h"
+	
 int
 is_alnum(ch)
   int ch;
@@ -5,15 +9,14 @@ is_alnum(ch)
   return ((ch >= '0' && ch <= '9') ||
     (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));
 }
+
 int
 is_alpha(ch)
   int ch;
 {
   return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'));
 }
-#include <string.h>
-#include "daoop.h"
-	
+
 int is_fname(str)
   char *str;
 {
@@ -100,7 +103,6 @@ is_fpath(path)
     source++;
   }
 }
-#include "daoop.h"
 
 #define	STRICT_FQDN_EMAIL
 
@@ -132,4 +134,24 @@ not_addr(addr)
   }
 
   return mode;
+}
+
+int
+isprint2(ch)
+  char ch;
+{
+  return ((ch & 0x80) ? 1 : isprint(ch));
+}
+int
+not_alnum(ch)
+  register char ch;
+{
+  return (ch < '0' || (ch > '9' && ch < 'A') ||
+    (ch > 'Z' && ch < 'a') || ch > 'z');
+}
+int
+not_alpha(ch)
+  register char ch;
+{
+  return (ch < 'A' || (ch > 'Z' && ch < 'a') || ch > 'z');
 }

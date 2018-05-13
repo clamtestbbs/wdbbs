@@ -79,9 +79,7 @@
 #include "modes.h"		/* The list of valid user modes */
 
 #include "proto.h"
-#include "daoop.h"
-#include "daostr.h"
-#include "daofile.h"
-#include "daosys.h"
+#include "daom3.h"
+#include "stuff.h"
 
 #endif				/* _BBS_H_ */

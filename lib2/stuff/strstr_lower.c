@@ -1,5 +1,5 @@
 #include <string.h>
-#include "daostr.h"
+#include "daom3.h"
 
 int
 strstr_lower(str, tag)

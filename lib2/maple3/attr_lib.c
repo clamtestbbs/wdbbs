@@ -12,8 +12,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "daofile.h"
-#include "daowd.h"
+#include "daom3.h"
+#include "stuff.h"
 
 #if 0
   int key;

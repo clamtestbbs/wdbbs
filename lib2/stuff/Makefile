@@ -9,40 +9,46 @@
 
 ARCHI	!= uname -m
 
-SRCROOT	= ../..
+SRCROOT	= ../../
 
 INCLUDE	= $(SRCROOT)/include
 
 CC	=  clang
 RANLIB	=  ranlib
-CPROTO	=  cproto -E"gcc -pipe -E" 
+CPROTO	=  cproto -E"clang -pipe -E" 
 CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE) -Wno-invalid-source-encoding
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
 .endif
 
-SRC =	string.c
+SRC =	setpf.c strip_ansi.c ci_strncmp.c cut_ansistr.c \
+	isprint2.c not_alnum.c not_alpha.c strstr_lower.c \
+	friend_count.c nextfield.c bad_user.c counter.c file_list_count.c\
+	b_suckinfile.c args.c shm.c sem.c
 
-OBJ =	string.o
+OBJ =	setpf.o strip_ansi.o ci_strncmp.o cut_ansistr.o \
+	isprint2.o not_alnum.o not_alpha.o strstr_lower.o \
+	friend_count.o nextfield.o bad_user.o counter.o file_list_count.o \
+	b_suckinfile.o args.o shm.o sem.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
 
-all:	libdaostr.a
+all:	libstuff.a
 
 
-dao.p:	$(SRC)
+stuff.p:	$(SRC)
 	$(CPROTO) -o $@ $? -I$(INCLUDE)
 
 
-libdaostr.a: $(OBJ)
+libstuff.a: $(OBJ)
 	ar rv $@ $?
 	$(RANLIB) $@
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags *.p
 
 
 tags:
