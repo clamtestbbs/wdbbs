@@ -8,7 +8,7 @@
 
 OPSYS	!= uname -o
 
-SUBDIR	= lib2 WD util
+SUBDIR	= lib WD util
 
 .if $(OPSYS) != "Cygwin"
 SUBDIR	+= SO

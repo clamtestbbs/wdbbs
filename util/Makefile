@@ -18,8 +18,8 @@ SRCROOT	= ..
 
 INCLUDE	= $(SRCROOT)/include
 
-DAOLIB	= -L$(SRCROOT)/lib2/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib2/stuff -lstuff
+DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
+	  -L$(SRCROOT)/lib/stuff -lstuff
 
 CC	= clang
 

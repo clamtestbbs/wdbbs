@@ -14,8 +14,8 @@ BUILDTIME	!= date '+%s'
 
 BBSHOME	?= $(HOME)
 
-DAOLIB	= -L../lib2/maple3 -ldaom3 \
-	  -L../lib2/stuff -lstuff  
+DAOLIB	= -L../lib/maple3 -ldaom3 \
+	  -L../lib/stuff -lstuff  
 
 CC	= clang
 
