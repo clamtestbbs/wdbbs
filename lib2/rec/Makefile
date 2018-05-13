@@ -18,11 +18,9 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
 CFLAGS	+= -m32
 .endif
 
-SRC =	rec_add.c rec_num.c rec_del.c rec_get.c \
-	rec_ins.c rec_mov.c rec_put.c rec_apply.c
+SRC =	record.c
 	
-OBJ =	rec_add.o rec_num.o rec_del.o rec_get.o \
-	rec_ins.o rec_mov.o rec_put.o rec_apply.o 
+OBJ =	record.o 
 	
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
@@ -40,7 +38,7 @@ libdaorec.a:	$(OBJ)
 
 
 clean:
-	rm -fr $(GARBAGE) $(OBJ) libdao.a *.bak *.BAK *~ tags
+	rm -fr $(GARBAGE) $(OBJ) *.a *.bak *.BAK *~ tags
 
 
 tags:

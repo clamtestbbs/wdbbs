@@ -18,9 +18,9 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I../../include
 CFLAGS	+= -m32
 .endif
 
-SRC =	is_alnum.c  is_alpha.c  is_fname.c  is_fpath.c  not_addr.c
+SRC =	isnot.c
 
-OBJ =	is_alnum.o  is_alpha.o  is_fname.o  is_fpath.o  not_addr.o
+OBJ =	isnot.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 

@@ -22,12 +22,10 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE)
 CFLAGS	+= -m32
 .endif
 
-SRC =	f_cat.c f_cp.c f_img.c f_ln.c f_map.c f_mode.c f_mv.c \
-	f_new.c f_open.c f_path.c f_rm.c f_suck.c f_lock.c attr_lib.c dl_lib.c
+SRC =	file.c attr_lib.c dl_lib.c
 
 
-OBJ =	f_cat.o f_cp.o f_img.o f_ln.o f_map.o f_mode.o f_mv.o \
-	f_new.o f_open.o f_path.o f_rm.o f_suck.o f_lock.o attr_lib.o dl_lib.o
+OBJ =	file.o attr_lib.o dl_lib.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 

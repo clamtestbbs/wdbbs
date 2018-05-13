@@ -22,17 +22,9 @@ CFLAGS	=  -g -O2 -pipe -fomit-frame-pointer -Wunused -I$(INCLUDE) -Wno-invalid-s
 CFLAGS	+= -m32
 .endif
 
-SRC =	str_add.c str_cat.c str_cmp.c str_decode.c str_dup.c str_folder.c \
-	str_fpath.c str_from.c str_has.c str_hash.c str_len.c str_lower.c \
-	str_ncmp.c str_ncpy.c str_ndup.c str_passwd.c str_pat.c str_rev.c \
-	str_rle.c str_stamp.c str_str.c str_tail.c str_time.c \
-	str_trim.c str_ttl.c str_trim2.c
+SRC =	string.c
 
-OBJ =	str_add.o str_cat.o str_cmp.o str_decode.o str_dup.o str_folder.o \
-	str_fpath.o str_from.o str_has.o str_hash.o str_len.o str_lower.o \
-	str_ncmp.o str_ncpy.o str_ndup.o str_passwd.o str_pat.o str_rev.o \
-	str_rle.o str_stamp.o str_str.o str_tail.o str_time.o \
-	str_trim.o str_ttl.o str_trim2.o
+OBJ =	string.o
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c
 
