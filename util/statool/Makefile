@@ -25,7 +25,7 @@ CC	= clang
 
 CFLAGS	= -m32 -O -Wunused -I$(INCLUDE) -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
 
-LDFLAGS	= -lcrypt -lncurses $(DAOLIB)
+LDFLAGS	= $(DAOLIB) -lcrypt -lncurses 
 
 .if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32

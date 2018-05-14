@@ -24,7 +24,7 @@ CPROTO	= cproto -E"clang -pipe -E -I../include"
 CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding -Wno-implicit-function-declaration \
 	  -Wno-implicit-int
 
-LDFLAGS	= -lcrypt $(DAOLIB) -lncurses
+LDFLAGS	= $(DAOLIB) -lncurses -lcrypt 
 
 .if $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
 CFLAGS	+= -m32
