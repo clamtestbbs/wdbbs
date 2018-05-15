@@ -35,10 +35,10 @@ int file_list_count(char *fname);
 /* b_suckinfile.c */
 void b_suckinfile(FILE *fp, char *fname);
 /* args.c */
-void initsetproctitle(int argc, char **argv, char **envp);
-void setproctitle(const char *cmdline);
-void printpt(const char *format, ...);
-int countproctitle(void);
+//void initsetproctitle(int argc, char **argv, char **envp);
+//void setproctitle(const char *cmdline);
+//void printpt(const char *format, ...);
+//int countproctitle(void);
 /* shm.c */
 void *shm_new(int shmkey, int shmsize);
 /* sem.c */

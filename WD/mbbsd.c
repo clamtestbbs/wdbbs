@@ -611,7 +611,7 @@ user_login()
   extern int fcache_semid;
   
   log_usies("ENTER", getenv("RFC931")/* fromhost */);
-#ifdef __FreeBSD__
+#if 0
   setproctitle("%s: %s", cuser.userid, fromhost);
 #endif
 
@@ -1349,7 +1349,7 @@ main(argc, argv,envp)
 
     f_cat(PID_FILE, genbuf); 
 
-#ifdef __FreeBSD__    
+#if 0
     setproctitle("listening%s", margs);
 #endif
 
@@ -1405,7 +1405,7 @@ again:
 
       if (!pid)
       {
-#ifdef __FreeBSD__
+#if 0
         setproctitle("...login...");
 #endif
         nice(2);      /*  Ptt lower priority */
