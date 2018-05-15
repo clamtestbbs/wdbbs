@@ -9,7 +9,10 @@ file_list_count(char *fname)
    char buf[200];
    if( (fp=fopen(fname,"r")) )
    {
-      while(fgets(buf,200,fp)) count++;
+      while(fgets(buf,200,fp)) 
+	      count++;
+
+      fclose(fp);
    }
    return count;
 }

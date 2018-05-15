@@ -675,7 +675,7 @@ gem_files(char* dirname, int (*filecheck)())
         substitute_record (dirname, &fhdr, sizeof (fhdr), now);
     }
   }  
-
+  fclose(fp);   // sby debug: 2003/01/15
   return ans;
 }
 
