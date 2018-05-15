@@ -2264,7 +2264,7 @@ note()
     outs("\n請留言 (至多三行)，按[Enter]結束");
     for (i = 0; (i < 3) &&
       getdata(16 + i, 0, "：", myitem.buf[i], 70, DOECHO,0); i++);
-    getdata(b_lines - 1, 0, "(S)儲存 (E)重新來過 (Q)取消？[S] ", buf, 3, LCECHO,"S");
+    getdata(b_lines - 1, 0, "(S)儲存 (E)重新來過 (Q)取消？[S] ", buf, 3, LCECHO,"Q");
 /*
 woju
 */
