@@ -319,7 +319,7 @@ igetch()
        case Ctrl('Z'):   /* wildcat:help everywhere */
        {
          static short re_entry = 0; /* CityLion: ¨¾­«¤Jªº... */
-         if(currutmp && !re_entry)
+         if(currutmp && !re_entry && currutmp->mode != IDLE)
          {
            int mode0 = currutmp->mode;
            int stat0 = currstat;
@@ -349,7 +349,8 @@ igetch()
        case Ctrl('U'):
          resetutmpent();
          if(currutmp != NULL && currutmp->mode != EDITING &&
-            currutmp->mode != LUSERS && currutmp->mode)
+            currutmp->mode != LUSERS && currutmp->mode
+            && currutmp->mode != IDLE)
          {
            int mode0 = currutmp->mode;
            int stat0 = currstat;
