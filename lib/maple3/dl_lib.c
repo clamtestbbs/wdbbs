@@ -9,6 +9,7 @@
 #include <string.h>
 #include <time.h>
 #include <dlfcn.h>
+#include <stdarg.h>
 #include "config.h"
 #include "daom3.h"
 
