@@ -41,7 +41,7 @@ char *ModeTypeTable[] =
   "投票中",                     /* VOTING */
   "設定資料",                   /* XINFO */
   "寄給站長",                   /* MSYSOP */
-  "各種記錄統計",		/* GAMELOG */
+  "各種記錄統計",		/* LOG */
   "回應",                       /* REPLY */
   "被水球丟中",                 /* HIT */
   "水球準備中",                 /* DBACK */
@@ -59,6 +59,5 @@ char *ModeTypeTable[] =
   "記帳本",			/* NoteMoney */
   "整頓名單",			/* ListMain */
   "編輯名單",			/* LISTEDIT */
-  "風塵育樂中心",		/* GAME */
   NULL
 };
