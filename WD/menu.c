@@ -99,8 +99,8 @@ movie(i)
 
   resolve_garbage(); /* get film cache */
 
-  if (currstat == GAME) 
-    return; 
+  if (currstat == GAME)
+    return;
   if (HAVE_HABIT(HABIT_MOVIE))
   {
 //    film->max_film=31;
@@ -144,6 +144,7 @@ movie(i)
 
 /* ===== end ===== */
 
+
 static int
 show_menu(p)
   MENU *p;
@@ -167,9 +168,9 @@ show_menu(p)
   movie(0);
   move(2,0);
 #ifdef HYPER_BBS
-  prints(COLOR1"\x1b[1m"HB_BACK" 功\ 能       說    明                 按 \x1b[1;33m\x1b[200m\x1b[444m\x1b[626m[Ctrl-Z]\x1b[201m\x1b[37m \x1b[31m求助               \x1b[m");
+  prints(COLOR1"\033[1m"HB_BACK" 功\ 能       說    明                 按 \033[1;33m\033[200m\033[444m\033[626m[Ctrl-Z]\033[201m\033[37m \033[31m求助               \033[m");
 #else
-  prints(COLOR1"\x1b[1m         功\  能        說    明                 按 [\x1b[1;33mCtrl-Z\x1b[37m] \x1b[31m求助               \x1b[m");
+  prints(COLOR1"\033[1m         功\  能        說    明                 按 [\033[1;33mCtrl-Z\033[37m] \033[31m求助               \033[m");
 #endif
   move(menu_row, 0);
   while ((s = p[n].desc)!=NULL || buf2[m][0]!='\0')
@@ -180,13 +181,21 @@ show_menu(p)
       {
         sprintf(buf,s+2);
 #ifdef HAVE_NOTE_2
-        if(currstat == GAME || buf2[m][0]=='\0')
+        if(currstat == GAME || buf2[m][0]=='\0' )
 #endif
-          prints("%*s  [\x1b[1;36m%c\x1b[m]%s\n", 
+  #ifdef HYPER_BBS
+          prints("%*s  \033[200m\033[446m[\033[1;36m\033[300m%c\033[302m\033[m]%s\033[201m\n",
+  #else
+          prints("%*s  [\033[1;36m%c\033[m]%s\n",
+  #endif
             menu_column, "", s[1], buf);
 #ifdef HAVE_NOTE_2
         else
-          prints("%*s  [\x1b[1;36m%c\x1b[m]%-28s%s",
+  #ifdef HYPER_BBS
+          prints("%*s  \033[200m\033[446m[\033[1;36m\033[300m%c\033[302m\033[m]%-28s\033[201m%s",
+  #else
+          prints("%*s  [\033[1;36m%c\033[m]%-28s%s",
+  #endif
             menu_column, "", s[1], buf,buf2[m++]);
 #endif
       }
@@ -194,12 +203,15 @@ show_menu(p)
     }
 #ifdef HAVE_NOTE_2
     else
+    {
+      if (currstat == GAME)
+        break;
       prints("%37s%-s", "", buf2[m++] );
+    }
 #endif
   }
   return n - 1;
 }
-
 
 void
 domenu(cmdmode, cmdtitle, cmd, cmdtable)
@@ -523,7 +535,7 @@ static struct MENU talklist[] = {
   t_talk,       PERM_PAGE,      "TTalk          [找人聊天]",0,
  */
 #ifdef NO_SO
-  t_chat, PERM_CHAT,"CChatRoom      [連線聊天]",1,
+  t_chat,       PERM_CHAT,"CChatRoom      [連線聊天]",1,
 #else
   "SO/chat.so:t_chat",PERM_CHAT,"CChatRoom      [連線聊天]",1,
 #endif
@@ -537,7 +549,7 @@ NULL, 0, NULL,0};
 static struct MENU userlist[] = {
   u_info,       0,              "IInfo          [修改資料]",0,
   u_habit,      PERM_BASIC,     "HHabit         [喜好設定]",0,
-  ListMain,     PERM_LOGINOK,   "LList          [設定名單]",0, 
+  ListMain,     PERM_LOGINOK,   "LList          [設定名單]",0,
 
 #ifdef POSTNOTIFY
   re_m_postnotify,PERM_BASIC,   "PPostNotify    [審核文章通知]",0,
@@ -551,7 +563,7 @@ static struct MENU userlist[] = {
 #endif
 
 #ifdef REG_MAGICKEY
-  u_verify, 	PERM_BASIC,	"VVerify        [填註冊碼]",0,
+  u_verify,     PERM_BASIC,     "VVerify        [填註冊碼]",0,
 #endif
 
   u_list,       PERM_BASIC,     "UUsers         [註冊名單]",0,
@@ -666,7 +678,7 @@ struct MENU cmdlist[] = {
   Mail,         PERM_BASIC,     "MMail          [風塵郵局]",0,
   Talk,         0,              "TTalk          [談天說地]",0,
   User,         PERM_BASIC,     "UUser          [個人工具]",0,
-  Service,	PERM_LOGINOK,	"SService       [各種服務]",0,
+  Service,      PERM_LOGINOK,   "SService       [各種服務]",0,
   Log,          0,              "HHistory       [歷史軌跡]",0,
   Goodbye,      0,              "GGoodbye       [有緣千里]",0,
 NULL, 0, NULL,0};
