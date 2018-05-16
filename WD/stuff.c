@@ -263,6 +263,49 @@ Cdate(clock)
   return (foo);
 }
 
+#if 0
+void
+pressanykey(va_alist)
+  va_dcl
+{
+  va_list ap;
+  char msg[512], *fmt;
+  int ch;
+
+  msg[0]=0;
+  va_start(ap);
+  fmt = va_arg(ap, char *);
+  if(fmt) vsprintf(msg, fmt, ap);
+  va_end(ap);
+  if (msg[0])
+  {
+    move(b_lines, 0); clrtoeol();
+#ifdef HYPER_BBS
+    prints(COLOR1"\x1b[200m\x1b[300m\x1b[302m\x1b[445m\x1b[1m★ \x1b[37m%-54s  "COLOR2"[空白]或 ESC_c暫存 \x1b[m\x1b[201m", msg);
+#else
+    prints(COLOR1"\x1b[1m★ \x1b[37m%-54s  "COLOR2"[空白]或 ESC_c暫存 \x1b[m", msg);
+#endif
+  }
+  else
+#ifdef HYPER_BBS
+    outmsg(COLOR1"\x1b[200m\x1b[300m\x1b[302m\x1b[445m\x1b[1m                        ★ 請按 \x1b[37m(Space/Return)"
+    COLOR1" 繼續 ★                         \x1b[m\x1b[201m");
+#else
+    outmsg(COLOR1"\x1b[1m                        ★ 請按 \x1b[37m(Space/Return)"
+    COLOR1" 繼續 ★                         \x1b[m");
+#endif
+  do
+  {
+    ch = igetkey();
+    if (ch == KEY_ESC && KEY_ESC_arg == 'c')
+      capture_screen();
+  } while ((ch != ' ') && (ch != KEY_LEFT) && (ch != '\r') && (ch != '\n'));
+
+  move(b_lines, 0);
+  clrtoeol();
+  refresh();
+}
+#endif
 
 void
 pressanykey(char *fmt, ...)
@@ -305,8 +348,6 @@ pressanykey(char *fmt, ...)
   clrtoeol();
   refresh();
 }
-
-
 
 
 void
@@ -397,7 +438,7 @@ cursor_show(row, column)
 {
   FILE *fp;
   int i;
-  char *CUR="＞",buf[512];
+  char *CUR="喵咩魚妖夢",buf[512];
 
   sethomefile(buf,cuser.userid,"cursor");
   if(dashf(buf))
@@ -464,12 +505,91 @@ printdash(mesg)
   outch('\n');
 }
 
+
+// wildcat : 兩種貨幣
+int
+check_money(unsigned long int money,int mode)
+{
+  unsigned long int usermoney;
+
+  usermoney = mode ? cuser.goldmoney : cuser.silvermoney;
+  if(usermoney<money)
+  {
+    move(1,0);
+    clrtobot();
+    move(10,10);
+    pressanykey("抱歉！您身上只有 %d 元，不夠唷！",usermoney);
+    return 1;
+  }
+  return 0;
+}
+
+
+// wildcat : 經驗值
+int
+check_exp(unsigned long int exp)
+{
+  if(cuser.exp<exp)
+  {
+    move(1,0);
+    clrtobot();
+    move(10,10);
+    pressanykey("抱歉！您的經驗值只有 %d 點，不夠唷！",cuser.exp);
+    return 1;
+  }
+  return 0;
+}
+
+// wildcat : 千禧獎金 :p
+void
+get_bonus()
+{
+  int money;
+  time_t now = time(0);
+  char buf[512];
+  
+  money= random()%2001;
+  xuser.silvermoney +=money;
+  sprintf(buf,"\x1b[1;31m恭喜 \x1b[33m%s \x1b[31m獲得千禧獎金 \x1b[36m%d 元銀幣 , %s\x1b[m",
+    cuser.userid,money,Etime(&now));
+  f_cat(BBSHOME"/log/y2k_bonus",buf);
+
+  pressanykey("恭喜你獲得 %d 元銀幣的千禧獎金",money);
+}  
+
+/* wildcat 981218 */
+#define INTEREST_TIME	86400*7	// wildcat:7天發放一次利息
+#define BANK_RATE	1.06	// wildcat:銀行利率 1.06 
 void
 update_data()
 {
+  int add = (time(0) - update_time)/30;
+
   getuser(cuser.userid);
+
+  if((time(0) - xuser.dtime) >= INTEREST_TIME && xuser.silvermoney)
+  {
+    xuser.silvermoney *= BANK_RATE;
+    xuser.dtime = time(0);
+  }  
+  if(add)
+  {
+    rpgtmp.age += add;
+    xuser.exp += rpgtmp.race != 3 ? add*5 : add*5*rpgtmp.level;
+    xuser.silvermoney += rpgtmp.race != 3 ? add*5 : add*10;
+    xuser.totaltime += (time(0)-update_time);
+    if(rpgtmp.hp && rpgtmp.hp < rpgtmp.con*30)
+      rpgtmp.hp += 3*add;
+    if(rpgtmp.hp > rpgtmp.con*30)
+      rpgtmp.hp = rpgtmp.con*30;  
+    if(rpgtmp.mp < rpgtmp.wis*10)
+      rpgtmp.mp += add;
+    update_time = time(0);
+  }
   cuser = xuser;
+  rpguser = rpgtmp;
   substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
+  rpg_rec(xuser.userid,rpguser);
 }
 
 
@@ -637,6 +757,133 @@ tbf_ask()
 }
 #endif
 
+
+int
+inexp(unsigned long int exp)
+{
+  update_data();
+  if(belong(BBSHOME"/game/rpg/baduser",cuser.userid)) return -1;  
+  cuser.exp = xuser.exp + exp;
+  substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
+  return cuser.exp;
+}
+
+int
+deexp(unsigned long int exp)
+{
+  update_data();
+  if(xuser.exp <= exp) cuser.exp=0;
+  else cuser.exp = xuser.exp - exp;
+  substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
+  return cuser.exp;
+}
+
+
+/*
+ * check_personal_note() 的功用跟 chkmail() 一樣..
+ * 所以可以加在 my_query() 中:這樣別人query時就可以看到有沒有新留言
+ * 還有可以加在 show_title() 中:這樣有新留言時就會像有新信件一樣在title提示喔!
+ */
+
+int
+check_personal_note(int newflag, char* userid) {
+ char fpath[512];
+ FILE *fp;
+ int  total = 0;
+ notedata myitem;
+ char *fn_note_dat      = "pnote.dat";
+
+ if (userid == NULL)
+   setuserfile(fpath, fn_note_dat);
+ else
+   sethomefile(fpath, userid, fn_note_dat);
+
+ if ((fp = fopen(fpath, "r")) != NULL) {
+   while (fread(&myitem, sizeof(myitem), 1, fp) == 1) {
+     if (newflag)
+       if (myitem.buf[0][0] == 0) total++;
+     else
+       total++;
+   }
+   fclose(fp);
+   return total;
+ }
+ return 0;
+}
+
+game_log(char *fmt,...)
+{
+ va_list ap;
+ int file;
+ char msg[512], ff[40];
+ time_t now;
+ FILE *fs;
+
+ va_start(ap, file);
+  vsprintf(msg, fmt, ap);
+ va_end(ap);
+
+ switch(file) /* 這一段可以自己改! */
+ {
+  case XAXB:
+    strcpy(ff,"log/ab.log");
+    log_usies("XAXB",NULL);
+    break;
+  case CHICKEN: 
+    strcpy(ff,"log/pip.log"); 
+    log_usies("CHICKEN",NULL);
+    break;
+  case BLACKJACK: 
+    strcpy(ff,"log/bj.log"); 
+    log_usies("BJ",NULL);
+    break;
+  case STOCK: 
+    strcpy(ff,"log/stock.log"); 
+    log_usies("STOCK",NULL);
+    break;
+  case DICE: 
+    strcpy(ff,"log/dice.log"); 
+    log_usies("DICE",NULL);
+    break;
+  case GP: 
+    strcpy(ff,"log/gp.log"); 
+    log_usies("GP",NULL);
+    break;
+  case MARIE: 
+    strcpy(ff,"log/marie.log"); 
+    log_usies("MARIE",NULL);
+    break;
+  case RACE: 
+    strcpy(ff,"log/race.log"); 
+    log_usies("RACE",NULL);
+    break;
+  case BINGO: 
+    strcpy(ff,"log/bingo.log"); 
+    log_usies("BINGO",NULL);
+    break; 
+  case NINE: 
+    strcpy(ff,"log/nine.log"); 
+    log_usies("NINE",NULL);
+    break;
+  case NumFight: 
+    strcpy(ff,"log/fightnum.log"); 
+    log_usies("NumFight",NULL);
+    break;
+  case CHESSMJ: 
+    strcpy(ff,"log/chessmj.log"); 
+    log_usies("CHESSMJ",NULL);
+    break;
+  case SEVENCARD: 
+    strcpy(ff,"log/seven.log"); 
+    log_usies("SEVENCARD",NULL);
+    break;
+ }
+ fs=fopen(ff,"a+");
+ now=time(0);
+ fprintf(fs,"\x1b[1;33m%s \x1b[32m%s \x1b[36m%s\x1b[m\n", Etime(&now),cuser.userid,msg);
+ fclose(fs);
+}
+
 int
 show_help(mode)
   int mode;
@@ -658,6 +905,60 @@ show_help(mode)
   else
     HELP();
   return 0;
+}
+void
+sysop_bbcall(char *fmt,...)
+{
+  va_list ap;
+  FILE *fp;
+  char NumMode[10][5],PagerNum[10][10];
+  int i=0,j;
+  char msg[512], buf[512];
+
+  msg[0]=0;
+  va_start(ap, fmt);
+  if(fmt)
+    vsprintf(msg, fmt, ap);
+  va_end(ap);
+    
+  if(fp=fopen(BBSHOME"/etc/sysop_bbcall","r"))
+  {
+    while(fgets(buf,512,fp))
+    {
+      if(buf[0] == '#') continue; 
+      buf[strlen(buf) - 1] = '\0';   
+      strncpy(NumMode[i],buf+1,3);
+      NumMode[i][3] = '\0';  
+      strncpy(PagerNum[i],buf+4,6);
+      PagerNum[i][6] = '\0';  
+      i++;
+    }
+    fclose(fp);
+  }
+  for(j = 0 ; i > j; j++)
+  {
+    DL_func("SO/bbcall.so:bbcall",atoi(NumMode[j]),1,PagerNum[j],0,msg);
+  }
+}
+
+void
+user_bbcall(char *fmt,...)
+{
+  va_list ap;
+  char NumMode[10],PagerNum[10];
+  char msg[512];
+
+  msg[0]=0;
+  va_start(ap, fmt);
+  if(fmt) 
+    vsprintf(msg, fmt, ap);
+  va_end(ap);
+    
+  sprintf(NumMode,"0%d",cuser.pagermode);
+  strncpy(PagerNum,cuser.pagernum,6);
+  PagerNum[6] = '\0';  
+
+  DL_func("SO/bbcall.so:bbcall",atoi(NumMode),1,PagerNum,0,msg);
 }
 
 int
@@ -740,40 +1041,4 @@ Security (x, y, sysopid, userid)
     }
 }
 
-int
-show_hint_message()
-{
-        struct timeval  timep;
-        struct timezone timezp;
-        int     i, j, msgNum;
-        FILE    *hintp;
-        char    msg[136];
 
-        if (!(hintp = fopen(BBSHOME"/etc/hint", "r")))
-          return 0;
-        fgets(msg, 135, hintp);
-        msgNum = atoi(msg);
-        gettimeofday(&timep, &timezp);
-        i = (int) timep.tv_sec%(msgNum + 1); /* 最新的一篇機會加倍 */
-        if (i == msgNum)
-          i--;
-        j = 0;
-
-        while (j < i)
-        {
-          fgets(msg, 135, hintp);
-          msg[1] = '\0';
-          if (!strcmp(msg,"#"))
-            j++;
-        }
-        move(12, 0);
-        clrtobot();
-        fgets(msg, 135, hintp);
-        log_usies("HINT",NULL);
-        prints("\x1b[1;36m風吹來的消息： \x1b[1;31m您知道嗎？\x1b[40;0m\n");
-        prints("                   %s\x1b[0m", msg);
-        fgets(msg, 135, hintp);
-        prints("                   %s\x1b[0m", msg);
-        pressanykey(NULL);
-        fclose(hintp);
-}

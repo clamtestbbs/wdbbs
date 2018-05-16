@@ -1,5 +1,5 @@
 #include "bbs.h"
-//#define ba rpguser.race == 6 ? 10*rpguser.level : 5
+#define ba rpguser.race == 6 ? 10*rpguser.level : 5
 
 
 int
@@ -14,7 +14,7 @@ gagb()
   FILE *fp;
   time_t now;
   
-//  setutmpmode(XAXB);
+  setutmpmode(XAXB);
   clear();
   showtitle("≤qº∆¶r°I", BoardName);
   move(1,0);
@@ -79,14 +79,14 @@ gagb()
   if(count > 10)
   {
     sprintf(buf,"ßAøÈ§FÀÁ°I•øΩTµ™Æ◊¨O %s°A§U¶∏¶A•[™oßa!!",ans);
-//    game_log(XAXB,"[1;32m•iº¶®S≤q®Ï°AøÈ§F %d §∏°I[m", money);
+    game_log(XAXB,"[1;32m•iº¶®S≤q®Ï°AøÈ§F %d §∏°I[m", money);
   }
   else
   {
   int oldmoney=money;
     money *= bet[count];
     inmoney(money);
-//    inexp(ba*(10-count));
+    inexp(ba*(10-count));
     tmoney-=money;
     if(money-oldmoney > 0)
       sprintf(buf,"Æ•≥ﬂ°I¡`¶@≤q§F %d ¶∏°A≤b¡»º˙™˜ %d §∏",count,money-oldmoney);
@@ -98,12 +98,10 @@ gagb()
     prints("%d",cuser.silvermoney);
     move(20,17); 
     prints("%d",tmoney);
-#if 0
     if(money-oldmoney > 0)
       game_log(XAXB,"[1;31m≤q§F %d ¶∏°A≤b¡» %d §∏°I[m", count,money-oldmoney);
     if(money-oldmoney < 0)
       game_log(XAXB,"[1;32m≤q§F %d ¶∏°A¡´§F %d §∏°I[m", count,oldmoney-money);
-#endif
   }
 
   fp = fopen("game/money", "w");

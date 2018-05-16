@@ -47,6 +47,7 @@ start:
  clear();
  showtitle("美少女接龍", BoardName);
  setutmpmode(DRAGON);
+ log_usies("DRAGON",NULL);
  mode=buffer=0; bufferx=79; buffery=2;
 
  for(i=0;i<=4;i++) oo[i]=0;

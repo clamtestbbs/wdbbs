@@ -68,7 +68,7 @@ struct userec
   unsigned long int silvermoney;  /* 銀幣         8 bytes */
   unsigned long int exp;          /* 經驗值       8 bytes */
   time_t dtime;                   /* 存款時間     4 bytes */
-  int scoretimes;		  /* 評分次數	  4 bytes */
+  int limitmoney;		  /* 金錢下限	  4 bytes */
   uschar rtimes;		  /* 填註冊單次數 1 bytes */
   int award;			  /* 獎懲判斷	  4 bytes */ 
   int pagermode; 		  /* 呼叫器門號   4 bytes */
@@ -93,6 +93,33 @@ typedef struct userec userec;
 #define COLOR_FLAG      0x80    /* true if the color mode open */
 
 /* ----------------------------------------------------- */
+/* RPG struct :256 bytes    		                 */
+/* ----------------------------------------------------- */
+struct rpgrec
+{
+  char userid[IDLEN+1];		  /* User ID     13 bytes */
+  usint age;			  /* 年齡	  4 bytes */
+  uschar race;			  /* 種族	  1 bytes */
+  uschar subrace;		  /* 副業	  1 bytes */
+  ushort level;			  /* 等級	  2 bytes */  
+  char family[20];		  /* 家族	 20 bytes */
+  char nick[20];		  /* 封號	 20 bytes */
+  int hp;			  /* 體力	  4 bytes */
+  int mp;			  /* 法力	  4 bytes */
+  usint skill;			  /* 技能	  4 bytes */
+  ushort str;			  /* 力量	  2 bytes */
+  ushort dex;			  /* 敏捷	  2 bytes */
+  ushort wis;			  /* 智慧	  2 bytes */
+  ushort con;			  /* 體質	  2 bytes */
+  ushort kar;			  /* 運氣	  2 bytes */
+  uschar weapon;		  /* 武器	  1 bytes */
+  uschar armor;			  /* 防具	  1 bytes */
+  usint object;			  /* 物件	  4 bytes */
+  char pad[164];
+};
+typedef struct rpgrec rpgrec;
+
+/* ----------------------------------------------------- */
 /* LOG of games struct : 128 bytes                       */
 /* ----------------------------------------------------- */
 
@@ -111,8 +138,7 @@ typedef struct gamedata gamedata;
 
 struct fileheader
 {
-  char filename[FNLEN-1];       /* M.9876543210.A 	33 bytes*/
-  char score;			/* 評分			 1 bytes*/
+  char filename[FNLEN];         /* M.9876543210.A 	33 bytes*/
   char savemode;                /* file save mode 	 1 bytes*/
   char owner[IDLEN + 2];        /* uid[.] 		14 bytes*/
   char date[6];                 /* [02/02] or space(5)   6 bytes*/
@@ -244,7 +270,6 @@ typedef struct user_info user_info;
 #define BRD_GOOD	00400         /* 優良看板 */
 #define BRD_PERSONAL	01000         /* 個人看板 */
 #define BRD_NOFOWARD	02000	      /* 禁止轉錄 */
-#define BRD_INVITE	04000	      /* 邀請板 */
 
 struct boardheader
 {
@@ -515,34 +540,10 @@ typedef struct money_note MN;
 #define	WAY_PLAY	5	// 樂
 #define WAY_OTHER	6	// 其他
 
-
-/* ----------------menu.c (test --*/
+/* ----------------menu.c (test) --*/
 
 typedef struct commands {
     int (*cmdfunc)();
     int level;
     char *desc;                   /* next/key/description */
 } commands;
-
-/* ----------------------------------------------------- */
-/* Menu Commands struct                                  */
-/* ----------------------------------------------------- */
-
-typedef struct MENU {
-  void *cmdfunc;
-//  int (*cmdfunc) ();
-  usint level;
-  char *desc;                   /* next/key/description */
-  int mode;
-} MENU;
-
-/* moved from WD/read.c */
-typedef struct keeploc {
-  char *key;
-  int top_ln;
-  int crs_ln;
-  struct keeploc *next;
-} keeploc;
-
-
-

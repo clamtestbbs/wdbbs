@@ -3,46 +3,50 @@
 #include "bbs.h"
 
 /* ×ב¿ת¿ן³ז */
-unsigned setuperm(pbits,nb,money)  /* ¶RÅv­­¥Î */
+unsigned 
+setuperm(pbits, nb, money)  /* ¶RÅv­­¥Î */
   unsigned pbits;
   char nb;
   int money;
 {
   register int i;
-    i = nb - 'a';
-    if(!((pbits>>i)&1))
-    {
-     pbits ^= (1 << i);
-     degold(money);
-    }
-    return(pbits);
+  
+  i = nb - 'a';
+  if (!((pbits >> i) & 1))
+  {
+    pbits ^= (1 << i);
+    degold(money);
+  }
+  return(pbits);
 }
+
 
 /*¶R½ז°O¿‎*/
 void 
-tradelog(userid,i)
-char *userid;
-int i;
+tradelog(userid, i)
+  char *userid;  
+  int i;
 {
   time_t now = time(0);
   char genbuf[200];
-  char *item[4]={"«H½c¤W­­","¥Ã¤[Áפ¨­","¥Ã¤[­×§ן¬G¶m","«H¥ףµL¤W­­",};
+  char *item[4] = {"«H½c¤W­­","¥Ã¤[Áפ¨­","¥Ã¤[­×§ן¬G¶m","«H¥ףµL¤W­­"};
+
   now = time(NULL) - 6 * 60;
-  sprintf(genbuf,"¦b %s ¨Ï¥Î×Ì [1;32m%s[m ÁÊ¶R¤F[1;36m%s[m×÷Åv­­",Cdate(&now),cuser.userid,item[i]);
+  sprintf(genbuf, "¦b %s ¨Ï¥Î×Ì [1;32m%s[m ÁÊ¶R¤F[1;36m%s[m×÷Åv­­",
+    Cdate(&now),cuser.userid,item[i]);
   f_cat("log/trade.log",genbuf);
 }
+
 
 void
 p_cloak()
 {
-  char buf[4];
-  getdata(b_lines-1, 0,
-    currutmp->invisible ? "½T©w­n²{¨­?[y/N]" : "½T©w­nÁפ¨­?[y/N]",buf,3,LCECHO,"N");
-  if(buf[0]!='y') 
+  if (getans(currutmp->invisible ? "½T©w­n²{¨­?[y/N]" : "½T©w­nÁפ¨­?[y/N]") != 'y')
     return;
+
   if(!currutmp->invisible)
   {
-    if(check_money(2,GOLD)) 
+    if (check_money(2,GOLD)) 
       return;
     degold(2);
   }
@@ -51,59 +55,64 @@ p_cloak()
   return;
 }
 
+
+
 void
 p_fcloak()
 {
   register int i;
-  char ans[4];
-  if(check_money(500,GOLD) || HAS_PERM(PERM_CLOAK))
+
+  if (check_money(500,GOLD) || HAS_PERM(PERM_CLOAK))
   {
-    if(HAS_PERM(PERM_CLOAK))
+    if (HAS_PERM(PERM_CLOAK))
       pressanykey("§A¤w¸g¥i¥HÁפ§Î¤FÁÙ¨Ó¶R¡A¶û¿ת¤Ó¦h°Ú¡H");
     return;
   }
-  getdata(b_lines-2, 0, "½T©w­n×ב $500 ¾Ç²‗²×·¥Áפ¨­¤j×k¡H[y/N]",ans,3,LCECHO,0);
-  if(ans[0]!='y')
+  if (getans("½T©w­n×ב $500 ¾Ç²‗²×·¥Áפ¨­¤j×k¡H[y/N]") != 'y')
     return;
   rec_get(fn_passwd, &xuser, sizeof(xuser), usernum);
-  i=setuperm(cuser.userlevel,'g',500);
+  i = setuperm(cuser.userlevel,'g',500);
   update_data();
-  cuser.userlevel=i;
+  cuser.userlevel = i;
   substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
   tradelog(cuser.userid,1);
   pressanykey("®¥³‗±z¤w¸g¾Ç·|¤F²×·¥Áפ¨­¤j×k!!");
   return;
 }
 
+
 void
 p_from()
 {
-  char ans[4];
-  if(check_money(5,GOLD)) return;
-  getdata(b_lines-2, 0, "½T©w­n§ן¬G¶m?[y/N]",ans,3,LCECHO,"N");
-  if(ans[0]!='y') return;
-  if (getdata(b_lines-1, 0, "½Ð¿י¤J·s¬G¶m:", currutmp->from, 17, DOECHO,0))
-        {
-           degold(5);
-           currutmp->from_alias=0;
-        }
+  if (check_money(5, GOLD)) 
+    return;
+
+  if (getans("½T©w­n§ן¬G¶m?[y/N]") != 'y')
+    return;
+
+  if (getdata(b_lines, 0, "½Ð¿י¤J·s¬G¶m:", currutmp->from, 17, DOECHO,0))
+  {
+    degold(5);
+    currutmp->from_alias=0;
+  }
   return;
 }
+
 
 void
 p_ffrom()
 {
   register int i;
-  char ans[4];
+
   if(check_money(1000,GOLD) || HAS_PERM(PERM_FROM) || HAS_PERM(PERM_SYSOP))
   {
     if(HAS_PERM(PERM_FROM) || HAS_PERM(PERM_SYSOP))
       pressanykey("§A¤w¸g¥i¥H­×§ן¬G¶m¤FÁÙ¨Ó¶R¡A¶û¿ת¤Ó¦h°Ú¡H");
     return;
   }
-  getdata(b_lines-2, 0, "½T©w­n×ב $1000 ÁÊ¶R­×§ן¬G¶mÄ_¨ו¡H[y/N]",ans,3,LCECHO,0);
-  if(ans[0]!='y') return;
-    rec_get(fn_passwd, &xuser, sizeof(xuser), usernum);
+  if (getans("½T©w­n×ב $1000 ÁÊ¶R­×§ן¬G¶mÄ_¨ו¡H[y/N]") != 'y')
+     return;
+  rec_get(fn_passwd, &xuser, sizeof(xuser), usernum);
   i=setuperm(cuser.userlevel,'t',1000);
   update_data();
   cuser.userlevel=i;
@@ -124,7 +133,7 @@ p_exmail()
     return;
   }
   sprintf(buf,"±z´¿¼WÁÊ %d «Ê®e¶q¡AÁÙ­n¦A¶R¦h¤Ö?",cuser.exmailbox);
-  getdata(b_lines-2, 0, buf,ans,3,LCECHO,"10");
+  getdata(b_lines, 0, buf,ans,3,LCECHO,"10");
   n = atoi(ans);
   if(!ans[0] || !n )
     return;
@@ -137,19 +146,18 @@ p_exmail()
   return;
 }
 
+
 void
 p_ulmail()
 {
   register int i;
-  char ans[4];
   if(check_money(100000,GOLD) || HAS_PERM(PERM_MAILLIMIT))
   {
     if(HAS_PERM(PERM_MAILLIMIT))
       pressanykey("§A×÷«H½c¤w¸g¨S¦³­­¨מ¤FÁÙ¨Ó¶R¡A¶û¿ת¤Ó¦h°Ú¡H");
     return;
   }
-  getdata(b_lines-2, 0, "½T©w­n×ב $100000 ÁÊ¶RµL¤W­­«H½c?[y/N]",ans,3,LCECHO,0);
-  if(ans[0]!='y')
+  if (getans("½T©w­n×ב $100000 ÁÊ¶RµL¤W­­«H½c?[y/N]") != 'y')
     return;
   rec_get(fn_passwd, &xuser, sizeof(xuser), usernum);
   i=setuperm(cuser.userlevel,'f',100000);
@@ -193,7 +201,7 @@ p_give()
      sprintf(buf,"home/%s", id);
      stampfile(buf, &mymail);
      strcpy(mymail.owner, cuser.userid);
-     rename ("tmp/givemoney",buf);
+     f_mv ("tmp/givemoney",buf);
      sprintf(mymail.title,"[Âא±b³q×¾] °e§A %d ¤¸­ע¡I",money);
      sprintf(buf,"home/%s/.DIR",id);
      rec_add(buf, &mymail, sizeof(mymail));
@@ -204,23 +212,28 @@ p_give()
    return;
 }
 
+
 void
 exchange()
 {
-  char buf[100],ans[10];
-  int i,Money;
+  char buf[100], ans[10];
+  int i, Money;
   time_t now = time(0);
   
-  move(12,0);
+  move(12, 0);
   clrtobot();
-  prints("§A¨­¤W¦³×ק¹פ %d ¤¸,»È¹פ %d ¤¸\n",cuser.goldmoney,cuser.silvermoney);
+  prints("§A¨­¤W¦³×ק¹פ %d ¤¸,»È¹פ %d ¤¸\n", cuser.goldmoney, cuser.silvermoney);
   outs("\n×ק¹פ ¡G »È¹פ  =  1 ¡G 10000\n");
-  if(!getdata(17,0,"(1)»È¹פ´«×ק¹פ  (2)×ק¹פ´«»È¹פ ",ans,3,LCECHO,0)) return;
-  if(ans[0] < '1' || ans[0] > '2') return;
+  if (!getdata(17, 0, "(1)»È¹פ´«×ק¹פ  (2)×ק¹פ´«»È¹פ ", ans, 3, LCECHO, 0)) 
+    return;
+
+  if (ans[0] < '1' || ans[0] > '2') 
+    return;
+
   i = atoi(ans);
-  while(Money <= 0 || i == 1 ? Money > cuser.silvermoney : Money > cuser.goldmoney)
+  while (Money <= 0 || i == 1 ? Money > cuser.silvermoney : Money > cuser.goldmoney)
   {
-    if(i == 1)
+    if (i == 1)
       getdata(18,0,"­n®³¦h¤Ö»È¹פ¨Ó´«¡H ",ans,10,LCECHO,0);
     else
       getdata(18,0,"­n®³¦h¤Ö×ק¹פ¨Ó´«¡H ",ans,10,LCECHO,0);
@@ -256,38 +269,42 @@ exchange()
     pressanykey("¨ת®ר.....");
 }
 
+
 /* ×ק®w */
 void
 bank()
 {
   char buf[10];
-//  if(lockutmpmode(BANK)) return;
-//  setutmpmode(BANK);
+ 
+  if (lockutmpmode(BANK)) 
+    return;
+
+  setutmpmode(BANK);
   stand_title("­·¹Ð»È¦ז");
   
   if (count_multi() > 1)
   {
     pressanykey("±z¤£¯א¬£»÷¤À¨­¶i¤J»È¦זËח !");
-//    unlockutmpmode();    
+    unlockutmpmode();    
     return;
   }
   
   counter(BBSHOME"/log/counter/»È¦ז","¨Ï¥Î»È¦ז",0);
   move(2, 0);
   update_data();
-  prints("%12s ±z¦n§r¡IÅw×ן¥תÁ{¥»»È¦ז¡C\n"
-"[1;36mשתשששששששששששששששששששששששששששששששששששששששששששששששששששששששששששû\n"
-"שר[32m±z²{¦b¦³»È¹פ[33m %12d [32m¤¸¡A×ק¹פ [33m%12d[32m ¤¸[36m        שר\n"
-"שאשששששששששששששששששששששששששששששששששששששששששששששששששששששששששששג\n"
-"שר ¥Ø«e»È¦ז´£¨Ñ¤U¦C¤T¶µ×A°È¡G                               שר\n",
+  prints("%12s ±z¦n§r¡IÅw×ן¥תÁ{¥»»È¦ז¡C
+[1;36mשתשששששששששששששששששששששששששששששששששששששששששששששששששששששששששששû
+שר[32m±z²{¦b¦³»È¹פ[33m %12d [32m¤¸¡A×ק¹פ [33m%12d[32m ¤¸[36m        שר
+שאשששששששששששששששששששששששששששששששששששששששששששששששששששששששששששג
+שר ¥Ø«e»È¦ז´£¨Ñ¤U¦C¤T¶µ×A°È¡G                               שר",
     cuser.userid, cuser.silvermoney, cuser.goldmoney);
     move(6, 0);
-      outs("\n"
-"שר[33m1.[37m Âא±b -- ¥²¶·¦©±¼Á`ÃB×÷ 10% §@¬°¤גÄע¶O (­­»È¹פ)[36m         שר\n"
-"שר[33m2.[37m ¶×§I -- »È¹פ/×ק¹פ §I´« (©ג¨ת 5% ¤גÄע¶O) [36m               שר\n"
-"שר[33mQ.[37m Âק¶}»È¦ז[36m                                               שר\n"
-"שüששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש‎[m");
-getdata(12,0,"  ½Ð¿י¤J±z»Ý­n×÷×A°È¡G", buf, 3, DOECHO, 0);
+      outs("\
+שר[33m1.[37m Âא±b -- ¥²¶·¦©±¼Á`ÃB×÷ 10% §@¬°¤גÄע¶O (­­»È¹פ)[36m         שר
+שר[33m2.[37m ¶×§I -- »È¹פ/×ק¹פ §I´« (©ג¨ת 5% ¤גÄע¶O) [36m               שר
+שר[33mQ.[37m Âק¶}»È¦ז[36m                                               שר
+שüששששששששששששששששששששששששששששששששששששששששששששששששששששששששששש‎[m");
+  getdata(12, 0, "  ½Ð¿י¤J±z»Ý­n×÷×A°È¡G", buf, 3, DOECHO, 0);
   if (buf[0] == '1')
     p_give();
   else if (buf[0] == '2')
@@ -295,5 +312,6 @@ getdata(12,0,"  ½Ð¿י¤J±z»Ý­n×÷×A°È¡G", buf, 3, DOECHO, 0);
 
   update_data();  
   pressanykey("ÁÂÁÂ¥תÁ{¡A¤U¦¸¦A¨Ó¡I");
-//  unlockutmpmode();
+  unlockutmpmode();
 }
+

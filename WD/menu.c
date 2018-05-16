@@ -9,6 +9,21 @@
 
 #include "bbs.h"
 
+/* ----------------------------------------------------- */
+/* Menu Commands struct                                  */
+/* ----------------------------------------------------- */
+
+struct MENU
+{
+  void *cmdfunc;
+//  int (*cmdfunc) ();
+  usint level;
+  char *desc;                   /* next/key/description */
+  int mode;
+};
+typedef struct MENU MENU;
+
+
 /* ------------------------------------- */
 /* help & menu processring               */
 /* ------------------------------------- */
@@ -29,7 +44,7 @@ showtitle(title, mid)
     title++;
    else if (chkmail(0))
   {
-    mid = "\x1b[41;33;5m   «H½c¸Ì­±¦³·s«H­ò¡I  \x1b[m\x1b[1m"COLOR1;
+    mid = "\033[41;33;5m   «H½c¸Ì­±¦³·s«H­ò¡I  \033[m\033[1m"COLOR1;
 
 /*
  * CyberMax:
@@ -37,9 +52,14 @@ showtitle(title, mid)
  */
     spc = 22;
   }
+  else if(check_personal_note(1,NULL))
+  {
+    mid = "\033[43;37;5m    µª¿ý¾÷¤¤¦³¯d¨¥³á   \033[m\033[1m"COLOR1;
+    spc = 22;
+  }
   else if (dashf(BBSHOME"/register.new") && HAS_PERM(PERM_ACCOUNTS))
   {
-    mid = "\x1b[45;33;5m  ¦³·sªº¨Ï¥ÎªÌµù¥UÅo!  \x1b[m\x1b[1m"COLOR1;
+    mid = "\033[45;33;5m  ¦³·sªº¨Ï¥ÎªÌµù¥UÅo!  \033[m\033[1m"COLOR1;
     spc = 22;
   }
 
@@ -56,7 +76,7 @@ woju
   move(0,0);
   clrtobot();
 //  clear();
-  prints(COLOR2"  \x1b[1;37m%s  "COLOR1"%s\x1b[33m%s%s%s\x1b[3%s\x1b[1m "COLOR2"  \x1b[37m%s  \x1b[m\n",
+  prints(COLOR2"  \033[1;36m%s  "COLOR1"%s\033[33m%s%s%s\033[3%s\033[1m "COLOR2"  \033[36m%s  \033[m\n",
     title, buf, mid, buf, " " + pad,
     currmode & MODE_SELECT ? "1m¨t¦C" :
     currmode & MODE_DIGEST ? "5m¤åºK" : "7m¬ÝªO", currboard);
@@ -99,9 +119,9 @@ movie(i)
 
   resolve_garbage(); /* get film cache */
 
+  if (currstat == GAME) return;
   if (HAVE_HABIT(HABIT_MOVIE))
   {
-//    film->max_film=31;
     if((!film->busystate) && film->max_film) /* race condition */
     {
       do{
@@ -129,10 +149,17 @@ movie(i)
   }
   i = ptime->tm_wday << 1;
   update_data();
-  sprintf(mystatus, "\x1b[1;36m %d ÂI %02d ¤À (%c%c) %0d ¤ë %0d ¤é"
-"\x1b[1;37m ©m¦W: %-13s \x1b[32m[©I¥s¾¹]%-2.2s \x1b[m",
+  sprintf(mystatus, "\033[1;36m[%d:%02d %c%c %0d/%0d]"
+"\033[1;37m ID: %-13s ¢C\033[37m%6d%c,\033[33m%5d%c"
+"\033[32m[£]]%-2.2s \033[35m[%-20.20s]\033[m",
     ptime->tm_hour, ptime->tm_min, myweek[i], myweek[i + 1],
-    ptime->tm_mon + 1, ptime->tm_mday, cuser.userid, msgs[currutmp->pager]);
+    ptime->tm_mon + 1, ptime->tm_mday, cuser.userid, 
+    (cuser.silvermoney/1000) <= 0 ? cuser.silvermoney : cuser.silvermoney/1000,
+    (cuser.silvermoney/1000) <= 0 ? ' ' : 'k',
+    (cuser.goldmoney/1000) <= 0 ? cuser.goldmoney : cuser.goldmoney/1000,
+    (cuser.goldmoney/1000) <= 0 ? ' ' : 'k',    
+    msgs[currutmp->pager],
+    currutmp->birth ? "¥Í¤é°O±o­n½Ð«È­ò!!" : film->today_is);
   move(1,0);
   clrtoeol();
   outs(mystatus);
@@ -141,6 +168,7 @@ movie(i)
 
 
 /* ===== end ===== */
+
 
 static int
 show_menu(p)
@@ -165,9 +193,9 @@ show_menu(p)
   movie(0);
   move(2,0);
 #ifdef HYPER_BBS
-  prints(COLOR1"\x1b[1m"HB_BACK" ¥\\ ¯à       »¡    ©ú                 «ö \x1b[1;33m\x1b[200m\x1b[444m\x1b[626m[Ctrl-Z]\x1b[201m\x1b[37m \x1b[31m¨D§U               \x1b[m");
+  prints(COLOR1"\033[1m"HB_BACK" ¥\\ ¯à       »¡    ©ú                 «ö \033[1;33m\033[200m\033[444m\033[626m[Ctrl-Z]\033[201m\033[37m \033[31m¨D§U               \033[m");
 #else
-  prints(COLOR1"\x1b[1m         ¥\\  ¯à        »¡    ©ú                 «ö [\x1b[1;33mCtrl-Z\x1b[37m] \x1b[31m¨D§U               \x1b[m");
+  prints(COLOR1"\033[1m         ¥\\  ¯à        »¡    ©ú                 «ö [\033[1;33mCtrl-Z\033[37m] \033[31m¨D§U               \033[m");
 #endif
   move(menu_row, 0);
   while ((s = p[n].desc)!=NULL || buf2[m][0]!='\0')
@@ -178,13 +206,22 @@ show_menu(p)
       {
         sprintf(buf,s+2);
 #ifdef HAVE_NOTE_2
-        if(buf2[m][0]=='\0')
+        if(currstat == FINANCE || currstat == GAME || currstat == RMENU
+          || buf2[m][0]=='\0' )
 #endif
-          prints("%*s  [\x1b[1;36m%c\x1b[m]%s\n", 
+  #ifdef HYPER_BBS
+          prints("%*s  \033[200m\033[446m[\033[1;36m\033[300m%c\033[302m\033[m]%s\033[201m\n", 
+  #else
+          prints("%*s  [\033[1;36m%c\033[m]%s\n", 
+  #endif
             menu_column, "", s[1], buf);
 #ifdef HAVE_NOTE_2
         else
-          prints("%*s  [\x1b[1;36m%c\x1b[m]%-28s%s",
+  #ifdef HYPER_BBS
+          prints("%*s  \033[200m\033[446m[\033[1;36m\033[300m%c\033[302m\033[m]%-28s\033[201m%s",
+  #else
+          prints("%*s  [\033[1;36m%c\033[m]%-28s%s",
+  #endif
             menu_column, "", s[1], buf,buf2[m++]);
 #endif
       }
@@ -192,7 +229,11 @@ show_menu(p)
     }
 #ifdef HAVE_NOTE_2
     else
+    {
+      if (currstat == FINANCE || currstat == GAME || currstat == RMENU)
+        break;
       prints("%37s%-s", "", buf2[m++] );
+    }
 #endif
   }
   return n - 1;
@@ -382,7 +423,7 @@ domenu(cmdmode, cmdtitle, cmd, cmdtable)
 /* ----------------------------------------------------- */
 
 int m_user(), m_newbrd(), m_board(), m_register(),x_reg(),XFile(),
-    search_key_user(),search_bad_id,reload_cache();
+    search_key_user(),search_bad_id,reload_cache(),adm_givegold();
 /*    ,search_bad_id();*/
 
 #ifdef  HAVE_MAILCLEAN
@@ -397,6 +438,8 @@ static struct MENU adminlist[] = {
   m_register,   PERM_ACCOUNTS,  "RRegister      [¼f®Öµù¥U³æ]",0,
   XFile,        PERM_SYSOP,     "XXfile         [­×§ï¨t²ÎÀÉ]",0,
   reload_cache, PERM_SYSOP,     "CCache Reload  [ §ó·sª¬ºA ]",0,
+  adm_givegold, PERM_SYSOP,     "GGive $$       [ µo©ñ¼úª÷ ]",0,
+"SO/xyz.so:x_bbsnet",PERM_SYSOP,"BBBSNet        [ ³s½u¤u¨ã ]",1,
 /*
   m_mclean, PERM_BBSADM, "MMail Clean    ²M²z¨Ï¥ÎªÌ­Ó¤H«H½c",0,
 #endif */
@@ -404,18 +447,13 @@ static struct MENU adminlist[] = {
 
 NULL, 0, NULL,0};
 
-int
-rpg_menu()
-{
-  //domenu(RMENU, "¨¤¦â§êºt¹CÀ¸", 'U', rpglist);
-  return 0;
-}
 
 /* ----------------------------------------------------- */
 /* class menu                                            */
 /* ----------------------------------------------------- */
 
-int board(); //todo: refine variable name in util/mandex.c ,and move this to include/proto.h .
+int board(), local_board(), Boards(), ReadSelect() ,
+    New(),Favor(),favor_edit(),good_board(),voteboard();
 
 static struct MENU classlist[] = {
    voteboard, 0,      "VVoteBoard    [¬ÝªO³s¸p¨t²Î]",0,
@@ -427,6 +465,58 @@ static struct MENU classlist[] = {
 favor_edit,PERM_BASIC,"FFavorEdit    [½s¿è§Úªº³Ì·R]",0,
    ReadSelect, 0,     "SSelect       [  ¿ï¾Ü¬ÝªO  ]",0,
    NULL, 0, NULL,0};
+
+/* ----------------------------------------------------- */
+/* RPG menu                                             */
+/* ----------------------------------------------------- */
+int /* t_pk(),*/rpg_help();
+
+struct MENU rpglist[] = {
+  rpg_help,0,	"HHelp       ¥»¹CÀ¸¤¶²Ð/³W«h»¡©ú",0,
+  "SO/rpg.so:rpg_uinfo",
+    0,		"UUserInfo   ¦Û¤vªºª¬ºA",1,
+  "SO/rpg.so:rpg_race_c",
+    PERM_BASIC,	"JJoin       ¥[¤JÂ¾·~¤u·|(»Ý¤­ªTª÷¹ô)",1,
+  "SO/rpg.so:rpg_guild",
+    0,		"GGuild      Â¾·~¤u·|",1,
+  "SO/rpg.so:rpg_train",
+    0,		"TTrain      °V½m³õ(¬I¤u¤¤)",1,
+  "SO/rpg.so:rpg_top",
+    0,		"LListTop    ¨Ï¥ÎªÌ±Æ¦æº]",1,
+  "SO/rpg.so:rpg_edit",
+    PERM_SYSOP,	"QQuery      ¬d¸ß­×§ïUSER¸ê®Æ",1,
+//  "SO:rpg.so:rpg_shop",0,           "SShop       ¸Ë³Æ°Ó©±(¬I¤u¤¤)",1,
+//  "SO:rpg.so:t_pk",0,                 "PPK         ¤£ºâ PK",1,
+NULL, 0, NULL,0};
+
+int
+rpg_menu()
+{
+  domenu(RMENU, "¨¤¦â§êºt¹CÀ¸", 'U', rpglist);
+  return 0;
+}
+/* ----------------------------------------------------- */
+/* Ptt money menu                                        */
+/* ----------------------------------------------------- */
+
+static struct MENU finlist[] = {
+  "SO/buy.so:bank",     0,      "11Bank           \033[1;36m­·¹Ð»È¦æ\033[m",1,
+  "SO/pip.so:pip_money",0,      "22ChickenMoney   Âûª÷§I´«³B     ´«¿úµ¹¹q¤lÂû¥Î",1,
+  "SO/song.so:ordersong",0,     "33OrderSong      \033[1;33m­·¹ÐÂIºq¾÷\033[m     $5g/­º",1,
+  "SO/buy.so:p_cloak",  0,      "44Cloak          Á{®ÉÁô¨­/²{¨­  $2g/¦¸     (²{¨­§K¶O)",1,
+  "SO/buy.so:p_from",   0,      "55From           ­×§ï¬G¶m       $5g/¦¸",1,
+  "SO/buy.so:p_exmail", 0,      "66Mailbox        ÁÊ¶R«H½c¤W­­   $100g/«Ê",1,
+  "SO/buy.so:p_fcloak", 0,      "77UltimaCloak    ²×·¥Áô¨­¤jªk   $500g      ¥i¥Ã¤[Áô§Î",1,
+  "SO/buy.so:p_ffrom",  0,      "88PlaceBook      ¬G¶m­×§ïÄ_¨å   $1000g     User¦W³æ«öF¥i§ï¬G¶m",1,
+  "SO/buy.so:p_ulmail", 0,      "99NoLimit        «H½cµL¤W­­     $100000g   «H½c¤W­­µL­­¨î",1,
+NULL, 0, NULL,0};
+
+int
+finance()
+{
+  domenu(FINANCE, "ª÷¿Ä¤¤¤ß", '1', finlist);
+  return 0;
+}
 
 #ifdef HAVE_GAME
 
@@ -446,10 +536,9 @@ NULL, 0, NULL,0};
 int
 netgame_menu()
 {
-  //domenu(NETGAME, "ºô¸ô³s½u¹CÀ¸", 'Q', netgame_list);
+  domenu(NETGAME, "ºô¸ô³s½u¹CÀ¸", 'Q', netgame_list);
   return 0;
 }
-
 /* ----------------------------------------------------- */
 /* Game menu                                             */
 /* ----------------------------------------------------- */
@@ -459,7 +548,6 @@ static struct MENU gamelist[] = {
     "RRPG        ¡½ ¨¤¦â§êºt¹CÀ¸           ¬I¤u¤¤",0,
   netgame_menu,0,
     "NNetGame    ¡½ ºô¸ô³s½u¹CÀ¸           $100s/¦¸",0,
-#if 0
   "SO/gamble.so:ticket_main",PERM_BASIC,
     "GGamble     ¡¹ ¹ï¹ï¼Ö½ä½L             $100s/±i",1,
   "SO/marie.so:mary_m",0,
@@ -468,20 +556,16 @@ static struct MENU gamelist[] = {
     "HHorseRace  ¡¸ Ác¬P½ä°¨³õ             ³Ì§C®ø¶O $1s",1,
   "SO/bingo.so:bingo",PERM_BASIC,
     "BBingo      ¡¸ ¬Õ¤ë»«ªG¶é             ³Ì§C®ø¶O $1s",1,
-#endif
   "SO/gagb.so:gagb",0,
-    "G?A?B       ¡¸ ²q²q²q¼Æ¦r             ³Ì§C®ø¶O $1s",1,
-#if 0
+    "??A?B       ¡¸ ²q²q²q¼Æ¦r             ³Ì§C®ø¶O $1s",1,
   "SO/guessnum.so:fightNum",0,
     "FFightNum   ¡¸ ¹ï¾Ô²q¼Æ¦r             ³Ì§C®ø¶O $1s",1,
-#endif
   "SO/bj.so:BlackJack",0,
     "JJack       ¡¸ ¬Õ¤ë¶Â³Ç§J             ³Ì§C®ø¶O $1s",1,
   "SO/nine.so:p_nine",PERM_BASIC,
-    "999         ¡¸ ¤Ñ¦a¤[¤E¤E             ³Ì§C®ø¶O $1s",1,
+    "999         ¡¸ ¤Ñ¦a¤[¤E¤E¢            ³Ì§C®ø¶O $1s",1,
   "SO/dice.so:x_dice",0,
     "DDice       ¡¸ ¦è¤K©Ô½ä³õ             ³Ì§C®ø¶O $1s",1,
-#if 0
   "SO/gp.so:p_gp",0,
     "PPoke       ¡¸ ª÷¼³§J±ô«¢             ³Ì§C®ø¶O $1s",1,
   "SO/pip.so:p_pipple",PERM_LOGINOK,
@@ -492,23 +576,18 @@ static struct MENU gamelist[] = {
     "LLandMine   ¡» «lÃz½ò¦a¹p             §K¶Oµ¹§Aª±",1,
   "SO/poker.so:p_dragon",0,
     "11±µÀs      ¡» ´ú¸Õ¤¤ªº±µÀs           §K¶Oµ¹§Aª±",1,
-#endif
   "SO/chessmj.so:p_chessmj",0,
     "22ChessMJ   ¡¸ ¶H´Ñ³Â±N               ³Ì§C®ø¶O $1s",1,
-#if 0
   "SO/seven.so:p_seven",0,
     "33Seven     ¡¸ ½ä«°¤C±i               ³Ì§C®ø¶O $1s",1,
-#endif
   "SO/bet.so:p_bet",0,
     "44Bet       ¡¸ ºÆ¨g½ä½L               ³Ì§C®ø¶O $1s",1,
-#if 0
   "SO/stock.so:p_stock",PERM_BASIC,
     "SStock      ¡º ­·¹ÐªÑ¥«",1,
-  x_bridgem,PERM_LOGINOK,"OOkBridge    ¡i ¾ôµPÄv§Þ ¡j",0,
-#endif
-NULL, 0, NULL,0};
 
-#endif //HAVE_GAME
+/*  x_bridgem,PERM_LOGINOK,"OOkBridge    ¡i ¾ôµPÄv§Þ ¡j",0,*/
+NULL, 0, NULL,0};
+#endif
 
 /* ----------------------------------------------------- */
 /* Talk menu                                             */
@@ -528,19 +607,60 @@ static struct MENU talklist[] = {
 /*
   t_talk,       PERM_PAGE,      "TTalk          [§ä¤H²á¤Ñ]",0,
  */
-#ifdef NO_SO
-  t_chat, PERM_CHAT,"CChatRoom      [³s½u²á¤Ñ]",1,
-#else
   "SO/chat.so:t_chat",PERM_CHAT,"CChatRoom      [³s½u²á¤Ñ]",1,
-#endif
   t_display,    0,              "DDisplay       [¤ô²y¦^ÅU]",0,
+  XFile,        PERM_XFILE,     "XXfile         [­×§ï¨t²ÎÀÉ]",0,
 NULL, 0, NULL,0};
+
+/*-------------------------------------------------------*/
+/* powerbook menu                                        */
+/* ----------------------------------------------------- */
+
+int null_menu(),my_gem(),my_allpost();
+
+static struct MENU powerlist[] = {
+
+  "SO/bbcall.so:bbcall_menu",
+                       0,	"MMessager      [ ³q°T¿ý ]",1,
+  "SO/mn.so:show_mn",
+	               0,	"NNoteMoney     [ °O±b¥» ]",1,
+  my_gem,              0,       "GGem           [§ÚªººëµØ]",0,
+  my_allpost,          0,       "AAllPost       [§Úªº¤å³¹]",0,
+  null_menu,           0,	"------ µª¿ý¾÷ ¥\\¯à ------",0,
+  "SO/pnote.so:p_read",0,       "PPhone Answer  [Å¥¨ú¯d¨¥]",1,
+  "SO/pnote.so:p_call",0,       "CCall phone    [°e¥X¯d¨¥]",1,
+  "SO/pnote.so:p_edithint",0,   "RRecord        [¿ýÅwªïµü]",1,
+
+NULL, 0, NULL,0};
+
+int
+PowerBook()
+{
+  domenu(POWERBOOK, "¸U¥Î¤â¥U", 'N', powerlist);
+  return 0;
+}
+
 
 /* ----------------------------------------------------- */
 /* User menu                                             */
 /* ----------------------------------------------------- */
 
+extern int u_editfile();
+int u_info(), u_cloak(), u_list(), u_habit(), PowerBook(), ListMain();
+#ifdef REG_FORM
+int u_register();
+#endif
+
+#ifdef REG_MAGICKEY
+int u_verify();
+#endif
+
+#ifdef POSTNOTIFY
+int re_m_postnotify();
+#endif
+
 static struct MENU userlist[] = {
+  PowerBook,	PERM_BASIC,	"PPowerBook     [¸U¥Î¤â¥U]",0,
   u_info,       0,              "IInfo          [­×§ï¸ê®Æ]",0,
   u_habit,      PERM_BASIC,     "HHabit         [³ß¦n³]©w]",0,
   ListMain,     PERM_LOGINOK,   "LList          [³]©w¦W³æ]",0, 
@@ -564,9 +684,8 @@ static struct MENU userlist[] = {
 NULL, 0, NULL,0};
 
 /* ----------------------------------------------------- */
-/* Service menu                                          */
+/* XYZ menu                                              */
 /* ----------------------------------------------------- */
-
 #ifdef HAVE_GAME
 int
 game_list()
@@ -576,25 +695,60 @@ game_list()
 }
 #endif
 
+struct MENU netserv_list[] = {
+"SO/bbcall.so:bbcall_main",
+                PERM_LOGINOK,   "BB.B.Call      [ºô¸ô¶Ç©I]",1,
+"SO/tv.so:catv",PERM_BASIC,     "TTV-Program    [¹qµø¸`¥Ø¬d¸ß]",1,
+"SO/railway.so:railway2",
+                PERM_BASIC,     "RRailWay       [¤õ¨®®É¨è¬d¸ß]",1,
+"SO/fortune.so:main_fortune",
+                PERM_BASIC,     "QQueryFortune  [­Ó¤H¹B¶Õ¹w´ú]",1,
+#ifdef HAVE_GOPHER
+  "SO/xyz.so:x_gopher",PERM_LOGINOK,"GGopher       ¡½ ¥@·s¤p¦a¹«¦øªA¾¹ ¡ö",1,
+#endif
+#ifdef BBSDOORS
+  "SO/xyz.so:x_bbsnet", PERM_LOGINOK, "DDoor      ¡i ¨ä¥L BBS¯¸ ¡j",1,
+#endif
+NULL, 0, NULL,0};
+
+int
+net_serv()
+{
+  domenu(PMENU, "ºô¸ô³s½uªA°È", 'B', netserv_list);
+  return 0;
+}
+
+int note();
+
 static struct MENU servicelist[] = {
 #ifdef HAVE_GAME
   game_list,    0,              "PPlay          [¨|¼Ö¤¤¤ß]",0,
 #endif
-#ifdef NO_SO
-   all_vote,    PERM_LOGINOK,   "VVote          [§ë²¼¤¤¤ß]",1,
-#else
+  finance,      PERM_LOGINOK,   "FFinance       [°Ó«~¤jµó]",0,
+  net_serv,	0,		"SServNet       [ºô¸ôªA°È]",0,
+  "SO/xyz.so:KoK",
+  		0,		"KKK-Service    [¸U¤ý¤§¤ý]",1,
+  "SO/tobuy.so:x_tobuy",
+  		PERM_LOGINOK,	"TToBuy         [¤G¤â¥æ©ö]",1,
   "SO/vote.so:all_vote",
                 PERM_LOGINOK,   "VVote          [§ë²¼¤¤¤ß]",1,
-#endif
   note,         PERM_LOGINOK,   "NNote          [¼g¯d¨¥ªO]",0,
-  show_hint_message,0,          "HHint          [±Ð¾ÇºëÆF]",0,
+  "SO/xyz.so:show_hint_message",
+                0,              "HHint          [±Ð¾ÇºëÆF]",1,
+/*
+"SO/indict.so:x_dict",
+                0,              "DDictionary    [¦Ê¬ì¥þ®Ñ]",1,
+*/
+"SO/xyz.so:x_cdict",
+                PERM_BASIC,     "CCD-67         [¹q¤l¦r¨å]",1,
 
   NULL, 0, NULL,0};
 
 /* ----------------------------------------------------- */
 /* mail menu                                             */
 /* ----------------------------------------------------- */
-int m_new(), m_read(), m_send(),m_sysop(),mail_mbox(),mail_all(),mail_list();
+int m_new(), m_read(), m_send(),m_sysop(),mail_mbox(),mail_all(),
+    setforward(),mail_list();
 
 #ifdef INTERNET_PRIVATE_EMAIL
 int m_internet();
@@ -606,6 +760,7 @@ static struct MENU maillist[] = {
   m_send,       PERM_BASIC,     "SSend          [¯¸¤º±H«H]",0,
   mail_list,    PERM_BASIC,     "MMailist       [¸s²Õ±H«H]",0,
   m_internet,   PERM_INTERNET,  "IInternet      [ºô¸ô¶l¥ó]",0,
+  setforward,   PERM_LOGINOK,   "FForward       [¦¬«HÂà±H]",0,
   m_sysop,      0,              "OOp Mail       [½Ô´A¯¸ªø]",0,
   mail_mbox,    PERM_INTERNET,  "ZZip           [¥´¥]¸ê®Æ]",0,
   mail_all,     PERM_SYSOP,     "AAll           [¨t²Î³q§i]",0,
@@ -672,8 +827,8 @@ struct MENU cmdlist[] = {
   Mail,         PERM_BASIC,     "MMail          [­·¹Ð¶l§½]",0,
   Talk,         0,              "TTalk          [½Í¤Ñ»¡¦a]",0,
   User,         PERM_BASIC,     "UUser          [­Ó¤H¤u¨ã]",0,
-  Service,	PERM_LOGINOK,	"SService       [¦UºØªA°È]",0,
   Log,          0,              "HHistory       [¾ú¥v­y¸ñ]",0,
+  Service,      0,              "SService       [¦UºØªA°È]",0,
   Goodbye,      0,              "GGoodbye       [¦³½t¤d¨½]",0,
 NULL, 0, NULL,0};
 /* INDENT ON */

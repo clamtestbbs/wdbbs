@@ -10,6 +10,7 @@
 #define _USER_C_
 
 #include "bbs.h"
+#define MAXMONEY ((u->totaltime*10) + (u->numlogins*100) + (u->numposts*1000))
 
 extern int numboards;
 extern boardheader *bcache;
@@ -33,7 +34,7 @@ user_display(u, real)
   clrtobot();
   sethomedir(genbuf, u->userid);
   outs("\x1b[1;33m●────────────\x1b[42m   使用者資料   \x1b[40m────────────●\n");
-  prints(""
+  prints("\n"\
 "  \x1b[32m英文代號：\x1b[37m%-16.16s\x1b[32m暱稱：\x1b[37m%-20.20s\x1b[32m性別：\x1b[37m%-8.8s\n"
 "  \x1b[32m真實姓名：\x1b[37m%-16.16s\x1b[32m住址：\x1b[37m%-40s\n"
 "  \x1b[32m出生日期：\x1b[37m19%02i年%02i月%02i日  \x1b[32mＥMail：\x1b[37m%-40s\n",
@@ -47,12 +48,14 @@ user_display(u, real)
   prints("  \x1b[32m私人信箱：\x1b[37m%-4d 封         \x1b[32m利息發放：\x1b[37m%s"
     ,rec_num(genbuf, sizeof(fileheader)),ctime(&u->dtime));
   prints(
-"  \x1b[32m信箱上限：\x1b[37m%d 封\n"
+"  \x1b[32m金幣數量：\x1b[37m%-16ld\x1b[32m銀幣數量：\x1b[37m%-16ld\x1b[32m經驗值：\x1b[37m%-ld\n"
+"  \x1b[32m銀幣上限：\x1b[37m%-16ld\x1b[32m信箱上限：\x1b[37m%d 封\n"
 "  \x1b[32m人氣指數：\x1b[37m%-16ld\x1b[32m好奇指數：\x1b[37m%-16ld\x1b[32m心情：\x1b[37m%-4.4s\n"
 "  \x1b[32m發訊息數：\x1b[37m%-16d\x1b[32m收訊息數：\x1b[37m%d\n"
 "  \x1b[32m上站地點：\x1b[37m%s \n"
 "  \x1b[32m傳呼號碼：\x1b[37m0%d-%s \n"
-,(u->exmailbox+MAXKEEPMAIL)
+,u->goldmoney,u->silvermoney,u->exp
+,MAXMONEY,(u->exmailbox+MAXKEEPMAIL)
 ,u->bequery,u->toquery,u->feeling,u->sendmsg,u->receivemsg
 ,u->lasthost,u->pagermode,u->pagernum);
 
@@ -209,6 +212,18 @@ uinfo_query(u, real, unum)
       if (getdata(i++, 25, "文章數目：", buf, 10, DOECHO,genbuf))
         if ((l = atoi(buf)) >= 0)
           x.numposts = l;
+      sprintf(genbuf, "%ld", x.silvermoney);
+      if (getdata(i, 0,"身上銀幣：", buf, 10, DOECHO,genbuf))
+        if ((l = atol(buf)) >= 0)
+          x.silvermoney = l;
+      sprintf(genbuf, "%ld", x.goldmoney);
+      if (getdata(i, 25,"身上金幣：", buf, 10, DOECHO,genbuf))
+        if ((l = atol(buf)) >= 0)
+          x.goldmoney = l;
+      sprintf(genbuf, "%ld", x.exp);
+      if (getdata(i++, 50,"經驗值：", buf, 10, DOECHO,genbuf))
+        if ((l = atol(buf)) >= 0)
+          x.exp = l;
       sprintf(genbuf, "%ld", x.sendmsg);
       if (getdata(i, 0,"發水球數：", buf, 10, DOECHO,genbuf))
         if ((l = atol(buf)) >= 0)
@@ -315,6 +330,7 @@ uinfo_query(u, real, unum)
       f_cat("log/chtitle.log",genbuf);
     }
     break;
+    
 
   default:
     return;
@@ -449,9 +465,7 @@ showplans(char* uid)
   else
     pressanykey("%s 目前沒有名片", uid);
 
-  my_query(uid);
-
-  switch (getans("[1]基本資料 [2]簽名檔 [3]精華文章 [4]個人作品 [q]離開? "))
+  switch (getans("[1]基本資料 [2]簽名檔 [3]精華文章 [4]個人作品 [5]留言給(他/她) [q]離開? "))
   {
     case '1':    
       my_query(uid);
@@ -464,6 +478,11 @@ showplans(char* uid)
     case '4':
       user_allpost(uid);
       break;
+    case '5':
+      if (!strcmp(cuser.userid, STR_GUEST))
+        pressanykey("guest 無此功\能！");
+      else
+        DL_func("SO/pnote.so:va_do_pnote",uid);
     default:
       break;
   }
@@ -501,11 +520,11 @@ u_editfile()
       setuserfile(buf, "sig.0");
       buf[strlen(buf) - 1] = ans;
       move(3, 0);
-      prints("      \x1b[1;33m●────────────\x1b[42m   簽名檔 %c   \x1b[40m────────────●\x1b[m", ans);
+      prints("      \x1b[1;33m●────────────\x1b[42m   簽名檔 %c   \x1b[40m────────────●\033[m", ans);
 //    clear();
       show_file(buf, 4, MAXSIGLINES, ONLY_COLOR);
       move(4 + MAXSIGLINES, 0);
-      prints("      \x1b[1;33m●───────────────────────────────●\x1b[m", ans);
+      prints("      \x1b[1;33m●───────────────────────────────●\033[m", ans);
       mode = EDITSIG;
       strcpy(msg2, "簽名檔");
       break;
@@ -932,7 +951,7 @@ u_verify()
 
   while (fgets(buf, 80, fp))
   {
-    key = strtok(buf, "\n");
+    key = strtok(buf, "\0");
   }
   fclose(fp);
 

@@ -39,7 +39,7 @@ x_dice()
 
   time(&now);
 
-//  setutmpmode(DICE);
+  setutmpmode(DICE);
   while(1)
   {
     stand_title("ㄒㄧ ㄅㄚ ㄌㄚ 賭場");
@@ -103,30 +103,30 @@ x_dice()
        || (tmpchar == 2 && totaldice <= 10)) /* 處理大小 */
     {
       sprintf(buf,"中了！得到２倍獎金 %d 元，經驗值 %d 點",
-              money * 2, 0 /*ba*2*/);
+              money * 2,ba*2);
       inmoney(money*2); 
-//      inexp(ba*2);
+      inexp(ba*2);
     } 
     else if(tmpchar <= 18 && totaldice == tmpchar) /* 處理總和 */
     {
       sprintf(buf,"中了！得到５倍獎金 %d 元，經驗值 %d 點",
-              money * 5, 0 /*ba*5*/); 
+              money * 5, ba*5); 
       inmoney(money * 5);
-//      inexp(ba*5);
+      inexp(ba*5);
     } 
     else if((tmpchar - 18) == tmpdice[0] && (tmpdice[0] == tmpdice[1])
             && (tmpdice[1] == tmpdice[2])) /* 處理三個一樣總和 */
     {
       sprintf(buf,"中了！得到９倍獎金 %d 元，經驗值 %d 點",
-            money * 9, 0 /*ba*9*/);
+            money * 9, ba*9);
       inmoney(money * 9);
-//      inexp(ba*9);
+      inexp(ba*9);
     } 
 
     else /* 處理沒中 */
       sprintf(buf,"很可惜沒有押中！");
     pressanykey(buf);
-//    game_log(DICE,"%s",buf); 
+    game_log(DICE,"%s",buf); 
   }
   return 0;
 }

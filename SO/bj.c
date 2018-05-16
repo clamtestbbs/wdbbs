@@ -1,6 +1,6 @@
 #include "bbs.h"
 
-//#define ba rpguser.race == 6 ? 10*rpguser.level : 5
+#define ba rpguser.race == 6 ? 10*rpguser.level : 5
 /* ¶Â³Ç§J¹CÀ¸ */
 
 int print_card(int card,int x,int y)
@@ -45,7 +45,7 @@ BlackJack()
   time(&now);
 
   clear();
-//  setutmpmode(BLACKJACK);
+  setutmpmode(BLACKJACK);
   do{
   move(0,0);prints("±z¨­¤WÁÙ¦³ [1;44;33m%d[m ¤¸",cuser.silvermoney);
   getdata(1, 0, "­n©ãª`¦h¤Ö¿ú(1 - 250000)? ", buf, 7, DOECHO,0);
@@ -106,9 +106,9 @@ BlackJack()
       move(18,3);prints("[1;41;33m     ¢¶¢¶¢¶     [m");
       move(3,0);prints("[1;41;33m¢¶¢¶¢¶ !!! ±o¼úª÷ %d »È¨â[m",money*seven);
       inmoney(money*seven);
-//      inexp(ba*7);
-//      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº "COLOR1"[1m  ¢¶¢¶¢¶   [m"
-//        ,money*seven);
+      inexp(ba*7);
+      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº "COLOR1"[1m  ¢¶¢¶¢¶   [m"
+        ,money*seven);
       pressanykey("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
       return;
     }
@@ -117,9 +117,9 @@ BlackJack()
       move(18,3);prints("[1;41;33m ¶W¯Å¥¿²Î BLACK JACK  [m");
       move(3,0);prints("[1;41;33m¶W¯Å¥¿²Î BLACK JACK !!! ±o¼úª÷ %d »È¨â[m",money*super_jack);
       inmoney(money*super_jack);
-//      inexp(ba*5);
-//      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;41;33m ¥¿²Î ¢Ï¢Ø [m"
-//        ,money*super_jack);
+      inexp(ba*5);
+      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;41;33m ¥¿²Î ¢Ï¢Ø [m"
+        ,money*super_jack);
       pressanykey("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
       return;
     }
@@ -130,8 +130,8 @@ if((tmp==1)||((guest_card[1]<=3&&guest_card[1]>=0)&&(guest_card[0]<=43&&guest_ca
       move(18,3);prints("[1;41;33m SUPER BLACK JACK  [m");
       move(3,0);prints("[1;41;33mSUPER BLACK JACK !!! ±o¼úª÷ %d »È¨â[m",money*aj);
       inmoney(money*aj);
-//      inexp(ba*5);
-//      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;44;33m Super¢Ï¢Ø [m",money*aj);
+      inexp(ba*5);
+      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;44;33m Super¢Ï¢Ø [m",money*aj);
       pressanykey("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
       return;
     }
@@ -140,10 +140,10 @@ if((tmp==1)||((guest_card[1]<=3&&guest_card[1]>=0)&&(guest_card[0]<=43&&guest_ca
       move(18,3);prints("[1;41;33m  BLACK JACK  [m");
       move(3,0);prints("[1;41;33mBLACK JACK !!![44m ±o¼úª÷ %d »È¨â[m",money*win_jack);
       inmoney(money*win_jack);
-//      inexp(ba*3);
+      inexp(ba*3);
       move(0,0);clrtoeol();prints("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
     if(money*win_jack>=500000){
-//      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;47;30m BlackJack [m %s ",money*win_jack);
+      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;47;30m BlackJack [m %s ",money*win_jack);
     }
 
       pressanykey(NULL);
@@ -164,8 +164,8 @@ if((tmp==1)||((guest_card[1]<=3&&guest_card[1]>=0)&&(guest_card[0]<=43&&guest_ca
       move(18,3);prints("[1;41;33m            ¹L¤»Ãö            [m");
       move(3,0);prints("[1;41;33m¹L¤»Ãö !!! ±o¼úª÷ %d »È¨â[m",money*six);
       inmoney(money*six);
-//      inexp(ba*5);
-//      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;44;33m  ¹L¤»Ãö   [m",money*six);
+      inexp(ba*5);
+      game_log(BLACKJACK,"¤¤¤F [1;33m%7d[m ¤¸ªº [1;44;33m  ¹L¤»Ãö   [m",money*six);
       pressanykey("±zÁÙ¦³ %d »È¹ô",cuser.silvermoney);
       return;
     }
@@ -216,7 +216,7 @@ if((tmp==1)||((guest_card[1]<=3&&guest_card[1]>=0)&&(guest_card[0]<=43&&guest_ca
 
       move(3,0);prints("[1;44;33m§AÄ¹¤F~~~~ ±o¼úª÷ %d »È¨â[m",money*win);
       inmoney(money*win);
-//      inexp(ba);
+      inexp(ba);
       move(0,0);clrtoeol();prints("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
       pressanykey(NULL);
       return;

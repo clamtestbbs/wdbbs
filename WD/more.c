@@ -9,42 +9,34 @@
 
 #include "bbs.h"
 
-#define MORE_BUFSIZE    4096
-#define MORE_WINSIZE    4096    /* window size : 2048 or 4096 */
-
-#define STR_ANSICODE    "[0123456789;,"
-
 int beep = 0;
-static uschar more_pool[MORE_BUFSIZE];
-static int more_base, more_size, more_head;
-
-        
+                                
 char *
 Ptt_prints(char* str,int mode)
 {
   char *po , *px, strbuf[512];
 
-  while (po = strstr(str, "\x1b[12"))
+  while (po = strstr(str, "\033[12"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\x1b[10"))
+  while (po = strstr(str, "\033[10"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\x1bn"))
+  while (po = strstr(str, "\033n"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\x1b]"))
+  while (po = strstr(str, "\033]"))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\x1b[="))
+  while (po = strstr(str, "\033[="))
   {
     po[0] = 0;
   }
-  while (po = strstr(str, "\x1b*"))
+  while (po = strstr(str, "\033*"))
   {
     switch(*(po+2))
     {
@@ -104,6 +96,13 @@ Ptt_prints(char* str,int mode)
         sprintf(strbuf, "%s%s", str, cuser.username);
         break;
 
+     case 'm' :
+        *po = 0;
+        px = po + 3;
+        sprintf(strbuf, "%s%d", str, cuser.silvermoney);
+        break;
+
+
      default :
         *po = 0;
         px = NULL;
@@ -120,98 +119,52 @@ Ptt_prints(char* str,int mode)
   return str;
 }
 
-
-static inline void
-more_goto(fd, off)
-  int fd;
-  off_t off;
-{
-  int base = more_base;
-
-  if (off < base || off >= base + more_size)
-  {
-    more_base = base = off & (-MORE_WINSIZE);
-    lseek(fd, base, SEEK_SET);
-    more_size = read(fd, more_pool, MORE_BUFSIZE);
-  }
-  more_head = off - base;
-}
-
-
-// alan.010503: maple 3.x的more_line
 static int
-readln(fd, buf)
-  int fd;
-  uschar *buf;
+readln(fp, buf)
+  FILE *fp;
+  char *buf;
 {
-  int ch;
-  uschar *data, *tail;
-  int len, ansilen, bytes, in_ansi;
-  int size, head;
+  register int ch, i, len, bytes, in_ansi;
 
-  len = ansilen = bytes = in_ansi = 0;
-  /* tail = buf + ANSILINELEN - 1; */
-  /* Thor.991008: 為防止引言後, ">"要變色, 一行會超過ANSILINELEN, 故多留空間 */
-  tail = buf + ANSILINELEN - 11;
-  
-  size = more_size;
-  head = more_head;
-  data = &more_pool[head];
-
-  do
+  len = bytes = in_ansi = i = 0;
+  while (len < 80 && i < ANSILINELEN && (ch = getc(fp)) != EOF)
   {
-    if (head >= size)
-    {
-      more_base += size;
-      data = more_pool;
-      more_size = size = read(fd, data, MORE_BUFSIZE);
-
-      if (size == 0)		/* end of file */
-	break;
-
-      head = 0;
-    }
-
-    ch = *data++;
-    head++;
     bytes++;
     if (ch == '\n')
     {
       break;
     }
-
-    if (ch == '\t')
+    else if (ch == '\t')
     {
       do
       {
-	*buf++ = ' ';
+        buf[i++] = ' ';
       } while ((++len & 7) && len < 80);
     }
     else if (ch == '\a')
     {
       beep = 1;
     }
-    else if (ch == KEY_ESC)
+    else if (ch == '\033')
     {
       if (showansi)
-	*buf++ = ch;
+        buf[i++] = ch;
       in_ansi = 1;
     }
     else if (in_ansi)
     {
       if (showansi)
-	*buf++ = ch;
-      if (!strchr(STR_ANSICODE, ch))
-	in_ansi = 0;
+        buf[i++] = ch;
+      if (!strchr("[0123456789;,", ch))
+        in_ansi = 0;
     }
     else if (isprint2(ch))
     {
       len++;
-      *buf++ = ch;
+      buf[i++] = ch;
     }
-  } while (len < 80 && buf < tail);
-  *buf = '\0';
-  more_head = head;
+  }
+  buf[i] = '\0';
   return bytes;
 }
 
@@ -222,15 +175,12 @@ more(fpath, promptend)
   int promptend;
 {
   extern char* strcasestr();
-  static char *head[4] = 
-    {"\x1b[1;36m╭ \x1b[46;33m作者\x1b[m", 
-     "\x1b[1;36m│ \x1b[46;33m標題\x1b[m", 
-     "\x1b[1;36m│ \x1b[46;33m時間\x1b[m" ,
-     "\x1b[1;36m│ \x1b[46;33m轉信\x1b[m"};
+  static char *head[4] = {"[作者]", "[標題]", "[時間]" ,"[轉信]"};
   char *ptr, *word, buf[1024],*ch1;
   struct stat st;
+  FILE *fp;
   usint pagebreak[MAXPAGES], pageno, lino;
-  int fd, fsize, line, ch, viewed, pos, numbytes;
+  int line, ch, viewed, pos, numbytes;
   int header = 0;
   int local = 0;
   char search_char0=0;
@@ -238,7 +188,7 @@ more(fpath, promptend)
   typedef char* (*FPTR)();
   static FPTR fptr;
   int searching = 0;
-  int scrollup = 0;
+  int scrollup = 0/*,decode=0*/;
   char *http[80]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                   NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
                   NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,
@@ -256,21 +206,23 @@ more(fpath, promptend)
   if (*search_str)
      search_char0 = *search_str;
   *search_str = 0;
-
-  fd = open(fpath, O_RDONLY);
-  if (fd < 0)
-    return -1;
-
-  if (fstat(fd, &st) || (fsize = st.st_size) <= 0)
+  if (!(fp = fopen(fpath, "r")))
   {
-    close(fd);
+    inmore = 0;
+    return -1;
+  }
+    
+  if (fstat(fileno(fp), &st))
+  {
+    inmore = 0;
+    fclose(fp);
     return -1;
   }
 
-  pagebreak[0] = pageno = viewed = line = pos = more_base = more_head = more_size = 0;
+  pagebreak[0] = pageno = viewed = line = pos = 0;
   clear();
 
-  while ((numbytes = readln(fd, buf)) || (line == t_lines))
+  while ((numbytes = readln(fp, buf)) || (line == t_lines))
   {
     if (scrollup) {
        rscroll();
@@ -300,21 +252,20 @@ more(fpath, promptend)
                 (ptr = strstr(word, str_post2))))
             {
               ptr[-1] = '\0';
-              prints("%s%-52.52s",head[0], word);
-              prints("\x1b[1;46;33m%.4s\x1b[0;1;33m%-13s\x1b[1;36m╮\x1b[0m\n", ptr, ptr + 5);
+              prints("\x1b[1;36m%s\x1b[37m%-53.53s\x1b[36m[%.4s]\x1b[33m%-13s\x1b[0m\n", head[0], word, ptr, ptr + 5);
             }
             else if (pos < (local ? 3 : 4))
-              prints("%s%-69.69s\x1b[1;36m│\x1b[0m\n", head[pos], word);
+              prints("\x1b[1;36m%s\x1b[37m%-72.72s\x1b[0m\n", head[pos], word);
 
             viewed += numbytes;
-            numbytes = readln(fd, buf);
+            numbytes = readln(fp, buf);
 
             if(!pos && viewed >= 79)            /* 第一行太長了 */
             {
               if (memcmp( buf, head[1], 2))     /* 第二行不是 [標....] */
               {
                 viewed += numbytes;             /* 讀下一行進來處理 */
-                numbytes = readln(fd, buf);
+                numbytes = readln(fp, buf);
               }
             }
 
@@ -324,8 +275,7 @@ more(fpath, promptend)
           {
             header = 1;
 
-            prints("\x1b[1;36m%s\x1b[m\n", msg_sep3);
-//            prints("\n");
+            prints("\x1b[1;36m%s\x1b[m\n", msg_seperator);
             line = pos = (local ? 4 : 5);
           }
         }
@@ -415,7 +365,7 @@ woju
 
       if (line == b_lines && searching == -1) {
         if (pageno > 0)
-          more_goto(fd, viewed=pagebreak[--pageno]);
+           fseek(fp, (off_t)(viewed = pagebreak[--pageno]), SEEK_SET);
         else
            searching = 0;
         lino = pos = line = 0;
@@ -427,7 +377,7 @@ woju
          move(line = b_lines, 0);
          clrtoeol();
          for (pos = 1; pos < b_lines; pos++)
-            viewed += readln(fd, buf);
+            viewed += readln(fp, buf);
       }
       else if (pos == b_lines)  /* 捲動螢幕 */
         scroll();
@@ -472,14 +422,18 @@ woju
       }
       prints(COLOR2"  瀏覽 P.%d(%d%%)  ", pageno,(viewed * 100) / st.st_size);
 #ifdef HYPER_BBS
-      prints(COLOR1" \x1b[1m\x1b[33m(^Z)\x1b[37m求助 \x1b[33m→\x1b[200m\x1b[505m↓\x1b\x1b[201m");
-      prints("\x1b[200m\x1b[500m[PgUp]\x1b[201m\x1b[200m\x1b[501m[PgDn]\x1b[201m\x1b[200m\x1b\x1b[502m[Home]\x1b[201m");
-      prints("\x1b[200m\x1b[503m[End]\x1b[201m  \x1b[200m\x1b[506m\x1b[33m←\x1b[37m結束\x1b[201m  \x1b[m\n");
+      prints(COLOR1" \x1b[1m\x1b[33m(^Z)\x1b[37m求助 \
+\x1b[33m→\x1b[200m\x1b[505m↓\x1b\x1b[201m\
+\x1b[200m\x1b[500m[PgUp]\x1b[201m\
+\x1b[200m\x1b[501m[PgDn]\x1b[201m\
+\x1b[200m\x1b\x1b[502m[Home]\x1b[201m\
+\x1b[200m\x1b[503m[End]\x1b[201m\
+\x1b[200m\x1b[506m\x1b[33m←\x1b[37m結束\x1b[201m\x1b[m");
 #else
       prints(COLOR1" \x1b[1m\x1b[33m (^Z)\x1b[37m求助 \
-\x1b[33m→↓ [PgUp][PgDn][Home][End]\x1b[33m ←(q)\x1b[37m結束   \x1b[m\n");
+\x1b[33m→↓ [PgUp][PgDn][Home][End]\x1b[33m ←(q)\x1b[37m結束\x1b      [m");
 #endif
-      move(b_lines,0);
+
       while (line == b_lines || (line > 0 && viewed == st.st_size))
       {
         switch (ch = igetkey())
@@ -535,55 +489,55 @@ woju
         case 'r':
         case 'R':
         case 'Y':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 7;
         case 'y':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 8;
         case 'A':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 9;
         case 'a':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 10;
         case 'F':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 11;
         case 'B':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 12;
         case KEY_LEFT:
-          close(fd);
+          fclose(fp);
           inmore = 0;
           return 6;
         case 'q':
-          close(fd);
+          fclose(fp);
           inmore = 0;
           return 0;
         case 'b':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 1;
         case 'f':
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 3;
         case ']':       /* Kaede 為了主題閱讀方便 */
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 4;
         case '[':       /* Kaede 為了主題閱讀方便 */
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 2;
         case '=':       /* Kaede 為了主題閱讀方便 */
-           close(fd);
+           fclose(fp);
            inmore = 0;
            return 5;
         case Ctrl('F'):
@@ -592,7 +546,7 @@ woju
           break;
         case 't':
           if (viewed == st.st_size) {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              return 4;
           }
@@ -600,7 +554,7 @@ woju
           break;
         case ' ':
           if (viewed == st.st_size) {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              return 3;
           }
@@ -608,7 +562,7 @@ woju
           break;
         case KEY_RIGHT:
           if (viewed == st.st_size) {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              return 0;
           }
@@ -631,7 +585,7 @@ woju
         case KEY_DOWN:
           if (viewed == st.st_size ||
               promptend == 2 && (ch == '\r' || ch == '\n')) {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              return 3;
           }
@@ -652,7 +606,7 @@ woju
 
         case 'E':
           if (strcmp(fpath, "etc/ve.hlp")) {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              vedit(fpath, HAS_PERM(PERM_SYSOP) ? 0 : 2);
              return 0;
@@ -712,7 +666,7 @@ woju
 woju
 */
           else {
-             close(fd);
+             fclose(fp);
              inmore = 0;
              return 1;
           }
@@ -728,12 +682,12 @@ woju
       else if (line < 0) {                      /* Line scroll up */
          if (pageno <= 1) {
             if (lino == 1 || !pageno) {
-               close(fd);
+               fclose(fp);
                inmore = 0;
                return 1;
             }
             if (header && lino <= 5) {
-                more_goto(fd, viewed = pagebreak[scrollup = lino = pageno = 0] = 0);
+               fseek(fp, (off_t)(viewed = pagebreak[scrollup = lino = pageno = 0] = 0), SEEK_SET);
                clear();
             }
          }
@@ -742,29 +696,29 @@ woju
             if (pageno > 1 && viewed == st.st_size)
                line += local;
             scrollup = lino - 1;
-            more_goto(fd, viewed = pagebreak[pageno - 1]);
+            fseek(fp, (off_t)(viewed = pagebreak[pageno - 1]), SEEK_SET);
             while (line--)
-               viewed += readln(fd, buf);
+               viewed += readln(fp, buf);
          }
          else if (pageno > 1) {
             scrollup = b_lines - 1;
             line = (b_lines - 2) - local;
-            more_goto(fd, viewed = pagebreak[--pageno - 1]);
+            fseek(fp, (off_t)(viewed = pagebreak[--pageno - 1]), SEEK_SET);
             while (line--)
-               viewed += readln(fd, buf);
+               viewed += readln(fp, buf);
          }
          line = pos = 0;
       }
       else
       {
         pos = 0;
-        more_goto(fd, viewed = pagebreak[pageno]);
+        fseek(fp, (off_t)(viewed = pagebreak[pageno]), SEEK_SET);
         clear();
       }
     }
   }
 
-  close(fd);
+  fclose(fp);
   if (promptend)
   {
     pressanykey(NULL);
@@ -854,7 +808,7 @@ more_web(fpath, promptend)
 /*
     setbfile (buf, bname, FN_LIST);
     
-    if ((currbrdattr & BRD_HIDE) && belong_list (buf, cuser.userid) <= 0)
+    if ((currbrdattr & BRD_HIDE) && !belong_list (buf, cuser.userid))
     {
       pressanykey(P_BOARD);
       return 0;

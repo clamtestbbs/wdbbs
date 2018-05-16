@@ -77,7 +77,7 @@ main()
   struct dirent *de;
   char *fname, fpath[80], userid[20];
   
-  sprintf(fpath, "%s/home", BBSHOME);
+  sprintf(fpath, "%s/home/wildcat", BBSHOME);
   dirp = opendir(fpath);
   while (de = readdir(dirp))
   {

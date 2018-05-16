@@ -60,7 +60,7 @@ int first;
 	{
 		move(b_lines,0);
 		prints("[1;46m πÔ§Ë¡Ÿ¶b∑«≥∆§§                                                        [0m");
-		ch=egetch();
+		ch=igetkey();
 	}
 	for(i=0;i<8;i++)
 			mymsg[i][0]='\0';
@@ -149,7 +149,7 @@ int first;
 			notyou=0;		
 			prints("[1;44;37m  æ‘∞´©R•O  [46m [1]¥∂≥q [2]•˛§O [3]≈]™k [4]®æøm [5]∏…•R [6]∞k©R [T/^T]CHAT/¶^≈U  [m");
 		}
-		ch = egetch();
+		ch = igetkey();
 		if (ch == I_OTHERDATA)
 		{
 			datac = recv(fd, data, sizeof(data), 0);

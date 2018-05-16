@@ -283,9 +283,10 @@ catv()
 
 	counter("log/counter/節目查詢","使用電視節目查詢",0);
         setutmpmode(CATV);
+        log_usies("CATV",NULL);
         do{
                 clear();
-                show_file("/home/bbs/etc/TVPro",1,19,ONLY_COLOR);
+                show_file(BBSHOME"/etc/TVPro",1,19,ONLY_COLOR);
                 if(!(vget(20, 2, "請輸入您要查詢的頻道：", ID, 5, DOECHO))) return 0;
                 i=atoi(ID);
         }while(i<1 || i>76);

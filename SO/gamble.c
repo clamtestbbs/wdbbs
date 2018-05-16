@@ -147,6 +147,7 @@ ticket_main()
  if (lockutmpmode(TICKET))  return 0;
 
  setutmpmode(TICKET);
+ log_usies("GAMBLE",NULL);
  while(1)
   {
    show_ticket_data();

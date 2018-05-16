@@ -12,6 +12,16 @@
 #define MSG_POSTER      \
 COLOR2"  文章選讀  "COLOR1"\x1b[1m (y)\x1b[37m回信 \x1b[33m(=[]<>)\x1b[37m相關主題 \x1b[33m(/?)\x1b[37m搜尋標題 \x1b[33m(aA)\x1b[37m搜尋作者 \x1b[33m(x)\x1b[37m轉錄 \x1b[33m(V)\x1b[37m投票 \x1b[0m"
 
+struct keeploc
+{
+  char *key;
+  int top_ln;
+  int crs_ln;
+  struct keeploc *next;
+};
+typedef struct keeploc keeploc;
+
+
 char currdirect[64];
 static fileheader *headers = NULL;
 /* static */ 
@@ -20,9 +30,7 @@ int last_line;
 static int hit_thread;
 
 extern int search_num();
-#ifdef HAVE_NEWGEM
 extern char gem_mode;
-#endif
 #define FHSZ    sizeof(fileheader)
 
 
@@ -273,7 +281,7 @@ AskTag(msg)
 
 #define	BATCH_SIZE	65536
 
-static int
+int
 TagThread(direct, search, type)
   char *direct;
   char *search;
@@ -308,19 +316,19 @@ TagThread(direct, search, type)
 
     for (head = (fileheader *) fimage; (caddr_t) head < tail; head++)
     {
-      int tmplen;
+      int  tmplen;
 
       count++;
 
-      if (type == 1)
-      {
-        title = head->owner;
-        tmplen = IDLEN+1;
-      }
-      else
+      if (type != 1)
       {
         title = str_ttl(head->title);
         tmplen = TTLEN;
+      }
+      else
+      {
+        title = str_ttl(head->owner);
+        tmplen = strlen(search);
       }
 
       if (!strncmp(search, title, tmplen))
@@ -339,6 +347,21 @@ TagThread(direct, search, type)
   } while (off < fsize);
   close(fd);
   return RC_DRAW;
+}
+
+static int
+TagPruner()
+{
+  if (TagNum && ((currstat == RMAIL) || (currmode & MODE_BOARD) ||
+    (gem_mode & GEM_PERM)))
+  {
+    if (getans("確定要刪除所有標籤信件嗎(Y/N)？[N] ") != 'y')
+      return RC_FOOT;
+    delete_range2(currdirect, 0, 0);
+    TagNum = 0;
+    return RC_NEWDIR;
+  }
+  return RC_NONE;
 }
 
 
@@ -395,7 +418,9 @@ woju
      query = t_ans;
      stype = RS_TITLE;
   }
-  else if (stype & RS_RELATED)
+  else 
+
+  if (stype & RS_RELATED)
   {
     tag = headers[pos - locmem->top_ln].title;
     if (stype & RS_CURRENT)
@@ -539,7 +564,7 @@ select_read(locmem,sr_mode)
 {
   register char *tag,*query;
   fileheader fh;
-  char fpath[80], genbuf[512];
+  char fpath[80], genbuf[256];
   char static t_ans[TTLEN+1]="";
   char static a_ans[IDLEN+1]="";
   int fd, fr, size = sizeof(fileheader);
@@ -568,15 +593,11 @@ select_read(locmem,sr_mode)
   else if (sr_mode == RS_CURRENT)
      query = ".";
   else if (sr_mode == RS_THREAD)
-     query = "*";
-  else if (sr_mode == RS_SCORE)
-     query = "0";
-  else if (brdauthor && sr_mode == RS_AUTHOR)
-     query = currowner;
+     query = "m";
   else {
     query = (sr_mode == RS_RELATED) ? t_ans : a_ans;
     sprintf(fpath, "搜尋%s [%s] ",
-        (sr_mode == RS_RELATED) ? "標題" :  "作者" , query);
+        (sr_mode == RS_RELATED) ? "標題" : "作者", query);
     if(getdata(b_lines, 0, fpath, fpath, 30, DOECHO,0))
     {
       char buf[64];
@@ -598,7 +619,7 @@ select_read(locmem,sr_mode)
   else fimage = (char *) -1;
   if (fimage == (char *) -1)
   {
-    outmsg("索引檔開啟失敗");
+    outz("索引檔開啟失敗");
     return RC_NONE;
   }
 
@@ -687,12 +708,6 @@ select_read(locmem,sr_mode)
         case RS_THREAD:
           if(fh.filemode & (FILE_MARKED |  FILE_DIGEST))
             write(fr,&fh,size);
-          else if(fh.score > 0)
-            write(fr,&fh,size);
-          break;
-        case RS_SCORE:
-          if(fh.score != 0)
-            write(fr,&fh,size);
           break;
         }
       } while (++head < tail);
@@ -701,21 +716,12 @@ select_read(locmem,sr_mode)
     }
     munmap(fimage, fsize);
 
-  if(st.st_size)
-  {
-    currmode ^= MODE_SELECT;
-    strcpy(currdirect, fpath);
-  }
-
+    if(st.st_size)
+    {
+      currmode ^= MODE_SELECT;
+      strcpy(currdirect, fpath);
+    }
   return st.st_size;
-}
-
-
-static int
-cmpscore(p1, p2)
-  fileheader *p1, *p2;
-{
-  return (p2->score - p1->score);
 }
 
 
@@ -731,19 +737,14 @@ i_read_key(rcmdlist, locmem, ch)
 
   switch (ch)
   {
-    case KEY_LEFT:
-//      ch = 'q';
-    case 'q':
-    case 'e':
+  case 'q':
+  case 'e':
+  case KEY_LEFT:
     if ((currstat == RMAIL) || (currstat == READING) || (currstat == ANNOUNCE))
     {
-      if (brdauthor)
-        return QUIT;
-#ifdef HAVE_NEWGEM
       if (currstat == ANNOUNCE)
         return gem_quit() ? RC_NEWDIR : QUIT;
       else
-#endif
       {
         if (thread_title) 
         {
@@ -937,17 +938,15 @@ i_read_key(rcmdlist, locmem, ch)
     case 'U':
       if (HAS_PERM(PERM_FORWARD))
       {
-        char fname[512];
+        char fname[128];
         fileheader *fhdr = &headers[locmem->crs_ln - locmem->top_ln];
        
         setdirpath(fname, currdirect, fhdr->filename);
-#ifdef HAVE_NEWGEM
         if (gem_perm(fname, fhdr) < 1)
         {
           pressanykey("沒有轉寄權限");
           break;
         }
-#endif        
         if (dashf(fname))
           mail_forward(&headers[locmem->crs_ln - locmem->top_ln],
             currdirect, ch == 'U');
@@ -958,7 +957,6 @@ i_read_key(rcmdlist, locmem, ch)
     case Ctrl('Q'):
        return my_query(headers[locmem->crs_ln - locmem->top_ln].owner);
 
-#ifdef HAVE_NEWGEM
     case 't':
       if ((currmode & MODE_TAG) && (currmode & MODE_BOARD))
       {
@@ -966,7 +964,7 @@ i_read_key(rcmdlist, locmem, ch)
         fileheader *fhdr = &headers[locmem->crs_ln - locmem->top_ln];
         
         fhdr->filemode ^= FILE_TAGED;
-        now = getindex(currdirect, fhdr->filename);
+        now = getindex(currdirect, fhdr->filename, sizeof(fileheader));
         substitute_record(currdirect, fhdr, sizeof(fileheader), now);
         return POS_NEXT;
       }
@@ -999,7 +997,7 @@ i_read_key(rcmdlist, locmem, ch)
               EnumTagFhdr(&fh, currdirect, locus);
               locus++;
               fh.filemode |= FILE_TAGED;
-              now = getindex(currdirect, fh.filename);
+              now = getindex(currdirect, fh.filename, sizeof(fileheader));
               substitute_record(currdirect, &fh, sizeof(fileheader), now);
             } while (locus < TagNum);
             return RC_CHDIR;
@@ -1023,30 +1021,24 @@ i_read_key(rcmdlist, locmem, ch)
         return RC_DRAW;
       }
       return RC_NONE;  
-#endif
 
     case 'V':
       if (currstat != ANNOUNCE)
-#ifdef NO_SO
-        b_vote();
-#else
         DL_func("SO/vote.so:b_vote");
-#endif
       return RC_FULL;
 
     case 'R':
       if (currstat != ANNOUNCE)
-#ifdef NO_SO
-        b_results();
-#else
         DL_func("SO/vote.so:b_results");
-#endif
       return RC_FULL;
+
+    case Ctrl('D'):
+      return TagPruner();
 
     case Ctrl('X'):		/* terminator */
       if ((currstat == READING) && (HAS_PERM(PERM_ALLBOARD)) && (currstat != ANNOUNCE))
       {
-        char buf[512], ans[4],mode[3];
+        char buf[128], ans[4],mode[3];
         boardheader *bp;
         extern boardheader *bcache;
         extern int numboards;
@@ -1105,34 +1097,6 @@ i_read_key(rcmdlist, locmem, ch)
   case 'n':
     return cursor_pos(locmem, locmem->crs_ln + 1, 1);
 
-  case 'X':
-  {
-    int size, n;
-    FILE *fps;
-    fileheader *score;
-    void *malloc();
-
-    size = select_read(locmem,RS_SCORE);
-
-    if (size)
-    {
-      if (fps = fopen(currdirect, "r"))
-      {
-        n = size / sizeof(fileheader);
-
-        score = (fileheader *) malloc(size);
-
-        fread(score, sizeof(fileheader), n, fps);
-        qsort(score, n, sizeof(fileheader), cmpscore);
-        fwrite(score, sizeof(fileheader), n, fps);
-
-        fclose(fps);
-      }
-      return RC_NEWDIR;
-    }
-    else
-      return RC_FOOT;
-  }
   case 'G':
     if (select_read(locmem,RS_THREAD)) /* marked articles */
       return RC_NEWDIR;
@@ -1179,10 +1143,6 @@ struct one_key *rcmdlist;
   strcpy(currdirect, direct);
   mode = RC_NEWDIR;
 
-  if (brdauthor)
-    select_read(NULL, RS_AUTHOR);
-
-
   do
   {
     /* -------------------------------------------------------- */
@@ -1212,11 +1172,7 @@ struct one_key *rcmdlist;
               getdata(b_lines - 1, 0, "尚未有投票 (V)舉辦投票 (Q)離開？[Q] ",
                 genbuf, 4, LCECHO, 0);
               if (genbuf[0] == 'v')
-#ifdef NO_SO
-                make_vote();
-#else
                 DL_func("SO/vote.so:make_vote");
-#endif
             }
             else
             {
@@ -1224,14 +1180,12 @@ struct one_key *rcmdlist;
             }
             goto return_i_read;
           }                       
-#ifdef HAVE_NEWGEM
           else if (currstat == ANNOUNCE)
           {
             if (!gem_none())	/* shakalaca.000525: 用 i_read 的缺點.. :X
             			   得用另一個 function 模擬出空精華區的樣子.. :p */
               goto return_i_read;
           }                                                                
-#endif
           else if (currstat == LISTMAIN)
           {
             getdata(1, 0, "尚未有名單 (N)新增 (Q)離開？[Q] ",
@@ -1278,7 +1232,7 @@ struct one_key *rcmdlist;
       recbase = -1;
 
     case RC_FULL:
-      (void) (*dotitle) ();
+      (*dotitle) ();
 
     case RC_BODY:
       if (last_line < locmem->top_ln + p_lines)

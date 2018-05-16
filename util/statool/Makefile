@@ -5,55 +5,40 @@
 #  create : 95/03/29				 	  #
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
+BBSHOME=/home/bbs
 
-ARCHI	!= uname -m
+# For FreeBSD
+CC	= gcc
+CFLAGS	= -O2 -DBSD44 -pipe -fomit-frame-pointer -I../../include -I../../WD -D_BBS_UTIL_C_
+LDFLAGS	= -s -L../../lib -ldao -lcrypt
 
-OPSYS	!= uname -o
+# For SunOS 5.6
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DSYSV -DSOLARIS
+#LDFLAGS	= -ltermcap -lnsl -lsocket -ldl -L../lib -ldao
 
-SUBDIR	= statool fixtool
-
-BBSHOME	?= $(HOME)
-
-SRCROOT	= ../..
-
-INCLUDE	= $(SRCROOT)/include
-
-DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib/stuff -lstuff 
-
-CC	= clang
-
-CFLAGS	= -m32 -O -Wunused -I$(INCLUDE) -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
-
-LDFLAGS	= $(DAOLIB) -lcrypt -lncurses 
-
-.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -lresolv -ldl -rdynamic
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
+# For Linux
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DLINUX -D_BBS_UTIL_C_
+#LDFLAGS	= -s -fforce-mem -funroll-loops -fstrict-prototype -Wunused -L../lib -ldao -lcrypt
 
 .SUFFIXES: .o .c
 
 .c:   ;   $(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
-TOOL =	poststat birth horoscope topmsg voteboard\
-	topquery toppost toptime toplogin topexp\
-	topmoney topboard topgold sexcount toplimit\
-	toppersonal account #admin bm_check gnp yearsold 
+TOOL =	account poststat birth gnp horoscope topmsg voteboard\
+	topquery yearsold toppost toptime toplogin topexp topfive\
+	topmoney topboard topgold sexcount toplimit toprpg\
+	admin bm_check toppersonal
 
-all: $(TOOL)
+all: 	$(TOOL)
+#	$(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
+
 
 install:$(TOOL)
-	install -d $(BBSHOME)/bin/
-	install -c -m 0755 $(TOOL) $(BBSHOME)/bin/
+	strip $(TOOL)
+	chown bbs.bbs $(TOOL)
+	cp -fp $(TOOL) $(BBSHOME)/bin
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~

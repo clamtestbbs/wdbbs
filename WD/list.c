@@ -32,8 +32,8 @@ belong_list(fname, userid)
     {
       if (!strcmp(pal.userid, userid))
       {
-	if (pal.ftype & M_BAD)
-	  can = -1;
+	if (pal.savemode & M_BAD)
+	  can = 0;
 	else
 	  can = 1;
 	break;
@@ -118,7 +118,7 @@ list_add()
       }
 
     setuserfile(fpath, FN_LIST);
-    if (belong_list(fpath, listfile) > 0)
+    if (belong_list(fpath, listfile))
     {
       pressanykey("已有此名單了 !");
       return RC_FULL;
@@ -134,20 +134,10 @@ list_add()
       ListMain();
   } else
   {
-    /* itoc.010529: 好友名單檢查人數上限 */
-    if (strstr(currdirect, FN_PAL))
-    {
-      if (rec_num(currdirect, sizeof(fileheader)) >= MAX_FRIEND)
-      {
-        pressanykey("好友人數超過上限");
-        return RC_FULL;
-      }
-    }
-
     move(1, 0);
     usercomplete(msg_uid, listfile);
 
-    if (belong_list(currdirect, listfile) != 0)
+    if (belong_list(currdirect, listfile))
     {
       pressanykey("已有這位站友了 !");
       return RC_FULL;
@@ -292,29 +282,14 @@ list_merge(ent, fhdr, direct)
 	  return RC_FULL;
       }
 
-    /* itoc.010529: 不可以引入到同一份名單 */
-    if (strstr(currdirect, source))
-      return RC_FULL;
     setuserfile(buf, source);
     if ((fd = open(buf, O_RDONLY)) >= 0)
     {
       while (read(fd, &list, sizeof(list)) == sizeof(list))
       {
-	if (belong_list(currdirect, list.userid) <= 0)
-        {
-          /* itoc.010529: 若是在好友名單中引入一般名單，
-             要加入好友的旗標並檢查好友人數上限 */
-          if (strstr(currdirect, FN_PAL))
-          {
-            if (rec_num(currdirect, sizeof(fileheader)) < MAX_FRIEND)
-            {
-              list.ftype |= M_PAL;
-              rec_add(currdirect, &list, sizeof(PAL));
-            }
-          }
-          else                       
-	    rec_add(currdirect, &list, sizeof(PAL));
-	}
+	if (!belong_list(currdirect, list.userid))
+	  /* 將 list.filename 加入 currdirect */
+	  rec_add(currdirect, &list, sizeof(PAL));
       }
       close(fd);
     }
@@ -476,7 +451,7 @@ listdoent(num, ent)
 {
   if (currstat != LISTMAIN)
   {
-    prints(" %4d \x1b[1;33m%c\x1b[31m%c\x1b[36m%c\x1b[m  %-6s %-13s %-40s\n", num,
+    prints(" %4d \033[1;33m%c\033[31m%c\033[36m%c\033[m  %-6s %-13s %-40s\n", num,
 	   ent->filemode & M_PAL ? 'f' : ' ',
 	   ent->filemode & M_BAD ? 'b' : ' ',
 	   ent->filemode & M_ALOHA ? 'a' : ' ',
@@ -495,11 +470,11 @@ listtitle()
   if (currstat != LISTMAIN)
     outs("\
   [a]新增 [c]修改 [d]刪除 [m]移動 [i]引入名單 [s]群組寄信 [→]觀看 [h]elp\n\
-" COLOR1 "\x1b[1m 編號 模式 日  期 名  稱        描        述                                   \x1b[0m");
+" COLOR1 "\033[1m 編號 模式 日  期 名  稱        描        述                                   \033[0m");
   else
     outs("\
   [a]新增 [c]修改 [d]刪除 [m]移動 [→]觀看 [h]elp\n\
-" COLOR1 "\x1b[1m 編號 日  期 名  稱        描        述                                        \x1b[0m");
+" COLOR1 "\033[1m 編號 日  期 名  稱        描        述                                        \033[0m");
 }
 
 

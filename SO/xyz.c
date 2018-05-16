@@ -44,6 +44,7 @@ show_hint_message()
         move(12, 0);
         clrtobot();
         fgets(msg, 135, hintp);
+        log_usies("HINT",NULL);
         prints("[1;36m­·§j¨Óªº®ø®§¡G [1;31m±zª¾¹D¶Ü¡H[40;0m\n");
         prints("                   %s[0m", msg);
         fgets(msg, 135, hintp);
@@ -253,6 +254,7 @@ x_csh()
   currutmp->pager = 2;
   clear();
   refresh();
+  log_usies("TCSH",NULL);
   reset_tty();
 #ifdef SYSV
   do_exec("sh", NULL);
@@ -354,7 +356,7 @@ x_cdict()
         }
     bbssetenv("WORD",buf);
     exec_cmd(CDICT, YEA, BBSHOME"/bin/cdict.sh","CDICT");
-    log_usies("CDICT","");
+    log_usies("CDICT",NULL);
     strcpy(genbuf1, buf);
     sprintf(buf,BBSHOME"/tmp/cdict.%s",cuser.userid);
     if (dashf(buf))
@@ -402,6 +404,7 @@ x_tetris()
   save_pager = currutmp->pager;
   currutmp->pager = 2;
   setutmpmode(TETRIS);
+  log_usies("TETRIS",NULL);
   restore_tty();
   sprintf(buf, BBSHOME"/bin/tetris.sh");
   do_exec(buf, NULL);
@@ -495,6 +498,7 @@ x_mj()
   currutmp->pager = 2;
   setutmpmode(MJ);
   demoney(100);
+  log_usies("MJ",NULL);
   reset_tty();
   sprintf(buf, BBSHOME"/bin/qkmj95p4-freebsd 140.112.28.167 7001");
   do_exec(buf, NULL);
@@ -517,6 +521,7 @@ x_big2()
   currutmp->pager = 2;
   setutmpmode(BIG2);
   demoney(100);
+  log_usies("BIG2",NULL);
   reset_tty();
   sprintf(buf, BBSHOME"/bin/big2.sh");
   do_exec(buf, NULL);
@@ -538,6 +543,7 @@ x_chess()
   currutmp->pager = 2;
   setutmpmode(CHESS);
   demoney(100);
+  log_usies("CHESS",NULL);
   reset_tty();
 #ifdef LINUX
   sprintf(buf, BBSHOME"/bin/ch4");
@@ -559,6 +565,7 @@ x_bbsnet()
   save_pager = currutmp->pager;
   currutmp->pager = 2;
   setutmpmode(BBSNET);
+  log_usies("BBSNET",NULL);
   reset_tty();
   sprintf(buf, BBSHOME"/bin/bbsnet");
   system(buf);
@@ -567,18 +574,30 @@ x_bbsnet()
   pressanykey("Åwªï¤U¦¸¦A¨Ó!! ^o^");
 }
 
+
 void
-x_logintest()
+KoK()
 {
   char buf[64];
-  int i;
+  int save_pager=0,i;
+  counter(BBSHOME"/log/counter/KK","ª±¸U¤ý¤§¤ý",0);
+  if(!HAS_PERM(PERM_LOGINOK))
+  {
+    pressanykey("¥»¥\\¯à¥²»Ýµù¥U³q¹L¤~¯à¨Ï¥Î");
+    return;
+  }
+  log_usies("KoK",NULL);
+  save_pager = currutmp->pager;
+  currutmp->pager = 2;
   setutmpmode(BBSNET);
-  demoney(100);
+  log_usies("KoK",NULL);
   reset_tty();
   i=rand()%5;
-  sprintf(buf, "/bin/telnet -8 wd.twbbs.org 300%d",i+1);
+//  sprintf(buf, "/bin/ztelnet kk.wildcat.idv.tw 400%d",i+1);
+  sprintf(buf, "/bin/ztelnet -E 140.124.201.22 400%d",i);
   do_exec(buf, NULL);
-
   restore_tty();
+  currutmp->pager = save_pager;
+  clear();
+  pressanykey("Åwªï¤U¦¸¦A¨Óª±¸U¤ý¤§¤ý§r ^o^");
 }
-

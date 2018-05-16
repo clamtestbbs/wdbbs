@@ -34,18 +34,18 @@
 #define PERM_XFILE        000000400000 
 #define PERM_RESEARCH	  000001000000 
 #define PERM_FROM         000002000000 
-#define PERM_21           000004000000 
+#define PERM_GOOD         000004000000 
 #define PERM_22           000010000000 
-#define PERM_23           000020000000 
-#define PERM_24           000040000000 
-#define PERM_25           000100000000 
-#define PERM_26           000200000000 
-#define PERM_27           000400000000 
-#define PERM_28           001000000000 
-#define PERM_29           002000000000 
-#define PERM_30           004000000000 
-#define PERM_31           010000000000 
-#define PERM_32           020000000000 
+#define PERM_ANNOUNCE     000020000000 
+#define PERM_MG           000040000000 
+#define PERM_SMG          000100000000 
+#define PERM_AD           000200000000 
+#define PERM_SAD          000400000000 
+#define PERM_PAINT        001000000000 
+#define PERM_SPAINT       002000000000 
+#define PERM_SECRETARY    004000000000 
+#define PERM_LSYSOP       010000000000 
+#define PERM_WILDCAT      020000000000 
 
 /* ----------------------------------------------------- */
 /* These permissions are bitwise ORs of the basic bits.  */
@@ -105,7 +105,18 @@ char *permstrings[] = {
   "管理站上文件",               /* PERM_XFILE */
   "研發小組",                   /* PERM_RESEARCH */
   "修改故鄉",                   /* PERM_FROM */
-  "","","","","","","","","","","","",NULL
+  "文藝展裁判",                 /* PERM_GOOD */
+  "沒想到",                     /* PERM_ */
+  "精華區總長",                 /* PERM_Announce */
+  "特務組",                     /* PERM_MG */
+  "特務組長",                   /* PERM_SMG */
+  "文宣組",                     /* PERM_AD */
+  "文宣組長",                   /* PERM_SAD */
+  "美工組",                     /* PERM_PAINT */
+  "美工組長",                   /* PERM_SPAINT */
+  "秘書",                       /* PERM_SECRETARY */
+  "小站長",                     /* PERM_LSYSOP */
+  "野貓老大"                  /* PERM_CAVE */  
 };
 
 #endif
@@ -133,8 +144,12 @@ char *permstrings[] = {
 #define HABIT_BOARDLIST	000000000040    /* 看板列表顯示文章數或是編號 */
 #define HABIT_SEELOG	000000000100    /* 上站都去看紀錄排名? */
 #define HABIT_CYCLE	000000000200    /* 循環式閱讀 */
-#define HABIT_FEELING	000000000400
-#define HABIT_FROM	000000001000
+#define HABIT_RPG	000000000400
+#define HABIT_FEELING	000000001000
+#define HABIT_FROM	000000002000
+#define HABIT_NOTEMONEY	000000004000
+#define HABIT_ALREADYSET	000000010000    /* 每次上站都設定? */
+#define HABIT_BIG5GB	000000020000	/* use big5 code or gb */
 
 #define HAS_HABIT(x)     ((x)?cuser.habit&(x):1)
 #define HAVE_HABIT(x)    (cuser.habit&(x))
@@ -151,7 +166,7 @@ extern char *habitstrings[];
 
 #else
 
-#define NUMHABITS        10
+#define NUMHABITS        14
 
 char *habitstrings[] = {
 /* HABIT_MOVIE */    "動態看板       (開/關)",
@@ -162,8 +177,12 @@ char *habitstrings[] = {
 /* HABIT_BOARDLIST */"看板列表顯示   (文章數/編號)",
 /* HABIT_SEELOG	*/   "上站觀看各項紀錄排名",
 /* HABIT_CYCLE */    "循環式閱\讀     (開/關)",
+/* HABIT_RPG */      "是否加入RPG遊戲(是/否)",
 /* HABIT_FEELING */  "上站設定心情   (開/關)",
 /* HABIT_FROM */     "上站設定故鄉   (開/關)",
+/* HABIT_NOTEMONEY */"上站使用記帳本 (開/關)",
+/* HABIT_ALREADYSET */ "已經設定過了,別再叫我設了",
+/* HABIT_BIG5GB */   "use BIG5(  ) / use GB(●)"
 };
 
 #endif

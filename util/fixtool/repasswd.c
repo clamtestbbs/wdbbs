@@ -45,12 +45,12 @@ main()
     fclose(foo1);
     fclose(foo2);
 
-    if(rename(DOTPASSWDS,PASSWDSBAK)==-1){
+    if(f_mv(DOTPASSWDS,PASSWDSBAK)==-1){
         puts("replace fails");
         exit(1);
     }
     unlink(DOTPASSWDS);
-    rename(TMPFILE,DOTPASSWDS);
+    f_mv(TMPFILE,DOTPASSWDS);
     unlink("tmpfile");
 
     return 0;

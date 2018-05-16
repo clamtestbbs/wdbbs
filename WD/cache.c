@@ -164,7 +164,6 @@ searchuser(userid)
   return 0;
 }
 
-
 #if !defined(_BBS_UTIL_C_)
 int
 getuser(userid)
@@ -173,7 +172,10 @@ getuser(userid)
   int uid;
 
   if (uid = searchuser(userid))
+  {
     rec_get(fn_passwd, &xuser, sizeof(xuser), uid);
+    rpg_get(userid, &rpgtmp);
+  }
   return uid;
 }
 
@@ -762,7 +764,8 @@ reload_filmcache()
    else
    {
      fileheader item;
-     char pbuf[512], buf[512];
+     char pbuf[512], buf[512], *chr;
+     FILE *fp;
      int num, id, j;
      film->busystate = 1;
      sem_init(FILMSEM_KEY,&film_semid);
@@ -800,10 +803,19 @@ reload_filmcache()
      film->max_film = id-1;
      film->max_history = film->max_film - 2;
      if (film->max_history > MAX_HISTORY - 1)
-       film->max_history = MAX_HISTORY - 1;
-     if (film->max_history <0) 
-       film->max_history = 0;
+     film->max_history = MAX_HISTORY - 1;
+     if (film->max_history <0) film->max_history=0;
 
+      fp=fopen("etc/today_is","r");
+
+      if(fp)
+      {
+        fgets(film->today_is,20,fp);
+        if(chr=strchr(film->today_is,'\n')) *chr=0;
+        film->today_is[20]=0;
+        fclose(fp);
+      }
+     
      /* 等所有資料更新後再設定 uptime */
 
      film->uptime = film->touchtime ;
@@ -875,7 +887,6 @@ reload_fcache()
            (fcache->top)++;
          }
        }
-       fclose(fp);
      }
 
      fcache->max_user=0;

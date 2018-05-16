@@ -32,7 +32,7 @@ get_sum_records(char* fpath, int size)
    long ans = 0;
    FILE* fp;
    fileheader fhdr;
-   char buf[512], *p;
+   char buf[200], *p;
 
    if (!(fp = fopen(fpath, "r")))
       return -1;
@@ -110,9 +110,9 @@ substitute_record(fpath, rptr, size, id)
 
 typedef struct  /* Ptt*/
 {
-  char newfn[512];
-  char oldfn[512];
-  char lockfn[512];
+  char newfn[256];
+  char oldfn[256];
+  char lockfn[256];
 }      nol;
 
 
@@ -126,7 +126,7 @@ nolfilename(n, fpath)
   sprintf(n->lockfn, "%s.lock", fpath);
 }
 
-#if 0
+
 int
 rec_del(fpath, size, id)
   char fpath[];
@@ -181,7 +181,7 @@ rec_del(fpath, size, id)
   close(fd);
   return 0;
 }
-#endif
+
 
 int
 delete_range(fpath, id1, id2)
@@ -374,7 +374,7 @@ delete_files(char* dirname, int (*filecheck)())
    FILE *fp, *fptmp;
    int ans = 0;
    char tmpfname[100];
-   char genbuf[512];
+   char genbuf[200];
 
 // 誰亂改呀??
 // 被改的時間是 9/5 11:45
@@ -621,7 +621,7 @@ gem_files(char* dirname, int (*filecheck)())
    fileheader fhdr;
    FILE *fp;
    int c = 0 ,ans = 0;
-   char genbuf[512];
+   char genbuf[200];
 
    if (!(fp = fopen(dirname, "r")))
       return ans;
@@ -675,8 +675,45 @@ gem_files(char* dirname, int (*filecheck)())
         substitute_record (dirname, &fhdr, sizeof (fhdr), now);
     }
   }  
-  fclose(fp);   // sby debug: 2003/01/15
+
   return ans;
 }
 
 #endif
+
+int
+rpg_rec(userid,RPG)
+  char *userid;
+  rpgrec RPG;
+{
+  char buf[80];
+  int fd;
+
+  sprintf(buf, BBSHOME"/home/%s/.RPG", userid);
+
+  fd = open(buf , O_WRONLY | O_CREAT, 0600);
+  flock(fd, LOCK_EX);
+  lseek(fd, (off_t) (sizeof(rpgrec) * 0), SEEK_SET);
+  write(fd, &RPG, sizeof(rpgrec));
+  flock(fd, LOCK_UN);
+  close(fd);
+
+  return 0;
+}
+
+int
+rpg_get(userid,RPG)
+  char *userid;
+  rpgrec *RPG;
+{
+  char buf[80];
+  int fd;
+
+  sprintf(buf, BBSHOME"/home/%s/.RPG", userid);
+  fd = open(buf, O_RDONLY);
+  read(fd, RPG, sizeof(rpgrec));
+  close(fd);
+
+  return 0;
+}
+

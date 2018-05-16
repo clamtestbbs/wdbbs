@@ -71,7 +71,7 @@ static int gline;
 #define RESTRICTED(usr) (usr->uflag == 0)       /* guest */
 #define CHATSYSOP(usr)  (usr->uflag & ( PERM_SYSOP | PERM_CHATROOM))
 /* Thor: SYSOP 與 CHATROOM都是 chat總管 */
-#define PERM_ROOMOP     PERM_CHAT	/* Thor: 借 PERM_CHAT為 PERM_ROOMOP */
+#define PERM_ROOMOP     PERM_CHAT       /* Thor: 借 PERM_CHAT為 PERM_ROOMOP */
 #define PERM_HANDUP     PERM_BM		/* 借 PERM_BM 為有沒有舉手過 */
 #define PERM_SAY        PERM_NOTOP	/* 借 PERM_NOTOP 為有沒有發表權 */
 
@@ -714,7 +714,7 @@ send_to_room(room, msg, userno, number)
   for (clitype = (number == MSG_MESSAGE || !number) ? 0 : 1; clitype < 2; clitype++)
   {
 
-    FD_ZERO( (wptr = &wset) );
+    FD_ZERO(wptr = &wset);
     max = -1;
 
     for (cu = mainuser; cu; cu = cu->unext)
@@ -768,7 +768,7 @@ send_to_user(user, msg, userno, number)
     static char sendbuf[256];
 
     sock = user->sock;
-    FD_ZERO( (wptr = &wset) );
+    FD_ZERO(wptr = &wset);
     FD_SET(sock, wptr);
 
     if (user->clitype)
@@ -1819,7 +1819,7 @@ login_user(cu, msg)
 
   int level;
   char *userid;
-  char *chatid,*passwd,*room;
+  char *chatid,*passwd;
   struct sockaddr_in from;
   int fromlen;
   struct hostent *hp;
@@ -1898,7 +1898,6 @@ login_user(cu, msg)
     int uid;
 
     nextword(&msg);
-    room = nextword(&msg);
     uid = atoi(nextword(&msg));
     rec_get(BBSHOME"/.PASSWDS", &muser, sizeof(muser), uid);
     level = muser.userlevel;
@@ -1961,6 +1960,7 @@ login_user(cu, msg)
 
   cu->userno = utent;
   cu->uflag = level & ~(PERM_ROOMOP | PERM_CLOAK | PERM_HANDUP | PERM_SAY);
+  /* Thor: 進來先清空ROOMOP(同PERM_CHAT), CLOAK */
   strcpy(cu->userid, userid);
   memcpy(cu->chatid, chatid, 8);
   cu->chatid[8] = '\0';
@@ -1986,10 +1986,8 @@ login_user(cu, msg)
     send_to_user(cu, "順利", 0, MSG_LOGINOK);
   else
     send_to_user(cu, CHAT_LOGIN_OK, 0, 0);
-  if(strcmp(room,MAIN_NAME))
-    enter_room(cu, room, (char *)NULL);
-  else
-    arrive_room(cu, &mainroom);
+
+  arrive_room(cu, &mainroom);
 
   send_to_user(cu, "", 0, MSG_MOTDSTART);
   print_user_counts(cu);
@@ -2126,7 +2124,7 @@ chat_unignore(cu, msg)
 }
 
 
-void
+static void
 chat_join(cu, msg)
   ChatUser *cu;
   char *msg;

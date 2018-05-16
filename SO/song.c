@@ -104,6 +104,8 @@ ordersong()
   strcpy(buf,onlydate(now));
   if(check_money(5,GOLD)) return 0;
   if(lockutmpmode(OSONG)) return 0;
+  setutmpmode(OSONG);
+  log_usies("OSONG ",NULL);
   move(12,0);
   clrtobot();
   sprintf(buf,"親愛的 %s 歡迎使用風塵點歌系統\n",cuser.userid);
@@ -173,7 +175,7 @@ ordersong()
   sprintf(save_title,"%s:%s",cuser.userid,say);
   hold_mail(filename,destid);
   if(receiver[0])
-    bbs_sendmail(filename, save_title, receiver);
+    bbs_sendmail(filename, save_title, receiver, NULL);
   clear();
   outs(
    "\n\n  恭喜您點歌完成囉..\n"

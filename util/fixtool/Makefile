@@ -5,43 +5,39 @@
 #  create : 95/03/29				 	  #
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
+BBSHOME=/home/bbs
 
-ARCHI	!= uname -m
+# For FreeBSD
+CC	= gcc
+CFLAGS	= -O2 -DBSD44 -pipe -fomit-frame-pointer -I$(BBSHOME)/src/include -I$(BBSHOME)/src/WD -D_BBS_UTIL_C_
+LDFLAGS	= -s -L$(BBSHOME)/src/lib -ldao -lcrypt
 
-OPSYS	!= uname -o
+# For SunOS 5.6
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I$(BBSHOME)/src/include -I$(BBSHOME)/src/WD -DSYSV -DSOLARIS
+#LDFLAGS	= -ltermcap -lnsl -lsocket -ldl -L$(BBSHOME)/src/lib -ldao
 
-SUBDIR	= statool fixtool
-
-BBSHOME	?= $(HOME)
-
-SRCROOT	= ../..
-
-INCLUDE	= $(SRCROOT)/include
-
-DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib/stuff -lstuff  \
-
-CC	= clang
-
-CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I$(INCLUDE) -D_BBS_UTIL_C_ -Wno-invalid-source-encoding
-
-LDFLAGS	=  -lcrypt $(DAOLIB)
+# For Linux
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I$(BBSHOME)/src/include -I$(BBSHOME)/src/WD -DLINUX -D_BBS_UTIL_C_
+#LDFLAGS	= -s -fforce-mem -funroll-loops -fstrict-prototype -Wunused -L$(BBSHOME)/src/lib -ldao -lcrypt
 
 .SUFFIXES: .o .c
 
 .c:   ;   $(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
-TOOL =	buildetc buildnames transb transvote #\
-	#buildir repasswd rebrd transpass transboard \
-	#transpal transbpal transaloha  
+TOOL =	buildir buildetc buildnames repasswd hashrpg rebrd\
+	transpass transboard transb transvote transpal\
+	transbpal transaloha transrpg repasswd_online
 
 all: 	$(TOOL)
 #	$(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
 
 install:$(TOOL)
-	install -d $(BBSHOME)/bin/
-	install -c -m 755 $(TOOL) $(BBSHOME)/bin/
+	strip $(TOOL)
+	chown bbs.bbs $(TOOL)
+	cp -fp buildir $(BBSHOME)/bin
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~

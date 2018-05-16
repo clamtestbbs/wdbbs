@@ -85,7 +85,7 @@ compute_user_value(urec, clock)
     return (60 - value);
 
 #ifdef  VACATION
-  return 180 * 24 * 60 - value; /* 寒暑假保存帳號 180 天 */
+  return 120 * 24 * 60 - value; /* 寒暑假保存帳號 120 天 */
 #else
   if (!urec->numlogins)         /* 未 login 成功者，不保留 */
     return -1;
@@ -93,9 +93,9 @@ compute_user_value(urec, clock)
     return 30 * 24 * 60 - value;
 
   /* 未完成註冊者，保留 30 天 */
-  /* 一般情況，保留 180 天 */
+  /* 一般情況，保留 120 天 */
   else
-    return (urec->userlevel & PERM_LOGINOK ? 180 : 30) * 24 * 60 - value;
+    return (urec->userlevel & PERM_LOGINOK ? 120 : 30) * 24 * 60 - value;
 #endif
 }
 
@@ -213,10 +213,12 @@ void
 new_register()
 {
   userec newuser;
+  rpgrec newrpg;
   char passbuf[STRLEN];
   int allocid, try;
 
   memset(&newuser, 0, sizeof(newuser));
+  memset(&newrpg, 0, sizeof(newrpg));
 
   more("etc/register", NA);
   try = 0;
@@ -271,7 +273,9 @@ new_register()
   newuser.uflag = COLOR_FLAG | BRDSORT_FLAG | MOVIE_FLAG;
   newuser.firstlogin = newuser.lastlogin = time(NULL);
   srandom(time(0));
+  newuser.silvermoney = 10000;
   newuser.habit = HABIT_NEWUSER;	/* user.habit */
+  strcpy(newrpg.userid,newuser.userid);
   allocid = getnewuserid();
   if (allocid > MAXUSERS || allocid <= 0)
   {
@@ -292,6 +296,7 @@ new_register()
     fprintf(stderr, "無法建立帳號\n");
     exit(1);
   }
+  rpg_rec(newuser.userid,newrpg);
 }
 
 /* origin: SOB & Ptt              */

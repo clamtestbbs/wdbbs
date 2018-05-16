@@ -16,12 +16,7 @@ typedef int (*FPTR)(const void*, const void*);
 
 #include "bbs.h"
 
-
-#define DEF_DAYS        1000
-#define DEF_MAXP        5000
-#define DEF_MINP        1
-
-#define EXPIRE_CONF     BBSHOME "/etc/expire.conf"
+// #define EXPIRE_CONF     BBSHOME "/etc/expire.conf"
 
 char *bpath = BBSHOME "/boards";
 
@@ -30,32 +25,13 @@ struct life
   char bname[16];               /* board ID */
   int days;                     /* expired days */
   int maxp;                     /* max post */
-  int minp;                     /* min post */
 };
 typedef struct life life;
 
 
-/*
-woju
-Cross-fs rename()
-*/
-
-int Rename(char* src, char* dst)
-{
-   char cmd[200];
-
-   if (rename(src, dst) == 0)
-      return 0;
-
-   sprintf(cmd, "/bin/mv %s %s", src, dst);
-   return system(cmd);
-
-}
-
-
-
-void expire(brd) 
-life *brd;
+void
+expire(brd)
+  life *brd;
 {
   fileheader head;
   struct stat state;
@@ -66,8 +42,7 @@ life *brd;
   int duetime, ftime;
 
   printf("%s\n", brd->bname);
-
-#ifdef  VERBOSE
+/*
   if (brd->days < 1)
   {
     printf(":Err: expire time must more than 1 day.\n");
@@ -78,8 +53,7 @@ life *brd;
     printf(":Err: maxmum posts number must more than 100.\n");
     return;
   }
-#endif
-
+*/
   sprintf(index, "%s/%s/.DIR", bpath, brd->bname);
   sprintf(lockfile, "%s.lock", index);
   if ((fd = open(lockfile, O_RDWR | O_CREAT | O_APPEND, 0644)) == -1)
@@ -102,24 +76,36 @@ life *brd;
       while (read(fdr, &head, sizeof head) == sizeof head)
       {
         done = 1;
-        ftime = atoi(head.filename + 2);
-        if (head.owner[0] == '-')
+        ftime = atoi(head.filename + 2);        
+        if (head.owner[0] == '-')        
           keep = 0;
-/*
-        else if (head.filemode & FILE_MARKED || head.filemode & FILE_DIGEST
-                 || total <= brd->minp)
+        else if (head.filemode & FILE_MARKED || head.filemode & FILE_DIGEST)
           keep = 1;
-*/
 /* 這是為了省硬碟時候用 */
-        else if (head.filemode & FILE_MARKED || total <= brd->minp)
-          keep = 1;
-        else if(head.filemode & FILE_DIGEST && ftime < (duetime - 50 * 24 * 60 * 60))
-          keep = 0;
+//        else if(head.filemode & FILE_DIGEST && ftime < (duetime - 50 * 24 * 60 * 60))
+//          keep = 0;
+        else if (brd->maxp == 0)
+        {
+          if(brd->days == 0)
+            keep = 1;
+          else if(ftime < duetime)
+            keep = 0;
+          else
+            keep = 1;
+        }
+        else if (brd->days == 0)
+        {
+          if(brd->maxp == 0)
+            keep = 1;
+          else if(total > brd->maxp)
+            keep = 0;
+          else
+            keep = 1;
+        }
         else if (ftime < duetime || total > brd->maxp)
           keep = 0;
         else
           keep = 1;
-
         if (keep)
         {
           if (write(fdw, &head, sizeof head) == -1)
@@ -144,16 +130,16 @@ life *brd;
   if (done)
   {
     sprintf(bakfile, "%s.old", index);
-    if (Rename(index, bakfile) != -1)
-      Rename(tmpfile, index);
+    if (f_mv(index, bakfile) != -1)
+      f_mv(tmpfile, index);
   }
   flock(fd, LOCK_UN);
   close(fd);
 }
 
 
-int main(argc, argv)
-char *argv[];
+main(argc, argv)
+  char *argv[];
 {
   FILE *fin;
   int number, count;
@@ -161,52 +147,27 @@ char *argv[];
   struct dirent *de;
   DIR *dirp;
   char *ptr, *bname, buf[256];
+  boardheader bh;
 
-  db.days = ((argc > 1) && (number = atoi(argv[1])) > 0) ? number : DEF_DAYS;
+  db.days = ((argc > 1) && (number = atoi(argv[1])) > 0) ? number : DEF_MAXT;
   db.maxp = ((argc > 2) && (number = atoi(argv[2])) > 0) ? number : DEF_MAXP;
-  db.minp = ((argc > 3) && (number = atoi(argv[3])) > 0) ? number : DEF_MINP;
 
   /* --------------- */
   /* load expire.ctl */
   /* --------------- */
 
   count = 0;
-  if ( (fin = fopen(EXPIRE_CONF, "r")) )
+  sprintf(buf,BBSHOME"/.BOARDS");
+  for(count=0;count<=MAXBOARD;count++)
   {
-    while (fgets(buf, 256, fin))
-    {
-      if (buf[0] == '#')
-        continue;
-
-      bname = (char *) strtok(buf, " \t\r\n");
-      if (bname && *bname)
-      {
-        ptr = (char *) strtok(NULL, " \t\r\n");
-        if (ptr && (number = atoi(ptr)) > 0)
-        {
-          key = &(table[count++]);
-          strcpy(key->bname, bname);
-          key->days = number;
-          key->maxp = db.maxp;
-          key->minp = db.minp;
-
-          ptr = (char *) strtok(NULL, " \t\r\n");
-          if (ptr && (number = atoi(ptr)) > 0)
-          {
-            key->maxp = number;
-
-            ptr = (char *) strtok(NULL, " \t\r\n");
-            if (ptr && (number = atoi(ptr)) > 0)
-            {
-              key->minp = number;
-            }
-          }
-        }
-      }
-    }
-    fclose(fin);
+    memset (&bh, 0, sizeof (boardheader));
+    rec_get(buf,&bh,sizeof(boardheader),count);
+    strcpy(table[count].bname,bh.brdname);
+    table[count].maxp = bh.maxpost;
+    table[count].days = bh.maxtime;
+    printf("%-4d. %-13.13s %d %d\n",
+      count,table[count].bname,table[count].maxp,table[count].days);
   }
-
   if (count > 1)
   {
     qsort(table, count, sizeof(life), (FPTR)strcasecmp);
@@ -222,7 +183,7 @@ char *argv[];
     return -1;
   }
 
-  while ( (de = readdir(dirp)) )
+  while (de = readdir(dirp))
   {
     ptr = de->d_name;
     if (ptr[0] > ' ' && ptr[0] != '.')

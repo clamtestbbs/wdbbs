@@ -6,7 +6,16 @@
 /* update : 96/12/19                                     */
 /*-------------------------------------------------------*/
 
-#include "bbs.h"
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/dir.h>
+#include <fcntl.h>
+#include <time.h>
+#include <string.h>
+#include "config.h"
+#include "struct.h"
 
 #ifndef MAXPATHLEN
 #define MAXPATHLEN      1024

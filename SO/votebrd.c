@@ -7,7 +7,6 @@
 
    voteboards' routines
 */
-#define TIME_LIMIT	12*60*60
 
 #include "bbs.h"
 
@@ -30,11 +29,6 @@ do_voteboardreply(fileheader *fhdr)
    time_t endtime, now = time(NULL);
    int hastime = 0, check = 1;
 
-   if(cuser.totaltime < TIME_LIMIT)
-   {
-     pressanykey("¤W¯¸®É¼Æ¤£¨¬ , ¤£±o°Ñ»P³s¸p");
-     return;
-   }
 
    log_usies("VB_Reply",NULL);
    clear();
@@ -191,7 +185,7 @@ do_voteboardreply(fileheader *fhdr)
    if (opnion[0] == 'y')
    {
       fprintf(fo, "%3d.%-15sE-Mail: %-50s\n", i, cuser.userid, cuser.email);
-      fprintf(fo, "    \x1b[1;37;40m%s\x1b[m\n", reason);
+      fprintf(fo, "    [1;37;40m%s[m\n", reason);
    }
    i = 0;
    fprintf(fo, "%s", genbuf);
@@ -225,7 +219,7 @@ do_voteboardreply(fileheader *fhdr)
    if (opnion[0] == 'n')
    {
       fprintf(fo, "%3d.%-15sE-Mail: %-50s\n", i, cuser.userid, cuser.email);
-      fprintf(fo, "    \x1b[1;37;40m%s\x1b[m\n", reason);
+      fprintf(fo, "    [1;37;40m%s[m\n", reason);
    }
       
    flock(fd, LOCK_UN);
@@ -246,13 +240,14 @@ int do_voteboard(void)
     int temp, i;
     time_t now = time(NULL);
 
+
     clear();
-    if(!(currmode & MODE_POST) || cuser.totaltime < TIME_LIMIT)
+    if(!(currmode & MODE_POST))
     {
         pressanykey("¹ï¤£°_¡A±z¥Ø«eµLªk¦b¦¹µoªí¤å³¹¡I");
         return RC_FULL;
     }
-    log_usies("VB_Make",NULL);
+    log_usies("VB_Make");
     move(0, 0);
     clrtobot();
     prints("\n\n\n±z¥¿¦b¨Ï¥Î³s¸p¨t²Î\n");

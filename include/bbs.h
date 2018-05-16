@@ -33,7 +33,12 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include <termios.h>
+#if	defined(__linux__) && (__GLIBC__ != 2)
+#include <bsd/sgtty.h>
+#else
+#include <sgtty.h>
+#endif
+
 
 #ifdef  SYSV
 
@@ -77,9 +82,8 @@
 #include "struct.h"		/* data structure */
 #include "global.h"		/* global variable & definition */
 #include "modes.h"		/* The list of valid user modes */
-
-#include "proto.h"
-#include "daom3.h"
-#include "stuff.h"
+#include "dao.h"
+#include "attr.h"		/* Thor.990311: dynamic attribute database */
+#include "hyper.h"		/* wildcat: hyper bbs fast key define */
 
 #endif				/* _BBS_H_ */

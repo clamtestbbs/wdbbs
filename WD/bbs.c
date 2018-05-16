@@ -1,3 +1,4 @@
+/*-------------------------------------------------------*/
 /* bbs.c        ( NTHU CS MapleBBS Ver 2.36 )            */
 /*-------------------------------------------------------*/
 /* target : bulletin boards' routines                    */
@@ -10,8 +11,8 @@
 extern int mail_reply ();
 extern char currdirect[64];
 extern int TagNum;
+extern int man();
 extern struct BCACHE *brdshm;
-
 extern void Read();
 
 time_t board_note_time;
@@ -22,7 +23,7 @@ char real_name[20];
 int local_article;
 char currmaildir[32];
 //extern char *fcolor[11];
-char *rcolor[11] = { "\x1b[36m", "","\x1b[32m","\x1b[1;32m",
+char *rcolor[11] = { "\x1b[36m", "","\x1b[32m","\x1b[1;32m",                               
                    "\x1b[33m","\x1b[1;33m","\x1b[1;37m" ,"\x1b[1;36m",
                    "\x1b[1;31m", "\x1b[1;35m", "\x1b[1;36m"};
 #define UPDATE_USEREC   (currmode |= MODE_DIRTY)
@@ -60,7 +61,7 @@ time_t usetime;
     now = time(0);
     sprintf( buf, "USE %-20.20s Stay: %5ld (%s) %s",
        mode, usetime ,cuser.userid, ctime(&now));
-    if(usetime > 5  && (fp = fopen(BBSHOME"/usboard", "a" )) != NULL) {
+    if( (fp = fopen(BBSHOME"/usboard", "a" )) != NULL && usetime > 5) {
         fputs( buf, fp );
         fclose( fp );
     }
@@ -108,7 +109,7 @@ g_bm_names(bh)
 {
   char buf[IDLEN * 3 + 3];
   char* uid;
-
+      
   strcpy(buf, bh->BM);
   uid = strtok(buf, "/");       /* shakalaca.990721: 找第一個板主 */
   while (uid)
@@ -119,7 +120,7 @@ g_bm_names(bh)
   }
   return 0;
 }
-
+                                    
 /* shakalaca.990721: 所有 BM 名單 */
 void
 make_bmlist()
@@ -127,7 +128,7 @@ make_bmlist()
   CreateNameList();
   apply_boards(g_bm_names);
 }
-
+                                                 
 
 void
 set_board ()
@@ -158,14 +159,20 @@ static void
 readtitle ()
 {
   showtitle (currBM, brd_title);
-  outs ("\
-[←]離開 [→]閱\讀 [^P]發表文章 [b]備忘錄 [d]刪除 [z]精華區 [TAB]文摘 [^Z]求助\n\
-" COLOR1 "\x1b[1m  編號   SC");
+#ifdef HYPER_BBS
+  outs (HB_BACK"\n"
+"\x1b[200m\x1b[444m\x1b[507m[→]閱\讀\x1b[201m [^P]發表文章 [b]備忘錄 [d]刪除 [z]精華區 [TAB]文摘 [^Z]求助\n\n"
+COLOR1 "\x1b[1m  編號   ");
+#else
+  outs ("\n"
+"[←]離開 [→]閱\讀 [^P]發表文章 [b]備忘錄 [d]刪除 [z]精華區 [TAB]文摘 [^Z]求助\n\n"
+COLOR1 "\x1b[1m  編號   ");
+#endif
   if (currmode & MODE_TINLIKE)
-    outs (" 篇 數");
+    outs ("篇 數");
   else
-    outs (" 日 期");
-  outs (" 作  者      文  章  標  題                                    \x1b[m");
+    outs ("日 期");
+  outs ("  作  者       文  章  標  題                                    \x1b[m");
 }
 
 
@@ -176,62 +183,79 @@ doent (num, ent)
 {
   int tag;
   user_info *checkowner;
-  char *mark, *title, color, type[10],buf[255];
+  char *mark, *title, color, type[10];
   static char *colors[7] =
   {"\x1b[1;36m", "\x1b[1;34m", "\x1b[1;33m", "\x1b[1;32m", "\x1b[1;35m", "\x1b[1;36m", "\x1b[1;37m"};
+  char *rcolor[11] = { "\x1b[36m", "","\x1b[32m","\x1b[1;32m",                               
+                   "\x1b[33m","\x1b[1;33m","\x1b[1;37m" ,"\x1b[1;36m",
+                   "\x1b[1;31m", "\x1b[1;35m", "\x1b[1;36m"};
+#ifdef HYPER_BBS
+  char hbuf[512];
 
-  if(ent->score != 0)
-    sprintf(buf , "%s%02d %s",ent->score > 0 ? "\x1b[1;31m" : "\x1b[1;32m", ent->score,colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7]);
-  else
-    sprintf(buf , "   %s",colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7]);
+  sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[613m",
+    (num/10000)+648,
+    ((num%10000)/1000)+648,
+    ((num%1000)/100)+648,
+    ((num%100)/10)+648,
+    (num%10)+648);
+#endif
+
+  tag = ' ';  
+  if (TagNum && !Tagger(atol(ent->filename + 2) , 0, TAG_COMP))
+    tag = '*';
+
   if (currstat != RMAIL)
   {
-    sprintf(type,"%c",brc_unread (ent->filename) ? '+' : ' ');
+    sprintf(type, "%c", brc_unread (ent->filename) ? '+' : ' ');
 
-    tag = ' ';
-/*  if (TagNum && !Tagger(atoi(ent->filename + 2) , num, TAG_NIN))
-    tag = '*';
-*/
     if ((currmode & MODE_BOARD) && (ent->filemode & FILE_DIGEST))
-      sprintf(type ,"\x1b[1;35m%c",(type[0] == ' ') ? '*' : '#');
+      sprintf(type, "\x1b[1;35m%c",(type[0] == ' ') ? '*' : '#');
     if (ent->filemode & FILE_MARKED)
-      sprintf(type ,"\x1b[1;36m%c",(type[0] == ' ') ? 'm' : 'M');
+      sprintf(type, "\x1b[1;36m%c",(type[0] == ' ') ? 'm' : 'M');
+    if (ent->filemode & FILE_TAGED)
+      sprintf(type, "%c", (type[0] == ' ') ? 't' : 'T');
   }
   else
   {
-    sprintf(type,"%c","+ Mm"[ent->filemode]);
+    sprintf(type, "%c", "+ Mm"[ent->filemode]);
 
     if (ent->filemode & FILE_REPLYOK)
-      sprintf(type ,"\x1b[1;31m%c",(type[0] == ' ') ? 'r' : 'R');
+      sprintf(type, "\x1b[1;31m%c",(type[0] == ' ') ? 'r' : 'R');
+    if (ent->filemode & FILE_TAGED)
+      sprintf(type, "%c", (type[0] == ' ') ? 't' : 'T');
   }
   /* shakalaca.990421: 改了一下, 因為 mail 中看起來不好看 */
-
-  if (ent->filemode & FILE_TAGED && brc_unread (ent->filename))
-    sprintf(type,"\x1b[1;32m%c", 'T');
-  else if (ent->filemode & FILE_TAGED)
-    sprintf(type,"\x1b[1;32m%c", 't');
-
+  
   title = str_ttl (mark = ent->title);
   if (title == mark)
-    {
-      color = '6';
-      mark = "□";
-    }
+  {
+    color = '6';
+    mark = "□";
+  }
   else
-    {
-      color = '3';
-      mark = "R:";
-    }
+  {
+    color = '3';
+    mark = "R:";
+  }
 
   if (title[47])
     strcpy (title + 44, " …");  /* 把多餘的 string 砍掉 */
   checkowner =(user_info *) searchowner(ent->owner);
-  if (strncmp (currtitle, title, TTLEN))
-    prints ("%6d %s%c%s%-6s\x1b[m%s%-12.12s%s%s %s\n", num, type,tag,buf,
-      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "\x1b[m" : "", mark, title);
-  else
-    prints ("%6d %s%c%s%-6s\x1b[m%s%-12.12s%s\x1b[1;3%cm%s %s\x1b[m\n", num, type,tag,buf,
-      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", ent->owner, checkowner ? "\x1b[m" : "", color, mark, title);
+
+  /* shakalaca.000705: 小改一下.. 重覆太多 :p */
+  prints ("%6d%c%s %s%-7s\x1b[m%s%-13.12s%s", num, tag, type,
+    colors[(unsigned int) (ent->date[4] + ent->date[5]) % 7],
+      ent->date, checkowner ? rcolor[is_friend(checkowner)] : "", 
+      ent->owner, checkowner ? "\x1b[m" : "");
+
+  if (!strncmp (currtitle, title, TTLEN))
+    prints ("\x1b[1;3%cm", color);
+
+#ifdef HYPER_BBS
+  prints ("%s %s\033[m\n", mark, title);
+#else
+  prints ("%s %s%s\033[m\033[201m\n", mark, title, hbuf);
+#endif
 }
 
 
@@ -257,7 +281,7 @@ untag(fhdr, dirpath)
   char *dirpath;
 {
   int now;
-
+  
   fhdr->filemode ^= FILE_TAGED;
   now = getindex (dirpath, fhdr->filename, sizeof (fileheader));
   substitute_record (dirpath, fhdr, sizeof (*fhdr), now);
@@ -290,7 +314,7 @@ do_select (ent, fhdr, direct)
      char *direct;
 {
   char bname[20];
-  char bpath[60]; //, buf[80]; //buf 可以砍了
+  char bpath[60], buf[80];
   struct stat st;
 
   move (0, 0);
@@ -310,23 +334,20 @@ do_select (ent, fhdr, direct)
 /*
    board_visit_time = 0x7fffffff;
  */
-  //brc_initial (bname);
-  //setbfile (buf, bname, FN_LIST);
-  //if (currbrdattr & BRD_HIDE && belong_list(buf, cuser.userid) <= 0)
-  if (Ben_Perm (&brdshm->bcache[getbnum (bname)] - 1) != 1) // by SugarII
+  brc_initial (bname);
+  setbfile (buf, bname, FN_LIST);
+  if (currbrdattr & BRD_HIDE && !belong_list(buf, cuser.userid))
   {
     pressanykey (P_BOARD);
     return RC_FULL;
   }
-  brc_initial (bname);  //hialan.030703:移到這裡
   set_board ();
-  if(direct)   //direct 不能是 NULL
   setbdir (direct, currboard);
+
   move (1, 0);
   clrtoeol ();
   return RC_NEWDIR;
 }
-
 /* ----------------------------------------------------- */
 /* 改良 innbbsd 轉出信件、連線砍信之處理程序             */
 /* ----------------------------------------------------- */
@@ -427,15 +448,11 @@ do_reply (fhdr)
 
 // Ptt 看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
-#ifdef NO_SO
-    va_do_voteboardreply(fhdr);
-#else
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
-#endif
   else
   {
-    getdata (b_lines - 1, 0,
-      "▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ",
+    getdata (b_lines - 1, 0, 
+      "▲ 回應至 (F)看板 (M)作者信箱 (B)二者皆是 (Q)取消？[F] ", 
       genbuf, 3, LCECHO, 0);
     switch (genbuf[0])
     {
@@ -518,13 +535,13 @@ do_postnotify (char *fpath)
   if (brdperm (currboard, buf))
     {
       sethomefile(buf1, buf, "postlist");
-      if (belong_list(buf1, buf) <= 0)
+      if (!belong_list(buf1, buf))
       {
         del_distinct(genbuf, cuser.userid);
         fclose(fp);
         return;
-      }
-
+      }  
+    
       sethomepath (buf1, buf);
       stampfile (buf1, &mhdr);
       strcpy (mhdr.owner, cuser.userid);
@@ -627,7 +644,6 @@ extern long wordsnum;    /* 計算字數 */
 int
 do_post ()
 {
-  FILE *fp;
   fileheader postfile;
   char fpath[80], buf[80];
   int aborted;
@@ -635,49 +651,34 @@ do_post ()
   boardheader *bp;
   boardheader *getbcache ();
   time_t spendtime;
-  int num = 0, i = 0;
-  char tmp[20][80];
-  char *postprefix[] = 
+  int num = 0, i;
+  char *postprefix[] =
   {"[公告] ", "[新聞] ", "[閒聊] ", "[文件] ", "[問題] ", "[創作] ", "[隨便] ",
    "[測試] ", "[其他] ",NULL};
 
-// Ptt 看板連署系統
-  if(!strcmp(currboard,VOTEBOARD))
-  {
-#ifdef NO_SO
-    do_voteboard();
-#else
-    DL_func("SO/votebrd.so:do_voteboard");
-#endif
-    return RC_FULL;
-  }
-  sprintf(genbuf,BBSHOME"/boards/%s/prefix",currboard);
-  if(fp = fopen(genbuf,"r"))
-  {
-    while(fgets(buf, 80, fp))
-    {
-      sprintf(tmp[i],"[%s] ",strtok(buf,"\n"));
-      postprefix[i] = tmp[i];
-      i++;
-    }
-    postprefix[i] = NULL;
-    i = 0;
-    fclose(fp);
-  }
   bp = getbcache (currboard);
   clear ();
-  setbfile (buf, currboard, FN_LIST);
-  if (!(currmode & MODE_POST) || !brdperm (currboard, cuser.userid) 
-    || (belong_list (buf, cuser.userid) < 0 && !HAS_PERM(PERM_SYSOP)))
+  if (!(currmode & MODE_POST) || !brdperm (currboard, cuser.userid))
   {
     pressanykey ("對不起，您目前無法在此發表文章！");
     return RC_FULL;
   }
 
-  if (currbrdattr & BRD_INVITE && belong_list(buf, cuser.userid) <= 0 && !HAS_PERM(PERM_BBSADM))
+// Ptt 看板連署系統
+  if(!strcmp(currboard,VOTEBOARD))
   {
-    pressanykey ("對不起,此板只准看板好友才能發表文章,請向板主申請");
+    DL_func("SO/votebrd.so:do_voteboard");
     return RC_FULL;
+  }
+
+  setbfile (buf, currboard, FN_LIST);
+  if (dashf (buf) && belong ("etc/have_postcheck", currboard))
+  {
+    if (!HAS_PERM (PERM_BBSADM) && !belong_list (buf, cuser.userid))
+    {
+      pressanykey ("對不起,此板只准看板好友才能發表文章,請向板主申請");
+      return RC_FULL;
+    }
   }
 
   more ("etc/post.note", NA);
@@ -714,7 +715,9 @@ do_post ()
 
   /* 未具備 Internet 權限者，只能在站內發表文章 */
 
-  if (!HAS_PERM (PERM_INTERNET))
+  if (HAS_PERM (PERM_INTERNET))
+    local_article = 0;
+  else
     local_article = 1;
 
   buf[0] = 0;
@@ -768,7 +771,7 @@ do_post ()
   {
     if (currmode & MODE_SELECT)
     rec_add (currdirect, &postfile, sizeof (postfile));
-    if (aborted != 1)// && !(currbrdattr & BRD_NOTRAN))
+    if (aborted != 1 && !(currbrdattr & BRD_NOTRAN))
       outgo_post (&postfile, currboard);
     brc_addlist (postfile.filename);
 
@@ -778,18 +781,58 @@ do_post ()
         pressanykey ("抱歉，太短的文章不列入紀錄。");
       else
       {
+        int money = (wordsnum <= spendtime ? (wordsnum / 100) : 
+                    (spendtime / 100));
+        int exp = (wordsnum <= spendtime ? (wordsnum) : (spendtime));
+        money *= (float)(((rand () % 5) + 5) / 5);
+        exp *= (float)((rand()%6) + 7)/7 ;
+        if (money < 1) money = 1;
+        if (exp < 10) exp = 10;
+        if (rpguser.race == 1) exp *= rpguser.level;
+
         clear ();
         move (7, 0);
         update_data ();
-        prints (""\
-"              \x1b[1;36m【\x1b[37m發  表  完  畢\x1b[36m】\n\n" \
-"              \x1b[37m 這是您的\x1b[33m第 %d 篇\x1b[37m文章。\n" \
-"              \x1b[36m【費時】\x1b[33m %d \x1b[37m分\x1b[33m % d \x1b[37m秒。\n" \
-"              \x1b[36m【字數】\x1b[33m %d \n",\
-        ++cuser.numposts, spendtime / 60, spendtime % 60 , wordsnum);
+        prints ("\n"\
+"              \x1b[1;36m【\x1b[37m計 算 稿 酬\x1b[36m】\n\n"
+"              \x1b[37m 這是您的\x1b[33m第 %d 篇\x1b[37m文章。\n"
+"              \x1b[36m【費時】\x1b[33m %d \x1b[37m分\x1b[33m % d \x1b[37m秒。\n"
+"              \x1b[36m【稿酬】\x1b[33m %d \x1b[37m(金幣)\n"
+"              \x1b[36m【經驗值】\x1b[33m %d \x1b[37m 點 ",
+        ++cuser.numposts, spendtime / 60, spendtime % 60, money, exp);
         substitute_record (fn_passwd, &cuser, sizeof (userec), usernum);
+        inexp (exp);
+        ingold (money);  // post改發金幣 by wildcat
 
         pressanykey ("文章發表完畢 :)");
+        if (money >= 100 || exp >= 10000)
+        {
+          FILE * fp;
+          time_t now = time (0);
+          fileheader mhdr;
+          char genbuf1[512], fpath1[STRLEN];
+
+          setbpath (genbuf1, "Security");
+          stampfile (genbuf1, &mhdr);
+          strcpy (mhdr.owner, cuser.userid);
+          strncpy (mhdr.title, "POST檢查", TTLEN);
+          mhdr.savemode = '\0';
+          setbdir (fpath1, "Security");
+          if (rec_add (fpath1, &mhdr, sizeof (mhdr)) == -1)
+          {
+            outs (err_uid);
+            return 0;
+          }
+          if ((fp = fopen (genbuf1, "w")) != NULL)
+          {
+            fprintf (fp, "作者: %s (%s)\n", cuser.userid, cuser.username);
+            fprintf (fp, "標題: %s\n時間: %s\n", "POST檢查", ctime (&now));
+            fprintf (fp, 
+"%s 發表一篇 %d 字的文章於 %s 板\n花了 %d 秒，得到金幣 %d 元,經驗值 %d 點"
+              ,cuser.userid, wordsnum, currboard, spendtime, money, exp);
+            fclose (fp);
+          }
+        }
       }
 //      UPDATE_USEREC;
     }
@@ -851,11 +894,7 @@ reply_post (ent, fhdr, direct)
   setdirpath (quote_file, direct, fhdr->filename);
 // Ptt 的看板連署系統
   if(!strcmp(currboard,VOTEBOARD))
-#ifdef NO_SO
-    va_do_voteboardreply(fhdr);
-#else
     DL_func("SO/votebrd.so:va_do_voteboardreply",fhdr);
-#endif
   else
     do_reply (fhdr);
   *quote_file = 0;
@@ -885,8 +924,8 @@ edit_post (ent, fhdr, direct)
   }
 
   if (HAS_PERM (PERM_SYSOP) ||
-    (!strcmp (fhdr->owner, cuser.userid) && strcmp (cuser.userid, "guest") &&
-    !bad_user (cuser.userid)))
+    !strcmp (fhdr->owner, cuser.userid) && strcmp (cuser.userid, "guest") &&
+    !bad_user (cuser.userid))
     edit_mode = 0;
   else
     edit_mode = 2;
@@ -897,25 +936,15 @@ edit_post (ent, fhdr, direct)
 
   if (vedit (genbuf, edit_mode) != -1)
   {
-    int now;
     setbpath (fpath, currboard);
     stampfile (fpath, &postfile);
     unlink (fpath);
     setbfile (fpath0, currboard, fhdr->filename);
     f_mv (fpath0, fpath);
-
-    if (currmode&MODE_SELECT) {   // CityLion: SELECT時也要修改原.DIR
-       setbdir(genbuf,currboard);
-       now = getindex(genbuf,fhdr->filename,sizeof(fileheader));
-    }
-
     strcpy (fhdr->filename, postfile.filename);
     strcpy (fhdr->title, save_title);
     brc_addlist (postfile.filename);
     substitute_record (direct, fhdr, sizeof (*fhdr), ent);
-
-    if (currmode&MODE_SELECT)     // CityLion: SELECT時也要修改原.DIR
-       substitute_record(genbuf, fhdr, sizeof(*fhdr), now);
 
 #ifdef POSTNOTIFY
     if (currbrdattr & BRD_ANONYMOUS)
@@ -926,25 +955,30 @@ edit_post (ent, fhdr, direct)
   return RC_FULL;
 }
 
-
-static int
+int
 cross_post (ent, fhdr, direct)
   int ent;
   fileheader * fhdr;
   char *direct;
 {
-  char xboard[20], fname[80], xfpath[80], xtitle[80], inputbuf[10];
+  char xboard[20], fname[80], xfpath[80], xtitle[80], inputbuf[10], genbuf[512], genbuf2[4];
   fileheader xfile;
   FILE * xptr;
   int author = 0;
-  char genbuf[512];
-  char genbuf2[4];
 
+  if (currstat == ANNOUNCE)
+  {
+    char *ptr;
+
+    strcpy(fname, direct);
+    ptr = strrchr(fname, '/') +1;
+    strcpy(ptr, fhdr->filename);
+
+    if (!dashf(fname))
+      return RC_NONE;
+  }
+ 
   make_blist ();
-  move (2, 0);
-  clrtoeol ();
-  move (3, 0);
-  clrtoeol ();
   move (1, 0);
   namecomplete ("轉錄本文章於看板：", xboard);
   if (*xboard == '\0' || !haspostperm (xboard))
@@ -953,18 +987,18 @@ cross_post (ent, fhdr, direct)
   ent = 1;
   if (HAS_PERM (PERM_SYSOP) || !strcmp (fhdr->owner, cuser.userid))
   {
-    getdata (2, 0, "(1)原文轉載 (2)舊轉錄格式？[1] ",
-    genbuf, 3, DOECHO, "1");
+    getdata (2, 0, "(1)原文轉載 (2)舊轉錄格式？[1] ", genbuf, 3, DOECHO, "1");
     if (genbuf[0] != '2')
     {
       ent = 0;
       getdata (2, 0, "保留原作者名稱嗎?[Y] ", inputbuf, 3, DOECHO, 0);
-      if (inputbuf[0] != 'n' && inputbuf[0] != 'N') author = 1;
+      if (inputbuf[0] != 'n' && inputbuf[0] != 'N') 
+        author = 1;
     }
   }
 
   if (ent)
-    sprintf (xtitle, "[轉錄]%.66s", fhdr->title);
+    sprintf (xtitle, "[轉錄] %.65s", fhdr->title);
   else
     strcpy (xtitle, fhdr->title);
 
@@ -997,18 +1031,29 @@ cross_post (ent, fhdr, direct)
     else
       xfile.savemode = 'S';
 
-    setbfile (fname, currboard, fhdr->filename);
-    if (ent)
+    if (currstat == RMAIL)
+      setuserfile(fname, fhdr->filename);
+    else if (currstat == ANNOUNCE);
+    else
+      setbfile(fname, currboard, fhdr->filename);       
+
+    if (ent || currstat == RMAIL)
     {
       xptr = fopen (xfpath, "w");
+      
       strcpy (save_title, xfile.title);
       strcpy (xfpath, currboard);
       strcpy (currboard, xboard);
       write_header (xptr);
       strcpy (currboard, xfpath);
 
-      fprintf (xptr, "※ [本文轉錄自 %s 看板]\n\n", currboard);
-
+      if (currstat == RMAIL)
+        fprintf(xptr, "※ [本文轉錄自 %s 的信箱]\n\n", cuser.userid);
+      else if (currstat == ANNOUNCE)
+        fprintf(xptr, "※ [本文轉錄自 %s 板之精華區]\n\n", currboard);
+      else
+        fprintf(xptr, "※ [本文轉錄自 %s 看板]\n\n", currboard);         
+        
       b_suckinfile (xptr, fname);
       addsignature (xptr);
       fclose (xptr);
@@ -1023,13 +1068,23 @@ cross_post (ent, fhdr, direct)
     rec_add (fname, (char *) &xfile, sizeof (xfile));
     if (!xfile.filemode)
       outgo_post (&xfile, xboard);
-    cuser.numposts++;
-    UPDATE_USEREC;
+    if (currstat == RMAIL)
+    {
+      update_data();
+      cuser.numposts++;
+      substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
+    }
+    else
+    {
+      cuser.numposts++;
+      UPDATE_USEREC;
+    }
     pressanykey ("文章轉錄完成");
     currmode = currmode0;
   }
   return RC_FULL;
 }
+
 
 static int
 read_post (ent, fhdr, direct)
@@ -1039,6 +1094,7 @@ read_post (ent, fhdr, direct)
 {
   char genbuf[512];
   int more_result;
+  time_t startime = time (0);
 
   if (fhdr->owner[0] == '-')
     return RC_NONE;
@@ -1054,6 +1110,11 @@ read_post (ent, fhdr, direct)
   brc_addlist (fhdr->filename);
   strncpy (currtitle, str_ttl(fhdr->title), TTLEN);
   strncpy (currowner, str_ttl(fhdr->owner), STRLEN);
+  if (time (0) - startime > 3)
+  {
+    int exp = time(0) - startime;
+    inexp (rpguser.race == 2 ? exp * rpguser.level /2 : exp/5);
+  }
 /*  woju  */
   switch (more_result)
   {
@@ -1090,7 +1151,7 @@ read_post (ent, fhdr, direct)
   return RC_FULL;
 }
 
-
+#if 0
 
 /* ----------------------------------------------------- */
 /* 採集精華區                                            */
@@ -1115,8 +1176,8 @@ man()
     if (xboard && (bp = getbcache (xboard)))
     {
       setapath (fpath, xboard);
-      //setutmpmode (ANNOUNCE);
-      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0,ANNOUNCE);
+      setutmpmode (ANNOUNCE);
+      a_menu (xboard, fpath, HAS_PERM (PERM_ALLBOARD) ? 2 : is_BM (bp->BM) ? 1 : 0);
     }
     else if(HAS_PERM(PERM_MAILLIMIT) || HAS_PERM(PERM_BM)) // wildcat : 之前忘記加 PERM 限制啦 ^^;
     {
@@ -1125,7 +1186,7 @@ man()
       sethomeman (buf, cuser.userid);
       sprintf (buf1, "%s 的信件夾", cuser.userid);
       setutmpmode (ANNOUNCE);
-      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1, ANNOUNCE);
+      a_menu (buf1, buf, belong ("etc/sysop", cuser.userid) ? 2 : 1);
       currutmp->mode = mode0;
       currstat = stat0;
       return RC_FULL;
@@ -1134,8 +1195,9 @@ man()
   else
   {
     setapath (buf, currboard);
-    //setutmpmode (ANNOUNCE);
-    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 : currmode & MODE_BOARD ? 1 : 0, ANNOUNCE);
+    setutmpmode (ANNOUNCE);
+    a_menu (currboard, buf, HAS_PERM (PERM_ALLBOARD) ? 2 :
+      currmode & MODE_BOARD ? 1 : 0);
   }
   return RC_FULL;
 }
@@ -1230,6 +1292,8 @@ Cite_posts (int ent, fileheader * fhdr, char *direct)
   return RC_NONE;
 }
 
+#endif
+
 int
 edit_title (ent, fhdr, direct)
   int ent;
@@ -1283,6 +1347,9 @@ edit_title (ent, fhdr, direct)
   return RC_NONE;
 }
 
+
+#if 0
+
 int
 add_tag (ent, fhdr, direct)
   int ent;
@@ -1328,6 +1395,7 @@ add_tag (ent, fhdr, direct)
   return RC_NONE;
 }
 
+#endif
 
 int
 del_tag (ent, fhdr, direct)
@@ -1338,17 +1406,6 @@ del_tag (ent, fhdr, direct)
   char genbuf[3];
   int number;
 
-  if (currstat == RMAIL)
-  {
-    getdata (1, 0, "確定刪除標記信件(Y/N)? [Y]", genbuf, 3, LCECHO, 0);
-    if (genbuf[0] != 'n')
-    {
-      currfmode = FILE_TAGED;
-      if (delete_files (direct, cmpfmode))
-        return RC_CHDIR;
-    }
-    return RC_FULL;
-  }
   if ((currstat != READING) || (currmode & MODE_BOARD))
   {
     if (!strcmp(currboard,"Security") && !HAS_PERM(PERM_BBSADM)) return RC_NONE;
@@ -1373,6 +1430,9 @@ del_tag (ent, fhdr, direct)
   return RC_NONE;
 }
 
+
+#if 0
+
 int
 gem_tag (ent, fhdr, direct)
   int ent;
@@ -1381,12 +1441,12 @@ gem_tag (ent, fhdr, direct)
 {
   char genbuf[3];
 
-  load_paste(); //讀入 paste_file 來定位
+  load_paste();	//讀入 paste_file 來定位
   if(!*paste_path)
   {
     pressanykey("尚未定位,請進入精華區中你想收錄的目錄按 [P]");
     return RC_FOOT;
-  }
+  }  
 
   if (currstat == RMAIL)
   {
@@ -1412,7 +1472,7 @@ gem_tag (ent, fhdr, direct)
         setbdir (direct, currboard);
         gem_files (direct, cmpfmode);
       }
-      else
+      else 
         gem_files(direct, cmpfmode);
       return RC_CHDIR;
     }
@@ -1421,6 +1481,7 @@ gem_tag (ent, fhdr, direct)
   return RC_NONE;
 }
 
+#endif
 
 int
 mark (ent, fhdr, direct)
@@ -1441,67 +1502,21 @@ mark (ent, fhdr, direct)
   if (currstat == READING && !(currmode & MODE_BOARD))
     return RC_NONE;
 
+  if (currmode & MODE_BOARD && currstat == READING)
+  {
+    if (fhdr->filemode & FILE_MARKED)
+      deumoney (fhdr->owner, 200);
+    else
+      inumoney (fhdr->owner, 200);
+  }
+
   fhdr->filemode ^= FILE_MARKED;
 
   if (currmode & MODE_SELECT)
   {
     int now;
     char genbuf[100];
-
-    if (currstat != READING)
-      sethomedir(genbuf, cuser.userid);
-    else
-      setbdir (genbuf, currboard);
-    now = getindex (genbuf, fhdr->filename, sizeof (fileheader));
-    substitute_record (genbuf, fhdr, sizeof (*fhdr), now);
-    substitute_record(direct, fhdr, sizeof(*fhdr), ent);
-  }
-  else
-    substitute_record (direct, fhdr, sizeof (*fhdr), ent);
-
-  return RC_DRAW;
-}
-
-int
-score (ent, fhdr, direct)
-  int ent;
-  fileheader * fhdr;
-  char *direct;
-{
-  char buf[128];
-  time_t now = time(0);
-
-  if (currstat == RMAIL || ((cuser.scoretimes <= 0 || currbrdattr & BRD_PERSONAL) && !HAS_PERM(PERM_SYSOP)) || !strcmp("guest",cuser.userid))
-    return RC_NONE;
-
-  getdata (b_lines, 0, "請問要 [1]加分 [2]扣分 ? ", buf, 2, LCECHO, 0);
-  if(!buf[0] || buf[0] < '1' || buf[0] > '2')
-    return RC_DRAW;
-  else if(buf[0] == '1')
-  {
-    if(fhdr->score >= 99)
-    {
-      pressanykey("已經是最高分了!!");
-      return RC_FULL;
-    }
-    fhdr->score++;
-  }
-  else if(buf[0] == '2')
-  {
-    if(fhdr->score <= -9)
-    {
-      pressanykey("已經是最低分了!!");
-      return RC_FULL;
-    }
-    fhdr->score--;
-  }
-  if(!HAS_PERM(PERM_SYSOP))
-    cuser.scoretimes--;
-  if (currmode & MODE_SELECT)
-  {
-    int now;
-    char genbuf[100];
-
+    
     if (currstat != READING)
       sethomedir(genbuf, cuser.userid);
     else
@@ -1512,17 +1527,9 @@ score (ent, fhdr, direct)
   else
     substitute_record (direct, fhdr, sizeof (*fhdr), ent);
 
-  substitute_record (fn_passwd, &cuser, sizeof (userec), usernum);
-  sprintf(buf , "%-12.12s 替 %-12.12s 板 [%-40.40s] 評分 [%s] %s", 
-    cuser.userid,currboard,fhdr->title,buf[0] == '1' ? "+1" : "-1",Etime(&now));
-  f_cat(BBSHOME"/log/article_score.log",buf);
-  if(!HAS_PERM(PERM_SYSOP))
-  {
-    sprintf(buf , "你的評分次數還有 %d 次 ...", cuser.scoretimes);
-    pressanykey(buf);
-  }
   return RC_DRAW;
 }
+
 
 int
 del_range (ent, fhdr, direct)
@@ -1632,7 +1639,7 @@ del_post (ent, fhdr, direct)
   fileheader * fhdr;
   char *direct;
 {
-  int not_owned;
+  int not_owned, money;
   char genbuf[100];
 
   if (!strcmp(currboard,"Security")) return RC_NONE;
@@ -1653,6 +1660,7 @@ del_post (ent, fhdr, direct)
   {
     strcpy (currfile, fhdr->filename);
     setbfile (genbuf, currboard, fhdr->filename);
+    money = (int) dashs (genbuf) / 90;
     if (!delete_file (direct, sizeof (fileheader), ent, cmpfilename))
     {
       if (currmode & MODE_SELECT)
@@ -1669,8 +1677,13 @@ del_post (ent, fhdr, direct)
         UPDATE_USEREC;
         move (b_lines - 1, 0);
         clrtoeol ();
-        pressanykey ("%s，您的文章減為 %d 篇", msg_del_ok,
-          cuser.numposts > 0 ? --cuser.numposts : cuser.numposts);
+        if (money < 1) money = 1;
+        if(cuser.goldmoney > money)
+          degold (money);
+        else
+          demoney(money*10000);
+        pressanykey ("%s，您的文章減為 %d 篇，支付清潔費 %d 金", msg_del_ok,
+          cuser.numposts > 0 ? --cuser.numposts : cuser.numposts, money);
         substitute_record (fn_passwd, &cuser, sizeof (userec), usernum);
       }
       return RC_CHDIR;
@@ -1737,7 +1750,7 @@ board_edit ()
   {
     char genbuf[BTLEN], buf[512], ans;
     bid = getbnum (currboard);
-
+    
     if (rec_get (fn_board, &bp, sizeof (boardheader), bid) == -1)
     {
       pressanykey (err_bid);
@@ -1746,18 +1759,76 @@ board_edit ()
 
     if (bp.brdattr & BRD_PERSONAL || HAS_PERM(PERM_SYSOP))
       mode = 1;
-
-    sprintf(buf, "看板 1)改中文名稱 2)看板說明 3)進版畫面 4)看板名單 5)設密碼 %s:",
-      "6)進階");
-//      mode ? "7)進階" : "");
+      
+    sprintf(buf, "看板 1)買上限 2)改中文名稱 3)看板說明 4)進版畫面 5)可見名單 6)設密碼 %s:",
+      mode ? "7)進階" : "");
 
     getdata (1, 0, buf, genbuf, 2, DOECHO, 0);
     switch(genbuf[0])
     {
       case '1':
+        clrchyiuan(1, 15);
+        move(3, 0);
+        prints("\n"\
+"目前看板的文章上限為 %-5d 篇\n"
+"          保留時間為 %-5d 天\n",bp.maxpost,bp.maxtime);
+	outs("一個單位為\x1b[1;32m一百篇文章\x1b[m或是\x1b[1;32m三十天\x1b[m , 一個單位需 \x1b[1;33m3000 金幣\x1b[m");
+	getdata(7, 0, "你要 (1)買文章上限 (2)買保存時間", buf, 2, DOECHO, 0);
+	if (buf[0] == '1' || buf[0] == '2')
+	{
+	  int num = 0;
+
+          while (num <= 0)
+          {
+            getdata(9, 0, "你要買幾個單位", genbuf, 3, DOECHO, 0);
+            num = atoi(genbuf);
+          }
+
+          if (check_money(num * 3000, GOLD)) 
+            break;
+            
+          if (buf[0] == '1')
+          {
+            if (bp.maxpost >= 99999)
+            {
+              pressanykey("文章數已達上限");
+              break;
+            }
+            else
+            {
+              bp.maxpost += num*100;
+              sprintf(buf, "%-13.13s 購買看板 %s 文章上限 %d 篇 , %s",
+                cuser.userid, bp.brdname,num*100, ctime(&now));
+              f_cat(BBSHOME"/log/board_edit", buf);
+              log_usies ("BuyPL", currboard);
+              pressanykey("看板文章上限增加為 %d 篇", bp.maxpost);
+            }
+          }
+          else
+          {
+            if (bp.maxtime >= 9999)
+            {
+              pressanykey("保存時間已達上限");
+              break;
+            }
+            else
+            {
+              bp.maxtime += num * 30;
+              sprintf(buf,"%-13.13s 購買看板 %s 文章保留時間 %d 天 , %s",
+                cuser.userid,bp.brdname,num*30,ctime(&now));
+              f_cat(BBSHOME"/log/board_edit",buf);
+              log_usies ("BuyBT", currboard);
+              pressanykey("看板文章保留時間增加為 %d 天",bp.maxtime);
+            }
+          }
+          degold(num*3000);
+        }
+        break;
+
+      case '2':
         move (1, 0);
         clrtoeol ();
-        getdata (1, 0, "請輸入看板新中文敘述:"
+        getdata (1, 0, "請輸入看板新中文敘述:" 
           ,genbuf, BTLEN - 16, DOECHO, bp.title + 7);
         if (!genbuf[0]) return 0;
         strip_ansi (genbuf, genbuf, 0);
@@ -1771,7 +1842,7 @@ board_edit ()
         }
         break;
 
-      case '2':
+      case '3':
         clrchyiuan(1, 5);
         move(1, 0);
         outs("對本看板的描述 (共三行) :");
@@ -1784,7 +1855,7 @@ board_edit ()
         log_usies ("SetBoardDesc", currboard);
         break;
 
-      case '3':
+      case '4':
         setbfile (buf, currboard, fn_notes);
         if (vedit (buf, NA) == -1)
           pressanykey (msg_cancel);
@@ -1798,12 +1869,12 @@ board_edit ()
         }
         break;
 
-      case '4':
+      case '5':
         setbfile(buf, currboard, FN_LIST);
         ListEdit(buf);
         return RC_FULL;
 
-      case '5':
+      case '6':
       {
         char genbuf[PASSLEN+1],buf[PASSLEN+1];
 
@@ -1836,18 +1907,20 @@ board_edit ()
         log_usies ("SetBrdPass", currboard);
       }
       break;
-
-      case '6':
-        getdata(1, 0, "您要 1)改屬性 2)改類別 3)看今日記錄 4)文章類別 5)備份精華區:", genbuf, 2, DOECHO, 0);
-        switch(genbuf[0])
+      
+      case '7':
+        if (!mode) 
+          break;
+        else
         {
+          getdata(1, 0, "您要 1)改屬性 2)改類別 3)看今日記錄:", genbuf, 2, DOECHO, 0);
+          switch(genbuf[0])
+          {
           case '1':
           {
             int oldattr=bp.brdattr;
-
-            if (!mode)
-              break;
-            ans = answer("看板狀態更改為 (o)開放 (p)私人 (h)隱藏 (i)邀請?");
+          
+            ans = answer("看板狀態更改為 (o)開放 (p)私人 (h)隱藏?");
             if(ans == 'p')
             {
               bp.brdattr &= ~BRD_POSTMASK;
@@ -1865,16 +1938,12 @@ board_edit ()
               else
                 bp.brdattr |= BRD_POSTMASK;
               bp.brdattr &= ~BRD_HIDE;
-              if(ans == 'i')
-                bp.brdattr |= BRD_INVITE;
-              else
-                bp.brdattr &= ~BRD_INVITE;
             }
             if(bp.brdattr != oldattr)
             {
               sprintf(buf,"%-13.13s 更改看板 [%s] 之屬性為 %s , %s",
                 cuser.userid,bp.brdname,
-                ans == 'p' ? "私人" : ans == 'h' ? "隱藏" : ans == 'o' ? "邀請" : "開放",ctime(&now));
+                ans == 'p' ? "私人" : ans == 'h' ? "隱藏" : "開放",ctime(&now));
               f_cat(BBSHOME"/log/board_edit",buf);
               log_usies("ATTR_Board",currboard);
             }
@@ -1882,8 +1951,6 @@ board_edit ()
           break;
 
           case '2':
-            if (!mode)
-              break;
             move (1, 0);
             clrtoeol ();
             getdata (1, 0, "請輸入看板新類別:",genbuf, 5, DOECHO, bp.title );
@@ -1899,33 +1966,19 @@ board_edit ()
             }
             break;
           case '3':
-            if (!mode)
-              break;
             sprintf(buf,"/usr/bin/grep \"USE %s\" %s/usboard > %s/tmp/usboard.%s",
               currboard, BBSHOME, BBSHOME, currboard);
             system(buf);
             sprintf(buf,BBSHOME"/tmp/usboard.%s",currboard);
             more(buf, YEA);
             log_usies("BOARDLOG", currboard);
-            break;
-          case '4':
-            sprintf(buf,BBSHOME"/boards/%s/prefix",currboard);
-            vedit(buf,0);
-            break;
-          case '5':
-          {
-            char cmd[100];
-            fileheader fhdr;
-            sprintf(cmd, "/tmp/%s.tgz", currboard);
-            sprintf(fhdr.title, "看板 [%s] 精華區", currboard);
-            doforward(cmd, &fhdr, 'M');
-          }
 
           default:
             break;
+          }      
+          goto end;  
         }
-        goto end;
-
+        
       default:
         pressanykey("放棄修改");
         break;
@@ -1962,16 +2015,16 @@ board_select ()
   char fpath[80];
   char genbuf[100];
   currmode &= ~(MODE_SELECT | MODE_TINLIKE);
-
+  
   sprintf (genbuf, "SR.%s", cuser.userid);
   setbfile (fpath, currboard, genbuf);
   unlink (fpath);
-
+  
   /* shakalaca.000112: 超過 30min 才將 index 刪除, 作 cache 用 */
   setbfile (fpath, currboard, "SR.thread");
-  if (stat(fpath, &st) == 0 && st.st_mtime < time(0) - 60 * 30)
+  if (stat(fpath, &st) == 0 && st.st_mtime < time(0) - 60 * 30) 
     unlink (fpath);
-
+  
   if (currstat == RMAIL)
     sethomedir (currdirect, cuser.userid);
   else
@@ -2024,6 +2077,7 @@ good_post (ent, fhdr, direct)
     sprintf (genbuf2, BBSHOME "/boards/%s/%s", currboard, currfile);
     unlink (genbuf2);
     fhdr->filemode = (fhdr->filemode & ~FILE_DIGEST);
+    deumoney (fhdr->owner, 500);
   }
   else
   {
@@ -2041,6 +2095,7 @@ good_post (ent, fhdr, direct)
       rec_add (buf, &digest, sizeof (digest));
     }
     fhdr->filemode = (fhdr->filemode & ~FILE_MARKED) | FILE_DIGEST;
+    inumoney (fhdr->owner, 500);
   }
   substitute_record (direct, fhdr, sizeof (*fhdr), ent);
   if (currmode & MODE_SELECT)
@@ -2054,53 +2109,44 @@ good_post (ent, fhdr, direct)
   return RC_DRAW;
 }
 
-int
-go_chat()
-{
-#ifdef NO_SO
-  t_chat();
-#else
-  DL_func("SO/chat.so:t_chat");
-#endif
-  return RC_FULL;
-}
-
 /* ----------------------------------------------------- */
 /* 看板功能表                                            */
 /* ----------------------------------------------------- */
+extern int cite_article();
 
 struct one_key read_comms[] =
 {
-  KEY_TAB, board_digest,    /* 進入/退出 文摘 */
-  'b', b_notes,         /* 看進版畫面 */
-  'c', cite,            /* 收錄精華 */
-  'r', read_post,       /* 閱讀文章 */
-  'z', man,         /* 進入精華區 */
-  'D', del_range,       /* 大 D 砍信 */
-  Ctrl ('S'), save_mail,    /* 存入信箱 */
-  'E', edit_post,       /* 修改文章 */
-  'T', edit_title,      /* 修改標題 */
-  's', do_select,       /* 選擇看板 */
-  'B', board_edit,      /* 看板編輯 */
-
+  KEY_TAB, board_digest,	/* 進入/退出 文摘 */
+  'b', b_notes,			/* 看進版畫面 */
+  'c', cite_article,		/* 收錄精華 */
+  'r', read_post,		/* 閱讀文章 */
+  'z', man,			/* 進入精華區 */
+  'D', del_range,		/* 大 D 砍信 */
+  Ctrl ('S'), save_mail,	/* 存入信箱 */
+  'E', edit_post,		/* 修改文章 */
+  'T', edit_title,		/* 修改標題 */
+  's', do_select,		/* 選擇看板 */
+  'B', board_edit,		/* 看板編輯 */
+  
 #if 0
-  'i', bh_passwd_edit,      /* 設定看板密碼 */
-  'W', b_notes_edit,        /* 標輯進版畫面 */
-  'o', b_list_edit,     /* 編輯看板可見名單 */
+  'i', bh_passwd_edit,		/* 設定看板密碼 */
+  'W', b_notes_edit,		/* 標輯進版畫面 */
+  'o', b_list_edit,		/* 編輯看板可見名單 */
 #endif
 
-  't', add_tag,         /* 標記文章 */
-  Ctrl ('D'), del_tag,      /* 刪除標記文章 */
-  'x', cross_post,      /* 轉貼 */
-  'g', good_post,       /* 收到文摘中 */
-  'y', reply_post,      /* 回覆文章 */
-  'd', del_post,        /* 刪除文章 */
-  'm', mark,            /* Mark 文章 */
-  Ctrl ('P'), do_post,      /* 發表文章 */
-  'C', gem_tag,         /* 收錄標記文章 */
-  Ctrl ('C'), Cite_posts,   /* 直接收錄文章至精華區 */
-  '%', score,		/* 文章評分 */
-  '#', go_chat,
+  Ctrl ('D'), del_tag,		/* 刪除標記文章 */
+  'x', cross_post,		/* 轉貼 */
+  'g', good_post,		/* 收到文摘中 */
+  'y', reply_post,		/* 回覆文章 */
+  'd', del_post,		/* 刪除文章 */
+  'm', mark,			/* Mark 文章 */
+  Ctrl ('P'), do_post,		/* 發表文章 */
+
+#if 0
+  'C', gem_tag,			/* 收錄標記文章 */
+  Ctrl ('C'), Cite_posts,	/* 直接收錄文章至精華區 */
+#endif
+
   '\0', NULL
 };
 
@@ -2108,7 +2154,6 @@ void
 Read ()
 {
   int mode0 = currutmp->mode;
-  int currmode0 = currmode;
   int stat0 = currstat;
   int bid;
   char buf[40];
@@ -2125,23 +2170,19 @@ Read ()
   }
   bid = getbnum (currboard);
   currutmp->brc_id = bid;
-  if(Ben_Perm(&brdshm->bcache[bid]-1) != 1) 
-  {
-    pressanykey(P_BOARD);
-    return;
-  }
   setbdir (buf, currboard);
   curredit &= ~EDIT_MAIL;
+  TagNum = 0;
   i_read (READING, buf, readtitle, doent, read_comms, &(brdshm->total[bid - 1]));
 
   log_board (currboard, time (0) - startime);
   log_board2 (currboard, time (0) - startime);
+//  inexp(rpguser.race == 2 ? (time(0)-startime)*rpguser.level : time(0)-startime); 
   brc_update ();
 
   currutmp->brc_id = 0;
   currutmp->mode = mode0;
   currstat = stat0;
-  currmode = currmode0;
 //  return;
 }
 
@@ -2149,7 +2190,7 @@ Read ()
 void
 ReadSelect ()
 {
-/*
+/*  
   int mode0 = currutmp->mode;
   int stat0 = currstat;
   char genbuf[512];
@@ -2193,7 +2234,7 @@ cancel_post(fhdr, fpath)
   if ((fhdr->savemode == 'S') &&/* 外轉信件 */
     ((fd = open(fpath, O_RDONLY)) >= 0))
   {
-#define NICK_LEN    80
+#define	NICK_LEN	80
 
     char *ptr, *left, *right, nick[NICK_LEN];
     FILE *fout;
@@ -2208,31 +2249,31 @@ cancel_post(fhdr, fpath)
     {
       if (left = (char *) strchr(ptr, '('))
       {
-    right = NULL;
-    for (ptr = ++left; ch = *ptr; ptr++)
-    {
-      if (ch == ')')
-        right = ptr;
-      else if (ch == '\n')
-        break;
-    }
+	right = NULL;
+	for (ptr = ++left; ch = *ptr; ptr++)
+	{
+	  if (ch == ')')
+	    right = ptr;
+	  else if (ch == '\n')
+	    break;
+	}
 
-    if (right != NULL)
-    {
-      *right = '\0';
+	if (right != NULL)
+	{
+	  *right = '\0';
           log_board3("DEL", currboard, 1);
 
-      if (fout = fopen(BBSHOME"/innd/cancel.bntp", "a"))
-      {
-        fprintf(fout, "%s\t%s\t%s\t%s\t%s\n",
-          currboard, fhdr->filename, fhdr->owner    /* cuser.userid */
-          ,left, fhdr->title);
-        fclose(fout);
+	  if (fout = fopen(BBSHOME"/innd/cancel.bntp", "a"))
+	  {
+	    fprintf(fout, "%s\t%s\t%s\t%s\t%s\n",
+	      currboard, fhdr->filename, fhdr->owner	/* cuser.userid */
+	      ,left, fhdr->title);
+	    fclose(fout);
+	  }
+	}
       }
     }
-      }
-    }
-#undef  NICK_LEN
+#undef	NICK_LEN
   }
 }
 
@@ -2241,7 +2282,8 @@ cancel_post(fhdr, fpath)
 /* ----------------------------------------------------- */
 
 
-void note(void)
+void
+note()
 {
   static char *fn_note_tmp = "note.tmp";
   static char *fn_note_dat = "note.dat";
@@ -2258,6 +2300,7 @@ void note(void)
     char buf[3][80];
   };
   struct notedata myitem;
+//  if(check_money(1,GOLD)) return;
   setutmpmode(EDNOTE);
   myitem.buf[0][0] = myitem.buf[1][0] = myitem.buf[2][0] = '\0';
   do
@@ -2267,13 +2310,14 @@ void note(void)
     outs("\n請留言 (至多三行)，按[Enter]結束");
     for (i = 0; (i < 3) &&
       getdata(16 + i, 0, "：", myitem.buf[i], 70, DOECHO,0); i++);
-    getdata(b_lines - 1, 0, "(S)儲存 (E)重新來過 (Q)取消？[S] ", buf, 3, LCECHO,"Q");
+    getdata(b_lines - 1, 0, "(S)儲存 (E)重新來過 (Q)取消？[S] ", buf, 3, LCECHO,"S");
 /*
 woju
 */
     if (buf[0] == 'q' || i == 0 && *buf != 'e')
       return;
   } while (buf[0] == 'e');
+//  degold(1);
   strcpy(myitem.userid, cuser.userid);
   strncpy(myitem.username, cuser.username, 18);
   myitem.username[18] = '\0';
@@ -2306,14 +2350,14 @@ woju
 
   while (total)
   {
-    sprintf(buf, "\x1b[46m\x1b[1;34m┌┴ \x1b[33m%s\x1b[37m(%s)",
+    sprintf(buf, "\x1b[44m\x1b[1;36m┌┴ \x1b[33m%s\x1b[37m(%s)",
       myitem.userid, myitem.username);
     len = strlen(buf);
-    strcat(buf," \x1b[34m" + (len&1));
+    strcat(buf," \x1b[36m" + (len&1));
 
     for (i = len >> 1; i < 38; i++)
       strcat(buf, "─");
-    sprintf(buf2, "─\x1b[33m %.14s  \x1b[34m┴┐\x1b[m\n",
+    sprintf(buf2, "─\x1b[33m %.14s  \x1b[36m┴┐\x1b[m\n",
       Etime(&(myitem.date)));
     strcat(buf, buf2);
     fputs(buf, fp);
@@ -2321,15 +2365,15 @@ woju
     if (collect)
       fputs(buf, foo);
 
-    sprintf(buf, "\x1b[1;46m\x1b[34m└┐\x1b[37m%-70s\x1b[34m┌┘\x1b[m\n",myitem.buf[0]);
+    sprintf(buf, "\x1b[1;44m\x1b[36m└┐\x1b[37m%-70s\x1b[36m┌┘\x1b[m\n",myitem.buf[0]);
     if(*myitem.buf[1])
     {
-      sprintf(buf2, "  \x1b[1;46m\x1b[34m│\x1b[37m%-70s\x1b[34m│\x1b[m\n",myitem.buf[1]);
+      sprintf(buf2, "  \x1b[1;44m\x1b[36m│\x1b[37m%-70s\x1b[36m│\x1b[m\n",myitem.buf[1]);
       strcat(buf, buf2);
     }
     if(*myitem.buf[2])
     {
-      sprintf(buf2, "  \x1b[1;46m\x1b[34m│\x1b[37m%-70s\x1b[34m│\x1b[m\n",myitem.buf[2]);
+      sprintf(buf2, "  \x1b[1;44m\x1b[36m│\x1b[37m%-70s\x1b[36m│\x1b[m\n",myitem.buf[2]);
       strcat(buf, buf2);
     }
     fputs(buf,fp);
@@ -2344,7 +2388,6 @@ woju
     if (--total)
       read(fd, (char *) &myitem, sizeof(myitem));
   }
-  fputs("  \x1b[1;34;46m└───────────────────────────────────┘\x1b[m", fp);
   fclose(fp);
   close(fd);
   close(fx);
@@ -2429,7 +2472,7 @@ Goodbye()
   if (cuser.userlevel)
   {
     char ans;
-
+    
     ans = getans("(G)隨風而逝 (M)托夢站長 (N)我要吶喊 [G] ");
     if (ans == 'm')
       m_sysop();

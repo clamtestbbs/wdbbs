@@ -44,7 +44,7 @@ struct boardinfo
 typedef struct boardinfo boardinfo;
 
 boardinfo
-char board[MAXBOARD];
+board[MAXBOARD];
 
 int k_cmp(b, a)
 boardinfo *b,*a;
@@ -151,6 +151,8 @@ mandex(level, num_header, fpath)
 
   count = 0;
   while (fread(&fhdr, sizeof(fhdr), 1, fgem) == 1) {
+     if (fhdr.filemode & FILE_REFUSE)
+       continue;
      strcpy(fname, fhdr.filename);
         if (!level && !strncmp(fhdr.title, index_title, strlen(index_title))
            && index_pos < 0) {
@@ -185,7 +187,7 @@ mandex(level, num_header, fpath)
 
     fclose(fndx);
     strcpy(fname, fn_index);
-    rename(pndx, fpath);
+    f_mv(pndx, fpath);
     strcpy(pndx, fpath);
 
     sprintf(buf, "%s.new", pgem);
@@ -209,7 +211,7 @@ mandex(level, num_header, fpath)
             fwrite(&fhdr, sizeof(fhdr), 1, fndx);
          fclose(fndx);
          fclose(fgem);
-         rename(buf, pgem);
+         f_mv(buf, pgem);
       }
       else {
          fseek(fgem, index_pos * sizeof(fhdr), 0);
@@ -279,7 +281,7 @@ main(argc, argv)
   qsort(board, nb, sizeof(boardinfo),k_cmp);
 
 
-  if(! (fndx=fopen(BBSHOME"/etc/topboardman","w"))) exit(0);
+  if(! (fndx=fopen(BBSHOME"/log/topboardman","w"))) exit(0);
 
   fprintf(fndx,"[1m[44m±Æ¦W[46;37m        ¬Ý ª©  ¥Ø¿ý¼Æ   ÀÉ®×¼Æ"
   "     byte¼Æ [33m  Á` ¤À     ª©   ¥D          [40;32m\n");
@@ -293,6 +295,7 @@ main(argc, argv)
           }
 
           if(board[ch].ndir + board[ch].nfile <5) break;
+          if(bptr->brdattr & BRD_GROUPBOARD || bptr->brdattr & BRD_CLASS) continue;
           fprintf(fndx,"[36m%3d.%15s[1m%5d %7d %10d   %6d [32m%-24.24s\n",ch+1,
                 board[ch].bname,
                 board[ch].ndir,board[ch].nfile, board[ch].k

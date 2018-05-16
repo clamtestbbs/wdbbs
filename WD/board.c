@@ -5,6 +5,8 @@
 /* create : 95/03/29                                     */
 /* update : 95/12/15                                     */
 /*-------------------------------------------------------*/
+
+
 #include "bbs.h"
 
 
@@ -37,6 +39,7 @@ typedef struct
 }      boardstat;
 
 boardstat *nbrd;
+
 
 int *zapbuf;
 int brdnum, yank_flag = 0;
@@ -334,7 +337,7 @@ Ben_Perm(bptr)
   setbfile(buf, bptr->brdname, FN_LIST);
   if (brdattr & BRD_HIDE) /* 私人/隱藏 */
   {
-    if(belong_list(buf, cuser.userid) <= 0)
+    if (!belong_list(buf, cuser.userid))
     {
       if(brdattr & BRD_POSTMASK)  /* 隱藏 */
         return 0;
@@ -424,10 +427,9 @@ load_boards(char *bname , usint mode)
     else if(bptr->brdattr & BRD_GROUPBOARD || bptr->brdattr & BRD_CLASS)
       continue;
 
-    state = Ben_Perm(bptr);
-    if (state && (yank_flag == 1 ||
-         yank_flag == 2 && (bptr->brdattr & (BRD_GROUPBOARD | BRD_CLASS) || have_author(bptr->brdname, n)) ||
-         yank_flag != 2 && zapbuf[n]))
+    if ((state = Ben_Perm(bptr)) && (yank_flag == 1 || (yank_flag == 2 &&
+         ((bptr->brdattr & BRD_GROUPBOARD || bptr->brdattr & BRD_CLASS || have_author(bptr->brdname))))
+         || yank_flag != 2 && zapbuf[n]))
     {
       ptr = &nbrd[brdnum++];
       ptr->total = -1;
@@ -452,13 +454,10 @@ load_boards(char *bname , usint mode)
   /* 如果 user 將所有 boards 都 zap 掉了 */
 
   if (!brdnum && !boardprefix)
-  {
      if (yank_flag == 0)
         yank_flag = 1;
      else if (yank_flag == 2)
         yank_flag = 0;
-     brdauthor = 0;
-  }
 }
 
 
@@ -601,21 +600,19 @@ brdlist_foot()
 /*
 woju
 */
-have_author(char* brdname, int n)
+have_author(char* brdname)
 {
-   char dirname[96];
+   char dirname[100];
    extern cmpfowner();
 
-   sprintf(dirname, "正在搜尋作者\x1b[33m%s\x1b[m 看板:\x1b[1;33m%12s\x1b[0m.....[%d/%d]",
-           currauthor, brdname, n, numboards);
+   sprintf(dirname, "正在搜尋作者\x1b[33m%s\x1b[m 看板:\x1b[1;33m%s\x1b[0m.....",
+           currauthor,brdname);
    move(b_lines, 0);
    clrtoeol();
    outs(dirname);
    refresh();
-
    setbdir(dirname, brdname);
    str_lower(currowner, currauthor);
-
    return search_rec(dirname, cmpfowner);
 }
 
@@ -627,7 +624,7 @@ show_brdlist(head, clsflag, newflag)
     sprintf(tmpbuf,"%s [線上 %d 人]",BOARDNAME,count_ulist());
     showtitle("看板列表", tmpbuf);
 #ifdef HYPER_BBS
-    prints(HB_BACK"\x1b[200m\x1b[444m\x1b[507m[→]閱\讀\x1b[201m[\x1b[200m\x1b[444m\x1b[504m↑\x1b[201m\x1b[200m\x1b[444m\x1b[505m↓\x1b[201m]選擇[y]載入[S]排序[/]搜尋 [^Z]求助 [\x1b[200m\x1b[444m\x1b[500mPgUp\x1b[201m/\x1b[200m\x1b[444m\x1b[501mPgDn\x1b[201m]上下頁\n"
+    prints(HB_BACK"\033[200m\033[444m\033[507m[→]閱\讀\033[201m[\033[200m\033[444m\033[504m↑\033[201m\033[200m\033[444m\033[505m↓\033[201m]選擇[y]載入[S]排序[/]搜尋 [^Z]求助 [\033[200m\033[444m\033[500mPgUp\033[201m/\033[200m\033[444m\033[501mPgDn\033[201m]上下頁\n"
       COLOR1"\x1b[1m%-20s 類別轉信%-33s投票 板    主    \x1b[m",
       newflag ? "總數 未讀 看  板" : "  編號  看  板", 
       clsflag == 1 ? " 中   文   敘   述" : " Ｚ統轉私隱匿優個 ");
@@ -656,13 +653,12 @@ show_brdlist(head, clsflag, newflag)
       char hbuf[256];
 #endif
       move(myrow, 0);
-      clrtoeol();
       if (head < brdnum)
       {
         ptr = &nbrd[head++];
 
 #ifdef HYPER_BBS
-	sprintf(hbuf,"\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
+	sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[613m",
 	  (head/10000)+648,
 	  ((head%10000)/1000)+648,
 	  ((head%1000)/100)+648,
@@ -671,19 +667,19 @@ show_brdlist(head, clsflag, newflag)
 #endif
         if (ptr->total == -1)
             check_newpost(ptr);
-
         if (yank_flag == 2)
-        { 
-	  prints("%5d%c%c",
-          head,ptr->brdattr & BRD_HIDE ? ')' : 
-          head,ptr->brdattr & BRD_INVITE ? '@' : ' ',
-          (ptr->brdattr & BRD_GROUPBOARD || ptr->brdattr & BRD_CLASS) ? ' ':'A');
 #ifdef HYPER_BBS
-          prints("%s ",hbuf);
+          prints("%5d%c%c%s ", 
 #else
-          prints(" ");
+	  prints("%5d%c%c ",
 #endif
-        }
+          head,ptr->brdattr & BRD_HIDE ? ')':' ',
+          (ptr->brdattr & BRD_GROUPBOARD || ptr->brdattr & BRD_CLASS) ? ' ':'A'
+#ifdef HYPER_BBS
+          ,hbuf);
+#else
+	  );
+#endif
         else if (!newflag)
 #ifdef HYPER_BBS
           prints("%5d%c%s%s",
@@ -695,7 +691,12 @@ show_brdlist(head, clsflag, newflag)
                  ptr->zap ? "--" :
                  (ptr->brdattr & BRD_GROUPBOARD) ? "\x1b[1;34mΣ" :
                  (ptr->brdattr & BRD_CLASS) ? "\x1b[1;36m□" :
-                 unread[ptr->unread]);
+                 unread[ptr->unread]
+#ifdef HYPER_BBS
+                 ,hbuf);
+#else
+                 );
+#endif
 
         else if (ptr->zap)
         {
@@ -709,7 +710,7 @@ show_brdlist(head, clsflag, newflag)
             {
               prints((ptr->brdattr & BRD_GROUPBOARD
               || ptr->brdattr & BRD_CLASS) ? "        "
-              :"%6d%s", (ptr->total),unread[ptr->unread]);
+              :"%6d%s%s", (ptr->total),unread[ptr->unread],hbuf);
             }
         }
 
@@ -750,8 +751,7 @@ show_brdlist(head, clsflag, newflag)
         }
 
       }
-//      clrtoeol();
-//      refresh();
+      clrtoeol();
     }
   }
 }
@@ -872,13 +872,10 @@ choose_board(int newflag,usint mode)
       if (yank_flag == 2) {
          newflag = yank_flag = 0;
          brdnum = -1;
-         brdauthor = 0;
       }
       show_brdlist(head, 1, newflag ^= 1);
       break;
 
-
-// wildcat : show board attr in list
      case 'A':
       if(!HAS_PERM(PERM_SYSOP))
         break;
@@ -892,31 +889,24 @@ choose_board(int newflag,usint mode)
        if (yank_flag != 2 ) 
        {
          sprintf(genbuf, "%s", currauthor);
-         if (getdata(1, 0,"作者:", genbuf, IDLEN + 2, DOECHO, currauthor))
+         if (getdata(1, 0,"作者:", genbuf, IDLEN + 2, DOECHO,currauthor))
             strncpy(currauthor, genbuf, IDLEN + 2);
          if (*currauthor)
-         {
            yank_flag = 2;
-           brdauthor = 1;
-         }
          else
            yank_flag= 0;
-       }
-       else
-       {
-         yank_flag = 0;
-         brdauthor = 0;
-       }
-
-       brdnum = -1;
-       show_brdlist(head, 1, newflag);
-       break;
+        }
+        else
+          yank_flag = 0;
+          brdnum = -1;
+          show_brdlist(head, 1, newflag);
+          break;
       }
 
       case 'f':
       case 'F':
       {
-        char fpath[256];
+        char fpath[256],msg[80];
         ptr = &nbrd[num];
 /*
         if ((ptr->brdattr & (BRD_GROUPBOARD | BRD_CLASS)))
@@ -931,14 +921,16 @@ choose_board(int newflag,usint mode)
           else
           {
             idlist_add(fpath, NULL,ptr->name);
-            pressanykey("[%s]版已經加入..^O^", ptr->name);
+            sprintf(msg, "[%s]版已經加入..^O^", ptr->name);
+            pressanykey(msg);
           }
           brdnum = -1;
         }
         else if (ch =='F')
         {
           idlist_delete(fpath,ptr->name);
-          pressanykey("[%s]版已經移除了..:(", ptr->name);
+          sprintf(msg,"[%s]版已經移除了..:(", ptr->name);
+          pressanykey(msg);
           brdnum = -1;
         }
         break;
@@ -1031,13 +1023,9 @@ choose_board(int newflag,usint mode)
 
       case 'y':
         if (yank_flag == 2)
-        {
           yank_flag = 0;
-          brdauthor = 0;
-        }
         else
           yank_flag ^= 1;
-
         brdnum = -1;
         break;
 
@@ -1128,7 +1116,7 @@ choose_board(int newflag,usint mode)
              && (!HAS_PERM(PERM_SYSOP) && !is_BM(ptr->BM)))
           {
             setbfile(buf, ptr->name, FN_LIST);
-            if(belong_list(buf,cuser.userid) <= 0)
+            if(!belong_list(buf,cuser.userid))
             {
               pressanykey(P_BOARD);
               break;
@@ -1140,7 +1128,7 @@ choose_board(int newflag,usint mode)
           if (yank_flag == 2)
           {
             setbdir(buf, currboard);
-            tmp = have_author(currboard, num) - 1;
+            tmp = have_author(currboard) - 1;
             head = tmp - t_lines / 2;
             getkeep(buf, head > 1 ? head : 1, -(tmp + 1));
           }
@@ -1395,7 +1383,9 @@ void force_board(char *bname)
   check_newpost(ptr);
   while(ptr->unread && cuser.userlevel) /* guest skip force read */
   {
-    pressanykey(" %s 版有新文章! 請閱\讀完新文章後再離開.. ^^",bname);
+    char buf[80];
+    sprintf(buf," %s 版有新文章! 請閱\讀完新文章後再離開.. ^^",bname);
+    pressanykey(buf);
     brc_initial(ptr->name);
     Read();
     check_newpost(ptr);

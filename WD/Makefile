@@ -5,75 +5,42 @@
 #  create : 95/03/29				 	 #
 #  update : 98/12/21					 #
 # ------------------------------------------------------ #
+BBSHOME = /home/bbs
 
-ARCHI	!= uname -m
+# ------------------------------------------------------
+# FreeBSD 3.x 4.x
+# ------------------------------------------------------
+OS_DEF	=  
+CC	?= gcc
+CFLAGS	= -O2 -Wunused -I../include -pipe -fomit-frame-pointer -g -m32
+LDFLAGS	= -L../lib -ldao -lcrypt -ldl -rdynamic -lncurses
+CPROTO	= cproto -E"gcc -pipe -E -I../include"
 
-OPSYS	!= uname -o
+# ------------------------------------------------------ #
+# 下列的 make rules 不需修改				 #
+# ------------------------------------------------------ #
 
-BUILDTIME	!= date '+%s'
-
-BBSHOME	?= $(HOME)
-
-DAOLIB	= -L../lib/maple3 -ldaom3 \
-	  -L../lib/stuff -lstuff  
-
-CC	= clang
-
-CPROTO	= cproto -E"clang -pipe -E -I../include"
-
-CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding -Wno-implicit-function-declaration \
-	  -Wno-implicit-int
-
-LDFLAGS	= $(DAOLIB) -lncurses -lcrypt 
-
-.if $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -lresolv -ldl -rdynamic
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
-
-SRC =	announce.c bbs.c board.c cache.c edit.c \
-	io.c mail.c mbbsd.c menu.c more.c name.c read.c record.c\
+SRC =	gem.c bbs.c board.c cache.c edit.c \
+	io.c mail.c main.c menu.c more.c name.c read.c record.c\
 	register.c screen.c stuff.c talk.c user.c term.c\
-	admin.c list.c
+	money.c admin.c list.c convcode.c
 
-MOBJ =	announce.o bbs.o board.o cache.o edit.o \
+OBJ =	gem.o bbs.o board.o cache.o edit.o \
+	io.o mail.o main.o menu.o more.o name.o read.o record.o\
+	register.o screen.o stuff.o talk.o user.o term.o\
+	money.o admin.o list.o convcode.o
+
+MOBJ =	gem.o bbs.o board.o cache.o edit.o \
 	io.o mail.o mbbsd.o menu.o more.o name.o read.o record.o\
 	register.o screen.o stuff.o talk.o user.o term.o\
-	admin.o list.o
+	money.o admin.o list.o convcode.o
 
-.if $(OPSYS) == "Cygwin"
-NO_SO =	yes
-.endif
-
-.ifdef NO_SO
-SODIR	= ../SO
-SRC	+= $(SODIR)/chat.c $(SODIR)/vote.c $(SODIR)/votebrd.c
-MOBJ	+= chat.o vote.o votebrd.o
-
-chat.o:
-	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
-
-vote.o:
-	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
-
-votebrd.o:
-	$(CC) $(CFLAGS) -c $(SODIR)/$*.c
-
-.endif
-
-
-PRO =	announce.x bbs.x board.x cache.x edit.x \
-	io.x mail.x mbbsd.x menu.x more.x name.x read.x record.x\
+PRO =	gem.x bbs.x board.x cache.x edit.x \
+	io.x mail.x main.x menu.x more.x name.x read.x record.x\
 	register.x screen.x stuff.x talk.x user.x term.x\
-	admin.x list.x
+	money.x admin.x list.x convcode.x
+
+EXE =	bbs
 
 ETC =	Makefile $(HDR)
 
@@ -84,12 +51,19 @@ ETC =	Makefile $(HDR)
 .c.x:   ;   $(CPROTO) -o $*.x $*.c
 .c.ln:  ;   lint -abhi $*.c
 
-ALL =	mbbsd bbsrf bbsrf2 xchatd
+BIN =	$(EXE) bbsrf xchatd
+
+ALL =   $(BIN) in.zbbsd
 
 all: $(ALL)
-	
+
+$(EXE): $(OBJ) $(ETC)
+	$(CC) -o $(EXE) $(CFLAGS) $(OBJ) $(LDFLAGS)
+
 mbbsd: $(MOBJ) $(ETC)
 	$(CC) -o mbbsd $(CFLAGS) $(MOBJ) $(LDFLAGS)
+	mv -f ../../bin/mbbsd ../../bin/mbbsd.old
+	cp mbbsd ../../bin
 
 lint: $(LNFILES)
 	lint -abh $(LNFILES)
@@ -100,16 +74,51 @@ xchatd: xchatd.c
 bbsrf: bbsrf.c 
 	$(CC) $(CFLAGS) -o bbsrf $(OS_DEF) bbsrf.c
 
-bbsrf2: bbsrf2.c 
-	$(CC) $(CFLAGS) -o bbsrf2 $(OS_DEF) bbsrf2.c
+#
+# shakalaca.990514: test 用, 沒 bug 再 update 
+#
+bbsrf.test: bbsrf.test.c
+	$(CC) $(CFLAGS) -o bbsrf.test $(OS_DEF) bbsrf.test.c
 
-update:	install
+in.zbbsd: in.zbbsd.c
+	$(CC) $(CFLAGS) -o in.zbbsd $(OS_DEF) in.zbbsd.c -lcrypt
 
-install: $(ALL)
-	install -d $(BBSHOME)/bin/
-	install -c -m 755 $(ALL) $(BBSHOME)/bin/
-	mv -f $(BBSHOME)/bin/mbbsd $(BBSHOME)/bin/mbbsd.$(BUILDTIME)
-	ln -sv $(BBSHOME)/bin/mbbsd.$(BUILDTIME) $(BBSHOME)/bin/mbbsd
+#
+# shakalaca.990514: test 用, 沒 bug 再 update 
+#
+test: $(EXE) bbsrf.test
+	if [ -f $(BBSHOME)/bin/bbs.test ]; then \
+	  mv -f $(BBSHOME)/bin/bbs.test $(BBSHOME)/bin/bbs.test.old; \
+	fi
+	cp bbs $(BBSHOME)/bin/bbs.test
+	cp bbsrf.test $(BBSHOME)/bin/bbsrf.test
+	
+newbbs: $(EXE)
+	if [ -f $(BBSHOME)/bin/bbs ]; then \
+	  mv -f $(BBSHOME)/bin/bbs $(BBSHOME)/bin/bbs.old; \
+	fi
+	cp bbs $(BBSHOME)/bin
+
+update: $(ALL)
+	if [ -f $(BBSHOME)/bin/bbs ]; then\
+	  mv -f $(BBSHOME)/bin/bbs $(BBSHOME)/bin/bbs.old; \
+	fi
+	if [ -f $(BBSHOME)/bin/bbsrf ]; then\
+	  mv -f $(BBSHOME)/bin/bbsrf $(BBSHOME)/bin/bbsrf.old; \
+	fi
+	if [ -f $(BBSHOME)/bin/xchatd ]; then\
+	  mv -f $(BBSHOME)/bin/xchatd $(BBSHOME)/bin/xchatd.old; \
+	fi
+	if [ -f $(BBSHOME)/bin/in.zbbsd ]; then\
+	  mv -f $(BBSHOME)/bin/in.zbbsd $(BBSHOME)/bin/in.zbbsd.old; \
+	fi
+	chown bbs.bbs $(ALL) $(HDR) $(SRC) $(OBJ)
+#
+# shakalaca.990401: 前面 LIBS = -s 與 strip 效果相同
+#	strip $(ALL)
+#
+	ls -l bbs
+	cp -p $(ALL) $(BBSHOME)/bin
 
 WD.p: $(SRC)
 	$(CPROTO) -o $@ $?
@@ -119,7 +128,7 @@ proto.x: $(PRO)
 	/bin/cat $(PRO) > proto.x
 
 clean: /tmp
-	rm -fr $(GARBAGE) $(MOBJ) $(ALL) $(PRO) proto.x *.p $(LNFILES) *~ 
+	rm -fr $(GARBAGE) $(OBJ) $(ALL) $(PRO) proto.x $(LNFILES) *~ 
 
 tags:
 	ctags $(SRC)

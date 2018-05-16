@@ -12,7 +12,7 @@
 #include <sys/select.h>
 #endif
 
-#if defined ( __linux__ ) || defined ( __CYGWIN__ )
+#ifdef  LINUX
 #define OBUFSIZE  (2048)
 #define IBUFSIZE  (128)
 #else
@@ -64,15 +64,11 @@ hit_alarm_clock()
   if(currutmp->pid != currpid)
     setup_utmp(XMODE);   /* 重新配置 shm */
 
-#if 0     /* r2.20180505: 取消閒置踢人的功能 */ 
-
   if((idle_time = now - currutmp->lastact) > IDLE_TIMEOUT)
   {
     pressanykey("超過閒置時間！踢出去囉……");
     abort_bbs();
   }
-
-#endif
 
   if (HAS_HABIT(HABIT_MOVIE) && (currstat && (currstat < CLASS || currstat == MAILALL)))
     movie(0);
@@ -84,7 +80,7 @@ hit_alarm_clock()
     sprintf(buf, "\x1b[1;5;37;41m警告：您已閒置過久，若無回應，系統即將切離！！\x1b[m");
   else if(stay_time > 10 * 60 && chkmail(0)) 
   {
-    sprintf(buf, "\x1b[1;33;41m[%s] 信箱裏還有沒看過的信唷\x1b[m",
+    sprintf(buf, "\033[1;33;41m[%s] 信箱裏還有沒看過的信唷\033[m",
       Etime(&now));
     stay_time = 0 ;
   }
@@ -135,8 +131,22 @@ oflush()
 {
   if (obufsize)
   {
+#ifdef GB_SUPPORT
+    if(HAS_HABIT(HABIT_BIG5GB))
+    {
+      char *outmp;
+      outmp = big2gb(outbuf, &obufsize, 0);
+      write(1,outmp, obufsize);
+      obufsize=0;
+    }
+    else
+    {
+#endif
       write(1, outbuf, obufsize);
       obufsize = 0;
+#ifdef GB_SUPPORT
+    }
+#endif
   }
 }
 
@@ -219,7 +229,7 @@ dogetch()
 {
   int ch;
 
-  if(currutmp) currutmp->lastact = time(0);
+  if(currutmp) time(&currutmp->lastact);
 
   for (;;)
   {
@@ -277,6 +287,7 @@ dogetch()
     i_mode = INPUT_ACTIVE;
     ch = inbuf[icurrchar++];
     return (ch);
+
   }
 }
 
@@ -292,7 +303,6 @@ igetch()
        case Ctrl('L'):
          redoscr();
          continue;
-
        case Ctrl('I'):
          if(currutmp != NULL && currutmp->mode == MMENU)
          {
@@ -303,7 +313,32 @@ igetch()
            continue;
          }
          else return(ch);
+       case Ctrl('W'):
+         if(currutmp != NULL && currutmp->mode)
+         {
+           screenline* screen = (screenline *)calloc(t_lines, sizeof(screenline));
+           vs_save(screen);
+           DL_func("SO/xyz.so:x_cdict");
+           vs_restore(screen);
+           continue;
+         }
+         else return(ch);
+       case Ctrl('K'):
+         if(currutmp != NULL && currutmp->mode != EDITING &&
+            currutmp->mode != TALK && currutmp->mode)
+         {
+           update_data();
 
+           if(HAS_HABIT(HABIT_BIG5GB))
+             cuser.habit &= ~HABIT_BIG5GB;
+           else
+             cuser.habit |= HABIT_BIG5GB;
+
+           substitute_record(fn_passwd, &cuser, sizeof(userec), usernum); /* 記錄 */
+           redoscr();
+           continue;
+         }
+         else return(ch);
        case Ctrl('Q'):  // wildcat : 快速離站 :p
          if(currutmp->mode && currutmp->mode != READING)
          {
@@ -319,7 +354,7 @@ igetch()
        case Ctrl('Z'):   /* wildcat:help everywhere */
        {
          static short re_entry = 0; /* CityLion: 防重入的... */
-         if(currutmp && !re_entry && currutmp->mode != IDLE)
+         if(currutmp && !re_entry)
          {
            int mode0 = currutmp->mode;
            int stat0 = currstat;
@@ -345,12 +380,10 @@ igetch()
          }
          else return (ch);
        }
-
        case Ctrl('U'):
          resetutmpent();
          if(currutmp != NULL && currutmp->mode != EDITING &&
-            currutmp->mode != LUSERS && currutmp->mode
-            && currutmp->mode != IDLE)
+            currutmp->mode != LUSERS && currutmp->mode)
          {
            int mode0 = currutmp->mode;
            int stat0 = currstat;
@@ -583,13 +616,10 @@ woju
           continue;
        }
        case KEY_ESC:
-         if(currutmp)
-         {
-           if (KEY_ESC_arg == 'c')
-              capture_screen();
-           if (KEY_ESC_arg == 'n')
-              edit_note();
-         }
+         if (KEY_ESC_arg == 'c')
+            capture_screen();
+         if (KEY_ESC_arg == 'n')
+            edit_note();
          if (ch == 'U' && currstat != IDLE  &&
            !(currutmp->mode == 0 &&
            (currutmp->chatid[0] == 2 || currutmp->chatid[0] == 3)))

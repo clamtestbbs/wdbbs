@@ -55,7 +55,7 @@ tran(bname)
       fclose(fp2);
       fclose(fp1);
       unlink(fpath);
-      rename(fpath2, fpath);
+      f_mv(fpath2, fpath);
     }
 #endif
     
@@ -85,7 +85,7 @@ tran(bname)
       close(fd1);
       close(fd2);
       unlink(fpath);
-      rename(fpath2, fpath);
+      f_mv(fpath2, fpath);
     }
   }
   close(fd);

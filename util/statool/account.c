@@ -5,57 +5,14 @@
 /* create : 95/03/29                                     */
 /* update : 95/12/15                                     */
 /*-------------------------------------------------------*/
-
 #include "bbs.h"
-#include "proto.h"
 
-/* ------------------------------------------------------------------------- */
+#include <time.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
-// from WD/record.c
-// todo: move to common library
 
-void
-stampfile(fpath, fh)
-  char *fpath;
-  fileheader *fh;
-{
-  register char *ip = fpath;
-  time_t dtime;
-  struct tm *ptime;
-  int fp;
-
-#if 1
-  if (access(fpath, X_OK | R_OK | W_OK))
-    mkdir(fpath, 0755);
-#endif
-
-  time(&dtime);
-  while (*(++ip));
-  *ip++ = '/';
-  do
-  {
-    sprintf(ip, "M.%d.A", ++dtime );
-  } while ((fp = open(fpath, O_CREAT | O_EXCL | O_WRONLY, 0644)) == -1);
-  close(fp);
-  memset(fh, 0, sizeof(fileheader));
-  strcpy(fh->filename, ip);
-  ptime = localtime(&dtime);
-
-#if 0// !defined(_BBS_UTIL_C_)
-  {//shakalaca.000428: find out the BBSHOME/M.* problem.. :p
-    char genbuf[80];
-    
-    sprintf(genbuf, "MODE:%d", currstat);
-    debug(genbuf);
-  }
-#endif
-  sprintf(fh->date, "%2d/%02d", ptime->tm_mon + 1, ptime->tm_mday);
-}
-
-// from WD/record.c
-// todo: move to common library
-
-/* ------------------------------------------------------------------------- */
+#include "record.c"
 
 #define MAX_LINE        16
 #define ADJUST_M        6       /* adjust back 5 minutes */
@@ -156,7 +113,7 @@ char *title;
 
 
 void
-account_outs(fp, buf, mode)
+outs(fp, buf, mode)
   FILE *fp;
   char buf[], mode;
 {
@@ -178,7 +135,7 @@ gzip(source, target, stamp)
 {
   char buf[128];
   sprintf(buf, "/bin/gzip -9n adm/%s%s", target, stamp);
-  rename(source, &buf[14]);
+  f_mv(source, &buf[14]);
   system(buf);
 }
 
@@ -270,12 +227,12 @@ main()
       hour = act[j];
       if (hour && (max > hour) && (max - item <= hour))
       {
-        account_outs(fp, buf, '7');
+        outs(fp, buf, '7');
         fprintf(fp, "%-3d", hour);
       }
       else if (max <= hour)
       {
-        account_outs(fp, buf, '6');
+        outs(fp, buf, '6');
         fprintf(fp, "█ ");
       }
       else
@@ -362,18 +319,22 @@ if(ptime->tm_hour)
 if(!ptime->tm_hour)
   {
     keeplog(BBSHOME"/.note", "Record", "[塵埃紀錄] 心情留言版");
-    keeplog(BBSHOME"/etc/GNP","Record","[金融中心] 生產毛額統計");
+    keeplog(BBSHOME"/log/GNP","Record","[金融中心] 生產毛額統計");
     keeplog(BBSHOME"/log/counter/上站人次","Record","[系統報告] 本日人數計數器");
 
-
     keeplog("usies", "Security", "[系統報告] 使用者上線紀錄");
-/*    keeplog("log/admin.log", "Security","[系統報告] 今日系統紀錄"); */
+    keeplog("usboard", "Security", "[系統報告] 看板使用紀錄");
+    keeplog(BBSHOME"/log/bighome", "Security", "[系統報告] 超過 500K 的 userhome");
+    keeplog(BBSHOME"/log/bigboard", "Security", "[系統報告] 超過 3000K 的 board");
+    keeplog(BBSHOME"/log/board.log", "Record", "[系統報告] 看板使用紀錄");
+    keeplog(BBSHOME"/log/personal.log", "Record", "[系統報告] 個人板使用紀錄");
+    keeplog(BBSHOME"/log/admin.log", "Security","[系統報告] 今日系統紀錄");
+    keeplog(BBSHOME"/log/func.log", "Security","[系統報告] 今日功\能使用紀錄");
     keeplog(BBSHOME"/log/bm_check", "Record","[系統報告] 板主到站紀錄");
     keeplog(BBSHOME"/log/bank.log", "Security","[金融中心] 金錢流動紀錄");
     keeplog(BBSHOME"/log/board_edit", "Security","[系統報告] 看板更動紀錄");
-    gzip("usboard", "usboard", buf);
-    gzip("dlog", "dlog", buf);
-    gzip("usies", "usies", buf);
+    system("rm -f log/dlog");
+//    gzip("usies", "usies", buf);
 
     system("/bin/cp etc/today etc/yesterday");
     system("rm -f note.dat");
@@ -504,7 +465,8 @@ if(!ptime->tm_hour)
     if (ptime->tm_mday == 1)
     {
       keeplog("log/month", "Record", "[塵埃紀錄] 本月熱門話題");
-      keeplog("etc/topboard", "Record", "[塵埃紀錄] 本月看板排行");
+      keeplog("log/topboard", "Record", "[塵埃紀錄] 本月看板排行");
+      keeplog("log/toppersonal", "Record", "[塵埃紀錄] 本月個人板排行");
     }
     if (ptime->tm_yday == 1)
       keeplog("log/year", "Record", "[塵埃紀錄] 年度熱門話題");
@@ -513,7 +475,7 @@ if(!ptime->tm_hour)
   {
     char *fn1 = "tmp";
     char *fn2 = "suicide";
-    rename(fn1, fn2);
+    f_mv(fn1, fn2);
     mkdir(fn1, 0755);
     sprintf(buf, "/bin/gtar cfz adm/%s-%02d%02d%02d.tgz %s",
       fn2, ptime->tm_year % 100, ptime->tm_mon + 1, ptime->tm_mday, fn2);

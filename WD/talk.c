@@ -15,8 +15,23 @@
 #include <sys/uio.h>
 #endif
 
+// wildcat : 分三個地方寫實在蠻鳥的
+#define MAXMONEY ((muser.totaltime*10) + (muser.numlogins*100) + (muser.numposts*1000))
+
 #define IRH 1
 #define HRM 2
+
+char *racename[7] =
+{
+  RACE_NORACE,
+  RACE_POST,
+  RACE_READ,
+  RACE_IDLE,
+  RACE_CHAT,
+  RACE_MSG,
+  RACE_GAME
+};
+
 
 struct talk_win
 {
@@ -142,7 +157,7 @@ char *user;
   || ((!uentp->invisible|| HAS_PERM(PERM_SYSOP)||HAS_PERM(PERM_SEECLOAK))
         && (((!PERM_HIDE(uentp) && !PERM_HIDE(currutmp)) ||
         PERM_HIDE(currutmp))
-        && !(is_rejected(uentp) & HRM && !(is_friend(uentp) & 5)))))
+        && !(is_rejected(uentp) & HRM && !(is_friend(uentp) & 2)))))
         return 0;       /* 交談 xxx */
   else
         return 1;       /* 自言自語 */
@@ -303,19 +318,26 @@ my_query(uident)
   char *uident;
 {
   extern char currmaildir[];
-  int tuid,usize;
+  int tuid,i;
+  unsigned long int j;
   user_info *uentp;
   userec muser;
+  rpgrec rpguser;
+  char *money[10] = {"乞丐","赤貧","清寒","普通","小康",
+                     "小富翁","中富翁","大富翁","富可敵國","比爾丐錙"};
 
   if (tuid = getuser(uident))
   {
     memcpy(&muser, &xuser, sizeof(userec));
+    memcpy(&rpguser, &rpgtmp, sizeof(rpgrec));
     move(0, 0);
     clrtobot();
     move(1, 0);
     setutmpmode(QUERY);
     currutmp->destuid = tuid;
 
+    j = muser.silvermoney + (10000 * muser.goldmoney);
+    for(i=0;i<10 && j>10;i++) j /= 100;
     prints("[ 帳  號 ]%-30.30s[ 暱  稱 ]%s\n",muser.userid,muser.username);
     if (can_override(muser.userid, cuser.userid) || HAS_PERM(PERM_SYSOP)
         || !strcmp(muser.userid, cuser.userid) )
@@ -329,7 +351,7 @@ my_query(uident)
     prints("[ 心  情 ]\x1b[1;33m%s\x1b[m\n",muser.feeling);
     uentp = (user_info *) search_ulist(cmpuids, tuid);
     if (uentp && !(PERM_HIDE(currutmp) ||
-      is_rejected(uentp) & HRM && is_friend(uentp) & 5) && PERM_HIDE(uentp))
+      is_rejected(uentp) & HRM && is_friend(uentp) & 2) && PERM_HIDE(uentp))
       prints("[目前動態]\x1b[1;30m不在站上                      \x1b[m\n");
     else
       prints("[目前動態]\x1b[1;36m%-30.30s\x1b[m",
@@ -338,10 +360,11 @@ my_query(uident)
 
     prints("[新信未讀]");
     sethomedir(currmaildir, muser.userid);
-    usize = dashs(currmaildir);
     outs(chkmail(1) || muser.userlevel & PERM_SYSOP ? "\x1b[1;5;33m有" : "\x1b[1;30m無");
     sethomedir(currmaildir, cuser.userid);
     chkmail(1);
+    prints("%-28s\x1b[m[留言未讀]","");
+    outs(check_personal_note(1, muser.userid) || muser.userlevel & PERM_SYSOP ? "\x1b[1;5;33m有\x1b[m\n" : "\x1b[1;30m無\x1b[m\n");
 // wildcat:realname應該不需要了(user老是以為真實姓名會被別人看到)
 //    if (HAS_PERM(PERM_SYSOP) || !strcmp(muser.userid, cuser.userid))
 //      prints("[姓名]%s", muser.realname);
@@ -353,11 +376,18 @@ my_query(uident)
     prints("[人氣指數]%-30d[好奇指數]%d\n",muser.bequery,muser.toquery);
     prints("[水球傳情]收 %d / 發 %d \n",muser.receivemsg,muser.sendmsg);
     if(HAS_PERM(PERM_SYSOP))
-    {
-      prints("[目錄大小]%d\n",usize);
       prints("[前次查詢]%-30.30s[被查詢]%s\n",muser.toqid,muser.beqid);
-    }
+
     prints("\x1b[1;36m%s\x1b[m\n", msg_seperator);
+
+    prints("[ 職  業 ]%-30.30s",racename[rpguser.race]);
+    prints("[經濟狀況]%s\n",money[i]);
+    if (HAS_PERM(PERM_SYSOP) || !strcmp(muser.userid, cuser.userid))
+      prints("[金幣數量]%-30ld[銀幣數量]%-21ld\n[ 經驗值 ]%-30ld[銀幣上限]%ld\n"
+             ,muser.goldmoney,muser.silvermoney,muser.exp,MAXMONEY);
+
+    prints("[五子棋勝/敗/和] %d/%d/%d",muser.five_win,muser.five_lost,muser.five_draw);
+    
 
     if(strcmp(muser.beqid,cuser.userid))
     {
@@ -486,14 +516,14 @@ woju
         fclose(fp);
       }
       sethomefile(genbuf, cuser.userid, fn_writelog);
-      if (fp = fopen(genbuf, "a")) 
-      {
+      if (fp = fopen(genbuf, "a")) {
         fprintf(fp, "To %s: %s [%s]\n", uin->userid, msg, Cdatelite(&now));
-        fclose(fp);
-        update_data();
-        ++cuser.sendmsg;
-        substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
-      }
+      fclose(fp);
+      update_data();
+      ++cuser.sendmsg;
+      cuser.exp += rpguser.race == 5 ? 15*rpguser.level : 5;
+      substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
+     }
    }
    if (*hint == 2 && uin->msgcount) {
       uin->destuip = currutmp;
@@ -501,8 +531,7 @@ woju
       kill(uin->pid, SIGUSR1);
    }
    else if (*hint != 1 && !HAS_PERM(PERM_SYSOP) && ( uin->pager == 3
-       || uin->pager == 2 || (uin->pager == 4 && !(is_friend(uin) & 5)) ))
-//       || uin->pager == 2 || (uin->pager == 4 && !(is_friend(uin) & 2)) ))
+       || uin->pager == 2 || (uin->pager == 4 && !(is_friend(uin) & 2)) ))
       pressanykey("糟糕! 對方防水了!");
    else {
 //      if (uin->msgcount < MAXMSGS) {
@@ -899,6 +928,8 @@ do_talk(fd)
      extern uschar scr_lns;
 #endif
      char buf[512];
+     int exp = rpguser.race != 4 ? myword - itword
+                                 : rpguser.level*2*(myword - itword);
 
      time(&now);
 #if 0
@@ -908,6 +939,15 @@ do_talk(fd)
 #endif
      fclose(flog);
 
+     if (exp < 0) 
+       exp = 1;
+     if (myword / (now - talkstart) > 2) 
+       exp = 2;
+     inexp(exp);
+     pressanykey("你打了 %d 字,對方 %d 字,得到 %d 點經驗值。",myword,itword,exp);
+     sprintf(buf,"%s與%s聊天, %d 秒, %d 字, %d exp %s",
+       cuser.userid,save_page_requestor,now - talkstart,myword,exp,Ctime(&now));
+     f_cat(BBSHOME"/log/talk.log",buf);
      more(fpath, NA);
 
      sprintf(buf, "對話記錄 \x1b[1;36m(%s)\x1b[m", getuserid(currutmp->destuid));
@@ -925,7 +965,7 @@ static void
 my_talk(uin)
   user_info *uin;
 {
-  int sock, msgsock, length, ch;
+  int sock, msgsock, length, ch,pkmode = 0;     //星空雞對戰
   struct sockaddr_in sin;
   pid_t pid;
   char c;
@@ -937,7 +977,8 @@ my_talk(uin)
   strcpy(currauthor, uin->userid);
 
   if (ch == EDITING || ch == TALK || ch == CHATING
-      || ch == PAGE || ch == MAILALL || !ch && (uin->chatid[0] == 1 || uin->chatid[0] == 3))
+      || ch == PAGE || ch == MAILALL || ch == FIVE
+      || !ch && (uin->chatid[0] == 1 || uin->chatid[0] == 3))
     pressanykey("人家在忙啦");
   else if (!HAS_PERM(PERM_SYSOP) && (be_rejected(uin->userid) ||
       (!uin->pager && !can_override(uin->userid, cuser.userid))))
@@ -946,7 +987,7 @@ my_talk(uin)
            be_rejected(uin->userid) || uin->pager == 2)
     pressanykey("對方拔掉呼叫器了");
   else if (!HAS_PERM(PERM_SYSOP) &&
-           !(is_friend(uin) & 5) && uin->pager == 4)
+           !(is_friend(uin) & 2) && uin->pager == 4)
     pressanykey("對方只接受好友的呼叫");
   else if (!(pid = uin->pid) || (kill(pid, 0) == -1))
   {
@@ -955,13 +996,26 @@ my_talk(uin)
   }
   else
   {
+    if(currstat == CHICKEN && ch == CHICKEN)  // 星空雞對戰
+    {
+      pkmode = 1;
+      getdata(2, 0, "確定要和他/她 PK 嗎(Y/N)?[N] ", genbuf, 4, LCECHO,0);
+    }
+    else
+    {
 //      showplans(uin->userid);
-      getdata(2, 0, "找他 [y]聊天 [N] ", genbuf, 4, LCECHO,0);
+      getdata(2, 0, "找他 [y]聊天 [f]下五子棋? [p]RPG PK [N] ", genbuf, 4, LCECHO,0);
+    }
 
     if (*genbuf == 'y' )
     {
       uin->turn = 0;
       log_usies("TALK ", uin->userid);
+    }
+    else if ((*genbuf == 'f') || (*genbuf == 'p'))
+    {
+      currutmp->turn = 0;
+      uin->turn = 1;
     }
     else
       return;
@@ -982,7 +1036,7 @@ my_talk(uin)
 #else
 
     sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = htonl(INADDR_ANY);
+    sin.sin_addr.s_addr = INADDR_ANY;
     sin.sin_port = 0;
     memset(sin.sin_zero, 0, sizeof(sin.sin_zero));
 
@@ -998,7 +1052,13 @@ my_talk(uin)
     currutmp->sockactive = YEA;
     currutmp->sockaddr = sin.sin_port;
     currutmp->destuid = uin->uid;
-    setutmpmode(PAGE);
+    if(currstat == CHICKEN && ch == CHICKEN)  // 星空雞對戰
+    {
+      DL_func("SO/pip.so:pip_set_currutmp");
+      setutmpmode(CHICKENPAGE);
+    }
+    else
+      setutmpmode(PAGE);
 
     uin->destuip = currutmp;
     kill(pid, SIGUSR1);
@@ -1020,7 +1080,8 @@ my_talk(uin)
           refresh();
         }
         else if (ch == EDITING || ch == TALK || ch == CHATING
-             || ch == PAGE || ch == MAILALL || !ch && (uin->chatid[0] == 1 || uin->chatid[0] == 3))
+             || ch == PAGE || ch == MAILALL || ch == FIVE
+             || !ch && (uin->chatid[0] == 1 || uin->chatid[0] == 3))
         {
           add_io(0, 0);
           close(sock);
@@ -1030,7 +1091,7 @@ my_talk(uin)
         }
         else
         {
-#if defined ( __linux__ ) || defined ( __CYGWIN__ )
+#ifdef LINUX
           add_io(sock, 20);       /* added 4 linux... achen */
 #endif
           move(0, 0);
@@ -1040,7 +1101,7 @@ my_talk(uin)
 
           if (kill(pid, SIGUSR1) == -1)
           {
-#if defined ( __linux__ ) || defined ( __CYGWIN__ )
+#ifdef LINUX
             add_io(sock, 20);       /* added 4 linux... achen */
 #endif
             pressanykey(msg_usr_left);
@@ -1079,7 +1140,23 @@ my_talk(uin)
     if (c == 'y')
     {
       sprintf(save_page_requestor, "%s (%s)", uin->userid, uin->username);
-      do_talk(msgsock);
+      if (uin->turn && *genbuf == 'f' )
+        DL_func("SO/five.so:va_gomoku",msgsock);
+      if (uin->turn && *genbuf == 'p' )
+      {
+        setutmpmode(RPK);
+        pressanykey("單挑功\能維修中");
+        return;
+//        rpg_pk(msgsock,uin->userid);
+      }
+      else if(pkmode)
+      {
+        pressanykey("單挑功\能維修中");
+//        DL_func("SO/pip.so:va_pip_vf_fight",msgsock,1);
+        return;
+      }
+      else if(*genbuf == 'y' )
+        do_talk(msgsock);
     }
     else
     {
@@ -1227,14 +1304,6 @@ friend_add(uident)
     char fpath[80];
     char buf[22];
     PAL pal;
-
-/* itoc.010529: 好友名單檢查人數上限 */
-    sethomefile(fpath, cuser.userid, FN_PAL);
-    if (rec_num(fpath, sizeof(fileheader)) >= MAX_FRIEND)
-    {
-      pressanykey("好友人數超過上限");
-      return;
-    }
 
     pal.ftype = 0;
     strcpy(pal.userid, uident);
@@ -1394,7 +1463,7 @@ pickup_user()
   register int   id0;   /*     US_PICKUP時的游標用 */
   register int state = US_PICKUP, hate, ch;
   register int actor, head, foot;
-  int badman, unumber;
+  int badman;
   int savemode = currstat;
   time_t diff, freshtime;
   pickup pklist[USHM_SIZE];                     /* parameter Ptt註 */
@@ -1421,7 +1490,6 @@ pickup_user()
     if (utmpshm->uptime > freshtime)
     {
       time(&freshtime);
-      unumber = count_ulist();
       bfriends_number =  friends_number = override_number =
       rejected_number = actor = ch = 0;
 
@@ -1487,9 +1555,9 @@ pickup_user()
 
     if (state >= US_ACTION)
     {
-      sprintf(tmpbuf,"%s [線上 %d 人]",BOARDNAME, unumber);
+      sprintf(tmpbuf,"%s [線上 %d 人]",BOARDNAME,count_ulist());
       showtitle((cuser.uflag & FRIEND_FLAG)? "好友列表": "休閒聊天", tmpbuf);
-      prints(" 排序：[%s]     \x1b[1;32m我的朋友：%-3d "
+      prints(HB_BACK" 排序：[%s]     \x1b[1;32m我的朋友：%-3d "
         "\x1b[33m與我為友：%-3d \x1b[36m板友：%-3d \x1b[31m壞人：%-3d\x1b[m\n"
         COLOR1"\x1b[1m  %sTP%c代號         %-17s%-17s%-13s%-10s\x1b[m\n",
         msg_pickup_way[pickup_way], 
@@ -1553,7 +1621,7 @@ pickup_user()
 #ifdef HYPER_BBS
       char hbuf[512];      
 
-      sprintf(hbuf,"\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[713m",
+      sprintf(hbuf,"\033[200m\033[400m\033[444m\033[300m\033[%dm\033[%dm\033[%dm\033[%dm\033[%dm\033[613m\033[713m",
 	  ((ch+1)/10000)+648,
 	  (((ch+1)%10000)/1000)+648,
 	  (((ch+1)%1000)/100)+648,
@@ -1631,9 +1699,9 @@ pickup_user()
       continue;
 
     move(b_lines, 0);
-    outs(COLOR1"\x1b[1;33m (TAB/f)\x1b[37m排序/好友 \x1b[33m(t)\x1b[37m聊天 "
-"\x1b[33m(a/d/o)\x1b[37m交友 \x1b[33m(q)\x1b[37m查詢 \x1b[33m(w)\x1b[37m扣應 "
-"\x1b[33m(m)\x1b[37m寄信 \x1b[33m(Ctrl+Z)\x1b[37m線上輔助 \x1b[m");
+    outs(COLOR1"\x1b[1;33m (TAB/f)\x1b[37m排序/好友 \x1b[33m(t)\x1b[37m聊天 \
+\x1b[33m(a/d/o)\x1b[37m交友 \x1b[33m(q)\x1b[37m查詢 \x1b[33m(w)\x1b[37m扣應 \
+\x1b[33m(m)\x1b[37m寄信 \x1b[33m(Ctrl+Z)\x1b[37m線上輔助 \x1b[m");
     state = 0;
     while (!state)
     {
@@ -1725,6 +1793,12 @@ pickup_user()
       case 'F':
         {
             char buf[100];
+            if(!HAS_PERM(PERM_SYSOP) && !HAS_PERM(PERM_FROM))
+            {
+              if(check_money(5,GOLD)) break;
+              degold(5);
+              pressanykey("修改故鄉花去金幣 5 元");
+            }
             sprintf(buf, "故鄉 [%s]：", currutmp->from);
             if (getdata(1, 0, buf, currutmp->from, 17, DOECHO,currutmp->from))
             currutmp->from_alias=0;
@@ -1848,7 +1922,7 @@ pickup_user()
                 currpid != uentp->pid &&
                 kill(uentp->pid, 0) != -1 &&
                 (HAS_PERM(PERM_SYSOP) || (uentp->pager != 3 &&
-                 (uentp->pager != 4 || is_friend(uentp) & 5))))
+                 (uentp->pager != 4 || is_friend(uentp) & 4))))
                 my_write(uentp->pid, genbuf);
         }
       }
@@ -1945,11 +2019,11 @@ pickup_user()
     if (ch == 'w')
     {
       if ((uentp->pid != currpid) &&
-          (HAS_PERM(PERM_SYSOP) || uentp->pager != 3 ||
+          (HAS_PERM(PERM_SYSOP) || uentp->pager < 3 ||
 // 改錯了? :p
 /* 修正.. :p */
-//          (can_override(uentp->userid, cuser.userid) && uentp->pager == 4) ))
-            (is_friend(uentp) & 5 || uentp->pager != 4) ))
+          (can_override(uentp->userid, cuser.userid) && uentp->pager == 4) ))
+/* orig:            (is_friend(uentp) & 2 || uentp->pager != 4) ))) */
       {
         cursor_show(num + 3 - head, 0);
         my_write(uentp->pid, "熱線 Call-In：");
@@ -2018,7 +2092,7 @@ pickup_user()
         break;
 
       case 'c':
-        //DL_func("SO/pip.so:pip_data_list_va", uentp->userid);
+        DL_func("SO/pip.so:pip_data_list_va", uentp->userid);
         /* shakalaca.990704: 小雞修正 */
         break;
 
@@ -2041,6 +2115,11 @@ pickup_user()
          }
         break;
 
+//      case 'g':         /* wildcat:rpg query & edit */
+//        rpg_udisplay(uentp->userid);
+//        rpg_uquery(uentp->userid);
+//        break;
+
       case 't':
         if (uentp->pid != currpid)
         {
@@ -2051,10 +2130,27 @@ pickup_user()
           state = US_PICKUP;
         }
       }
-      state = US_PICKUP;
     }
     setutmpmode(savemode);
   }
+}
+
+
+static int
+listcuent(uentp)
+  user_info *uentp;
+{
+  if ((uentp->uid != usernum) && (!uentp->invisible || HAS_PERM(PERM_SYSOP) || HAS_PERM(PERM_SEECLOAK)))
+    AddNameList(uentp->userid);
+  return 0;
+}
+
+
+static void
+creat_list()
+{
+  CreateNameList();
+  apply_ulist(listcuent);
 }
 
 
@@ -2135,12 +2231,7 @@ t_query()
 
   stand_title("查詢網友");
   usercomplete(msg_uid, uident);
-  if(!getuser(uident))
-  {
-    pressanykey("這裡沒這個人");
-    return 0;
-  }
-  else 
+  if (uident[0])
     showplans(uident);
   return 0;
 }
@@ -2222,8 +2313,11 @@ talkreply()
   currutmp->destuid = uip->uid;
   currstat = XMODE;             /* 避免出現動畫 */
 
+  if (uip->mode == CHICKENPAGE || uip->mode == RPK)
+    pkmode = 1; //chicken pk
+
   clear();
-  outs("\n"
+  outs("\n\n"
 "       (Y) 讓我們 talk 吧！     (A) 我現在很忙，請等一會兒再 call 我\n"
 "       (N) 我現在不想 talk      (B) 對不起，我有事情不能跟你 talk\n"
 "       (C) 請不要吵我好嗎？     (D) 有事嗎？請先來信\n"
@@ -2238,10 +2332,10 @@ talkreply()
 //  showplans(uip->userid);
   show_last_call_in();
   sprintf(genbuf, "你想跟 %s %s嗎？請選擇(Y/N/A/B/C/D/E)[Y] ",
-    page_requestor, "聊天");
+    page_requestor, pkmode ? "PK" : currutmp->turn ? "下棋" : "聊天");
   getdata(0, 0, genbuf, buf, 4, LCECHO,0);
 
-  if (uip->mode != PAGE) {
+  if (uip->mode != PAGE && uip->mode != CHICKENPAGE && uip->mode != RPK) {
      sprintf(genbuf, "%s已停止呼叫，按Enter繼續...", page_requestor);
      getdata(0, 0, genbuf, buf, 4, LCECHO,0);
      return;
@@ -2284,7 +2378,22 @@ talkreply()
   if (buf[0] == 'y')
   {
     strcpy(currutmp->chatid, uip->userid);
-    do_talk(a);
+    if (uip->mode == RPK)
+    {
+      pressanykey("單挑功\能維修中");
+      close(a);
+//      rpg_pk(a,uip->userid);
+    }
+    else if (currutmp->turn)
+      DL_func("SO/five.so:va_gomoku",a);
+    else if(pkmode)
+    {
+      pressanykey("單挑功\能維修中");
+//      DL_func("SO/pip.so:va_pip_vf_fight",a,2);
+      close(a);
+    }
+    else 
+      do_talk(a);
   }
   else
     close(a);
@@ -2311,7 +2420,7 @@ t_aloha()
   {
     uentp = &utmpshm->uinfo[i];
     if ((pid = uentp->pid) && (kill(pid, 0) != -1) &&
-        uentp->pager && (is_friend(uentp) & 5) &&
+        uentp->pager && (is_friend(uentp) & 2) &&
         strcmp(uentp->userid, cuser.userid))
       my_write(uentp->pid, buf);
   }
@@ -2439,26 +2548,6 @@ t_list()
 #endif
 
 /* shakalaca.000814: 以下這兩個函式在 .so 中有用到 :pp */
-/* 防堵 Multi play */
-int
-count_multiplay(int unmode)
-{
-  register int i, j;
-  register user_info *uentp;
-  extern struct UTMPFILE *utmpshm;
-
-  resolve_utmp();
-  for (i = j = 0; i < USHM_SIZE; i++)
-  {
-    uentp = &(utmpshm->uinfo[i]);
-    if (uentp->uid == usernum)
-     if(uentp->lockmode == unmode)
-      j++;
-  }
-  return j;
-}
-
-
 int
 lockutmpmode(int unmode)
 {
@@ -2480,3 +2569,56 @@ unlockutmpmode()
 {
   currutmp->lockmode = 0;
 }
+
+#if 1
+
+int
+t_pk()
+{
+  char uident[16];
+  int tuid, unum, ucount;
+  char genbuf[4];
+
+  if (count_ulist() <= 1)
+  {
+    outs("目前線上只有您一人，快邀請朋友來光臨【" BOARDNAME "】吧！");
+    return XEASY;
+  }
+  stand_title("找人單挑");
+  creat_list();
+  namecomplete(msg_uid, uident);
+  if (uident[0] == '\0')
+    return 0;
+
+  move(3, 0);
+  if (!(tuid = searchuser(uident)) || tuid == usernum || !strcmp(uident,"guest"))
+  {
+    pressanykey(err_uid);
+    return 0;
+  }
+
+  /* ----------------- */
+  /* multi-login check */
+  /* ----------------- */
+
+  unum = 1;
+  while ((ucount = count_logins(cmpuids, tuid, 0)) > 1)
+  {
+    outs("(0) 不想 pk 了...\n");
+    count_logins(cmpuids, tuid, 1);
+    getdata(1, 33, "請選擇一個 PK 對象 [0]：", genbuf, 4, DOECHO,0);
+    unum = atoi(genbuf);
+    if (unum == 0)
+      return 0;
+    move(3, 0);
+    clrtobot();
+    if (unum > 0 && unum <= ucount)
+      break;
+  }
+
+//  if (uentp = (user_info *) search_ulistn(cmpuids, tuid, unum))
+//    rpg_pk(0,uident);
+
+  return 0;
+}
+#endif

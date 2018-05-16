@@ -18,8 +18,8 @@ main()
   new new;
   char buf[IDLEN+1];
   
-  FILE fp = fopen("/home/bbs/boards/CLAMP/visable");
-  fdw=open("/home/bbs/boards/CLAMP/vis",O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  FILE fp = fopen(BBSHOME"/boards/CLAMP/visable");
+  fdw=open(BBSHOME"/boards/CLAMP/vis",O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
   while(fget(buf, IDLEN, fp))
   {     

@@ -161,7 +161,7 @@ m_newbrd ()
       strncpy (newboard.title, genbuf, 4);
     }
   newboard.title[4] = ' ';
-  getdata (7, 0, "1.轉信 ● 2.不轉信 ◎ 3.子選單 Σ 4.分類看板 □", genbuf, 3
+  getdata (7, 0, "1.轉信 ● 2.不轉信 ◎ 3.子選單 Σ 6.分類看板", genbuf, 3
 	   ,LCECHO, 0);
 //  if((genbuf[0] == '3')&& !HAS_PERM(PERM_SYSOP)) genbuf[0] = '2';
 
@@ -172,19 +172,28 @@ m_newbrd ()
     {
       strncpy (newboard.title + 5, ((*genbuf == '1') ? "●" : 
                                  (*genbuf == '2') ? "◎" :
-                                 (*genbuf == '3') ? "☆" : "□"), 2);
+                                 (*genbuf == '3') ? "Σ" : 
+                                 (*genbuf == '4') ? "★" : 
+                                 (*genbuf == '5') ? "☆" : "□"), 2);
       switch (*genbuf)
 	{
-	case '4':
+	case '6':
 	  newboard.brdattr |= BRD_CLASS;
 	  newboard.brdattr &= ~BRD_GROUPBOARD;
 	  newboard.brdattr |= BRD_NOCOUNT;
+
+	case '5':
+	  newboard.brdattr |= BRD_NOTRAN;
+	  newboard.brdattr |= BRD_GOOD;
+	  break;
+	case '4':
+	  newboard.brdattr &= ~BRD_NOTRAN;
+	  newboard.brdattr |= BRD_GOOD;
 	  break;
 	case '3':
 	  newboard.brdattr &= ~BRD_CLASS;
 	  newboard.brdattr |= BRD_GROUPBOARD;
 	  newboard.brdattr |= BRD_NOCOUNT;
-	  break;
 	case '2':
 	  newboard.brdattr |= BRD_NOTRAN;
 	  break;
@@ -312,10 +321,9 @@ m_mod_board (char *bname)
   prints ("最新訪客：%-15s最新時間：%s\n文章上限：%-5d 篇       保存時間：%-4d 天"
 	  ,bh.lastvisit, Ctime (&bh.lastime),bh.maxpost,bh.maxtime);
   bperm_msg (&bh);
-  prints ("%s設限  邀請:%s\n"
-	  "可zap:%s 統計:%s 轉信:%s 群組板:%s 私人:%s 隱藏:%s 匿名:%s 優良:%s 個人:%s",
+  prints ("%s設限\n"
+	  "可zap:%s 列入統計:%s 轉信:%s 群組板:%s 私人:%s 隱藏:%s 匿名:%s 優良:%s 個人:%s",
 	  bh.level ? "有" : "不",
-	  bh.brdattr & BRD_INVITE ? "ˇ" : "Ｘ",
 	  bh.brdattr & BRD_NOZAP ? "Ｘ" : "ˇ",
 	  bh.brdattr & BRD_NOCOUNT ? "Ｘ" : "ˇ",
 	  bh.brdattr & BRD_NOTRAN ? "Ｘ" : "ˇ",
@@ -393,20 +401,29 @@ m_mod_board (char *bname)
 	strncpy (newbh.title, genbuf, 4);
 
       newbh.title[4] = ' ';
-      getdata (13, 0, "[1.轉信 ●] [2.不轉信 ◎] [3.子選單 Σ] [4.分類看板 □]", genbuf, 3
+      getdata (13, 0, "1.轉信 ● 2.不轉信 ◎ [3.子選單 Σ]  4.優良看板(轉信) ★  5.優良看板(站內) ☆", genbuf, 3
 	       ,LCECHO, 0);
       if (genbuf[0])
 	{
 	  strncpy (newbh.title + 5, ((*genbuf == '1') ? "●" : (*genbuf == '2') ? "◎" :
-				     (*genbuf == '3') ? "Σ" : "□"), 2);
+				     (*genbuf == '3') ? "Σ" : (*genbuf == '4') ? "★" : (*genbuf == '5') ? "☆": "□"), 2);
 	  switch (*genbuf)
 	    {
-	    case '4':
+	    case '6':
 	      newbh.brdattr |= BRD_CLASS;
 	      newbh.brdattr &= ~BRD_GROUPBOARD;
 	      newbh.brdattr |= BRD_NOCOUNT;
-	      break;
 
+	    case '5':
+	      newbh.brdattr &= ~BRD_GROUPBOARD;
+	      newbh.brdattr |= BRD_NOTRAN;
+	      newbh.brdattr |= BRD_GOOD;
+	      break;
+	    case '4':
+	      newbh.brdattr &= ~BRD_GROUPBOARD;
+	      newbh.brdattr &= ~BRD_NOTRAN;
+	      newbh.brdattr |= BRD_GOOD;
+	      break;
 	    case '3':
      	      newbh.brdattr &= ~BRD_CLASS;
 	      newbh.brdattr |= BRD_GROUPBOARD;
@@ -429,11 +446,11 @@ m_mod_board (char *bname)
 	  strcpy (newbh.title + 7, genbuf);
 	}
 
-//      sprintf(genbuf,"%d",bh.totaltime);
+      sprintf(genbuf,"%d",bh.totaltime);
 //wildcat tmp
-//      getdata (14, 0, "看板時間：", genbuf, BTLEN + 1, DOECHO, genbuf);
-//      if (atol(genbuf) >= 0)
-//        newbh.totaltime = atol(genbuf);
+      getdata (14, 0, "看板時間：", genbuf, BTLEN + 1, DOECHO, genbuf);
+      if (atol(genbuf) >= 0)
+        newbh.totaltime = atol(genbuf);
 
       if (getdata (15, 0, "新板主名單：", genbuf, IDLEN * 3 + 3,
 		   DOECHO, bh.BM))
@@ -465,30 +482,22 @@ m_mod_board (char *bname)
             newbh.brdattr |= BRD_PERSONAL;
           else
             newbh.brdattr &= ~BRD_PERSONAL;
-	  getdata (19, 0, HAS_PERM (PERM_SYSOP) ? "看板隱藏/私人/公開/邀請(Y/P/N/I)？"
+	  getdata (19, 0, HAS_PERM (PERM_SYSOP) ? "看板隱藏/私人/公開(Y/P/N)？"
 		   : "看板私人/公開(P/N)？", ans, 4, LCECHO,
 		   !(newbh.brdattr & BRD_HIDE) ? "N" :
 		   (newbh.brdattr & BRD_POSTMASK) ? "Y" : "P");
-	  if ((*ans == 'y' || *ans == 'Y') && HAS_PERM (PERM_SYSOP))
+	  if (*ans == 'y' && HAS_PERM (PERM_SYSOP))
 	    {
 	      newbh.brdattr |= BRD_HIDE;
 	      newbh.brdattr |= BRD_POSTMASK;
 	    }
-	  else if (*ans == 'p' || *ans == 'P')
+	  else if (*ans == 'p')
 	    {
 	      newbh.brdattr |= BRD_HIDE;
 	      newbh.brdattr &= ~BRD_POSTMASK;
 	    }
-	  else if(*ans == 'n' || *ans == 'N')
-	  {
-	    newbh.brdattr &= ~BRD_HIDE;
-	    newbh.brdattr &= ~BRD_INVITE;
-	  }
 	  else
-	  {
 	    newbh.brdattr &= ~BRD_HIDE;
-	    newbh.brdattr |= BRD_INVITE;
-	  }
 
 	  getdata (20, 0, "列入統計/排行(Y/N)？", genbuf, 4, LCECHO,
 		   newbh.brdattr & BRD_NOCOUNT ? "N" : "Y");
@@ -698,7 +707,7 @@ domailclean (fhdrp)
 	{
 	  sethomedir (buf, curruser);
 	  while (delcnt--)
-	    rec_del (buf, sizeof (fileheader), delmsgs[delcnt], NULL, NULL);
+	    rec_del (buf, sizeof (fileheader), delmsgs[delcnt]);
 	}
       delcnt = 0;
       return 1;
@@ -880,7 +889,6 @@ scan_register_form (regfile)
 		  for (n = 0; field[n]; n++)
 		    fprintf (fout, "%s: %s\n", field[n], fdata[n]);
 		  n = time (NULL);
-
 		  fprintf (fout, "Date: %s\n", Etime (&n));
 		  fprintf (fout, "Approved: %s\n", uid);
 		  fprintf (fout, "----\n");
@@ -1060,21 +1068,16 @@ search_key_user ()
   FILE *fp1;
   char buf[100], key[22];
 
-//  ch = answer("開啟 昨天(y) 今天(t) 其他(o) 的紀錄");
-  ch = answer("開啟 今天(t) 其他(o) 的紀錄");
+  ch = answer("開啟 昨天(y) 今天(t) 其他(o) 的紀錄");
   if(ch == 't')
     fp1 = fopen (BBSHOME"/.PASSWDS", "r");
   else if(ch == 'o')
     fp1 = fopen (BBSHOME"/PASSWDS", "r");
-#if 0
   else
     fp1 = fopen (BBSHOME"/.PASSWDS.yes","r");
-#endif
-  else
-    return 0;
   clear ();
   getdata (0, 0, "請輸入使用者關鍵字 [姓名|email|ID|電話|地址]:", key, 21, DOECHO, 0);
-  while ((fread (&user, sizeof (user), 1, fp1) > 0))
+  while ((fread (&user, sizeof (user), 1, fp1)) > 0)
     {
       coun++;
       move (1, 0);
@@ -1101,6 +1104,46 @@ search_key_user ()
   fclose (fp1);
   return 0;
 }
+
+adm_givegold()
+{
+   int money;
+   char id[IDLEN+1],buf[256],reason[60];
+   FILE *fp=fopen("tmp/givebonus","w");
+   fileheader mymail;
+
+   time_t now;
+   time(&now);
+   move(12,0);
+   update_data();
+   usercomplete("輸入對方的ID：", id);
+   if (!id[0] || !getdata(14, 0, "要發多少錢獎金？", buf, 5, LCECHO,0)) return 0;
+   money = atoi(buf);
+   if(money > 0 && (inugold(id, money) != -1))
+   {
+     sprintf(buf,"作者: %s \n"
+                 "標題:[發放獎金] 發給你 %d 金幣唷！\n"
+                 "時間: %s\n",cuser.userid,money,ctime(&now));
+     fputs(buf,fp);
+     while(!getdata(15,0,"請輸入理由：",reason,60,DOECHO ,"收錄 xxx 板精華區"));
+     sprintf(buf,"\x1b[1;32m%s\x1b[37m 發給你 \x1b[33m%d \x1b[37m元金幣。\n"
+                 "他的理由是：\x1b[33m %s \x1b[m",cuser.userid,money,reason);
+     fputs(buf,fp);
+     fclose(fp);
+     sprintf(buf,"home/%s", id);
+     stampfile(buf, &mymail);
+     strcpy(mymail.owner, cuser.userid);
+     rename ("tmp/givebonus",buf);
+     sprintf(mymail.title,"[發放獎金] 送你 %d 元金幣唷！",money);
+     sprintf(buf,"home/%s/.DIR",id);
+     rec_add(buf, &mymail, sizeof(mymail));
+     sprintf(buf,"\x1b[1;33m%s %s \x1b[37m把金幣 \x1b[33m%d 元 \x1b[37m發給\x1b[33m %s\x1b[37m",
+     Etime(&now),cuser.userid,money,id);
+     f_cat("log/bonus.log",buf);
+   }
+   update_data();
+   return 0;
+}  
 
 reload_cache ()
 {

@@ -45,7 +45,7 @@ get_the_time()
      }
      else{ bell(); --i;}
   }
-  ptime.tm_year = 99;ptime.tm_sec=0;
+  ptime.tm_year = 100;ptime.tm_sec=0;
   ptime.tm_mon  = buf[0]*10+buf[1]-1;
   ptime.tm_mday = buf[2]*10+buf[3];
   ptime.tm_hour = buf[4]*10+buf[5];
@@ -74,14 +74,13 @@ int p_bet()
 
  while(-1)
  {
-#if 0        //set utmp later
    setutmpmode(BET);
-#endif
+   log_usies("BET",NULL);
    showtitle("ºÆ¨g½ä½L", BoardName);
 
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
 
 do{
@@ -132,7 +131,7 @@ do{
    prints("[1;44;37m«öÁä»¡©ú: [n]¤U¤@­¶ [p]¤W¤@­¶ [b]¤Uª`/¶}®à/¶}½L [q]Â÷¶}    ª÷: %10d    [m",cuser.silvermoney);
    redoscr();
    do{ch=igetch();}while(ch!='q'&&ch!='n'&&ch!='p'&&ch!='b');
-   if(ch=='q') return 0; if(ch=='n')turn=1; if(ch=='p')turn=0;
+   if(ch=='q')return; if(ch=='n')turn=1; if(ch=='p')turn=0;
    j=0;
    if(ch=='b'){
      getdata(22, 0,"½Ð¿é¤J 1-40 ©Îª½±µ«ö Enter Â÷¶}¡G", cc, 3, 1, 0);
@@ -142,7 +141,7 @@ do{
 
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
 
    if(t[j-1]) /* ¤w¦³¤H¶}§½ */
@@ -191,14 +190,14 @@ do{
 
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
            if(num<=tmp && num>=1)
            {
              getdata(21,0,"½T©w¶Ü?? (y/N)",cc,3,DOECHO,0);
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
              if (*cc=='y')
              {
@@ -256,7 +255,7 @@ do{
          getdata(20,0,genbuf,cc,3,DOECHO,0);
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
          if(cc[0]=='q') break;
          num=cc[0]-48;
@@ -269,14 +268,14 @@ do{
            getdata(21,0,genbuf,cc,6,DOECHO,0);
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
            if(atoi(cc)>cuser.silvermoney/t[j-1] || !atoi(cc))
              pressanykey("¿é¤J½d³ò¦³»~!!¨ú®ø..");
            else
            {
              int hh=0;
-             if(close_time<time(0)){pressanykey("¶W¹L®É¶¡¤F!");return 0;}
+             if(close_time<time(0)){pressanykey("¶W¹L®É¶¡¤F!");return;}
              demoney(atoi(cc)*t[j-1]);
              sprintf(genbuf,BBSHOME"/game/bet.cho%d",j);
              fs=fopen(genbuf,"r");
@@ -326,7 +325,7 @@ do{
      getdata(22,0,"½T©w­n¶}§½¡H(y/N)",cc,3,1,0);
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
      if(cc[0]!='y' && cc[0]!='Y') cont=0;
 
@@ -334,7 +333,7 @@ do{
      {
        sprintf(cc,"home/%s/bet.scr",cuser.userid);
        pressanykey("½Ð«ö¥ô¤@Áä¶}©l½s¿è¦¹¦¸ [¶}§½©v¦®]");
-       if(vedit(cc,NA)==-2) cont=0;
+       if(vedit(cc,NA,0)==-2) cont=0;
      }
 
      if(cont)
@@ -383,10 +382,10 @@ do{
        sprintf(genbuf,BBSHOME"/game/bet.cho%d",j);
    if(dashf(LOCK_FILE)){
      pressanykey("µo¿ú®É¶¡°±¤î¤Uª`");
-     return 0;
+     return;
    }
        if(dashf(genbuf)){
-         fclose(fs);pressanykey("¦³¤H¤ñ§A§Ö¤@¨B¤F");return 0;
+         fclose(fs);pressanykey("¦³¤H¤ñ§A§Ö¤@¨B¤F");return;
        }
 
        fs=fopen(genbuf,"w");

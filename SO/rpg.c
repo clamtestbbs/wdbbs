@@ -1,5 +1,5 @@
 #include "bbs.h"
-#include "rpg.h" 
+#include "rpg.h"
 
 
 /* ¤jÀY·Ó */
@@ -130,6 +130,7 @@ rpg_race_c()
   char buf[2],ans2[2];
 
   setutmpmode(RCHOOSE);
+  log_usies("RPG_Choose",NULL);
   more(BBSHOME"/game/rpg/choose_race",YEA);
   stand_title("¬D¿ïÂ¾·~");
   if(rpguser.race)
@@ -141,9 +142,10 @@ rpg_race_c()
   }
   move(4,0);
   outs(       "¬D¿ïÂ¾·~¡G (1)Äé¤ô±j¤H (2)Åª¤å§Ö¤â (3)±`¾nµ{¦¡");
-  getdata(5,0,"           (4)²á¤Ñ²r±N (5)¤ô²y«a­x (6)¹CÀ¸«g¬P (0)©ñ±ó",buf,3,DOECHO,0);
+  getdata(5,0,"           (4)²á¤Ñ²r±N (5)¤ô²y«a­x (6)¹CÀ¸«g¬P (0)©ñ±ó",
+    buf,2,DOECHO,0);
   if(!buf[0] || buf[0] < '1' || buf[0] > '7') return;
-  else ans = atoi(buf);
+    else ans = atoi(buf);
   if(ans == 7) ans =0;
   clear();
   prints("\n§A¿ï¾Ü¤F %s ¡I ¨ä¦U¶µ¼Æ­È¦p¤U¡G\n",rname[ans]);
@@ -186,7 +188,7 @@ rpg_race_c()
 rpg_guild()
 {
   char ans[5],buf[200];
-  int l = rpguser.level;   
+  int l = rpguser.level;
   update_data();
   if (!rpguser.race)
   {
@@ -194,6 +196,7 @@ rpg_guild()
     return 0;
   }
   setutmpmode(RGUILD);
+  log_usies("RPG_Guild",NULL);
   clear();
   prints("[1m[33;42m¡i %s ¦P·~¤u·|¡j[m  §A²{¦bµ¥¯Å¬° %d¡A¦³¸gÅç­È %d ÂI\n\n"
     ,rname[rpguser.race],rpguser.level,cuser.exp);
@@ -219,7 +222,7 @@ rpg_guild()
         rpguser.hp = rpguser.con*30;
         rpguser.mp = rpguser.wis*10;
       }
-      break;  
+      break;
     case '0':
       if(rpguser.hp > 0)
       {
@@ -246,8 +249,8 @@ rpg_guild()
         f_cat(BBSHOME"/game/rpg/resurge.log",buf);
       }
       sleep(5);
-      pressanykey("¤@¹D¥ú¨~Å¢¸n¦b§A¨­Åéªº©P³ò,§AºCºC¦³¤Fª¾Ä±....");  
-      break; 
+      pressanykey("¤@¹D¥ú¨~Å¢¸n¦b§A¨­Åéªº©P³ò,§AºCºC¦³¤Fª¾Ä±....");
+      break;
     case '1':
     {
       if(rpguser.hp <= 0)
@@ -259,7 +262,7 @@ rpg_guild()
       {
         pressanykey("§A¤w¸g¤É¨ì¥Ø«eªº³Ì°ªµ¥¯Å¤F");
         break;
-      }  
+      }
       if(check_exp(LVUP)) break;
       else deexp(LVUP);
       rpguser.str += lvup[0][rpguser.race];
@@ -292,7 +295,7 @@ rpg_guild()
       {
         pressanykey("§A¤w¸g°}¤`¤F,­n¥ý´_¬¡¤~¯à¸ÉÅé¤O");
         break;
-      }  
+      }
       if(check_money(((rpguser.con*30)-rpguser.hp)*10,SILVER)) return 0;
       demoney(((rpguser.con*30)-rpguser.hp)*10);
       rpguser.hp = rpguser.con*30;
@@ -313,7 +316,7 @@ rpg_guild()
       {
         pressanykey("§A¤w¸g°}¤`¤F,­n¥ý´_¬¡¤~¯à´£ª@ÄÝ©Ê");
         break;
-      }  
+      }
       getdata(15,0,
         "­n´£ª@ : [1]¤O¶q [2]´¼¼z [3]±Ó±¶ [4]Åé½è [5]¹B®ð ?",ans2,2,LCECHO,0);
       if(ans2[0] < '1' || ans2[0] > '5') break;
@@ -331,34 +334,34 @@ rpg_guild()
           if(rpguser.wis < rpguser.level*3)
           {
             deexp(LVUP/10);
-            sprintf(genbuf,"´¼¼z´£¤É¬° %d ÂI",++rpguser.wis); 
+            sprintf(genbuf,"´¼¼z´£¤É¬° %d ÂI",++rpguser.wis);
           }
           break;
         case '3':
           if(rpguser.dex < rpguser.level*3)
-          {        
+          {
             deexp(LVUP/10);
-            sprintf(genbuf,"±Ó±¶´£¤É¬° %d ÂI",++rpguser.dex); 
+            sprintf(genbuf,"±Ó±¶´£¤É¬° %d ÂI",++rpguser.dex);
           }
           break;
         case '4':
           if(rpguser.con < rpguser.level*3)
-          {        
+          {
             deexp(LVUP/10);
             sprintf(genbuf,"Åé½è´£¤É¬° %d ÂI",++rpguser.con);
           }
           break;
         case '5':
           if(rpguser.kar < rpguser.level*3)
-          {        
+          {
             deexp(LVUP/10);
             sprintf(genbuf,"¹B®ð´£¤É¬° %d ÂI",++rpguser.kar);
           }
           break;
       }
       pressanykey(genbuf);
-      break;  
-    }        
+      break;
+    }
 
     case '5':
     {
@@ -387,29 +390,30 @@ rpg_guild()
 void
 rpg_top()
 {
-  int i; 
+  int i;
   char buf[5],genbuf[200];
   stand_title("RPG ±Æ¦æº]");
-  setutmpmode(RTOPLIST); 
-  move(4,0); 
+  setutmpmode(RTOPLIST);
+  log_usies("RPG_Toplist",NULL);
+  move(4,0);
   outs(       "­n¬Ý¤°»òÂ¾·~ªº±Æ¦æ¡G(1)Äé¤ô±j¤H (2)Åª¤å§Ö¤â (3)±`¾nµ{¦¡");
   getdata(5,0,"(t)²Î­p  (a)¥þ³¡    (4)²á¤Ñ²r±N (5)¤ô²y«a­x (6)¹CÀ¸«g¬P",buf,2,DOECHO,0);
   if(buf[0] == 'a' || buf[0] == 'A') buf[0] = '7';
   if(buf[0] == 't' || buf[0] == 'T') buf[0] = '8';
   if(!buf[0] || buf[0] < '0' || buf[0] > '8') return;
   i = atoi(buf);
-  sprintf(genbuf,"%s/bin/toprpg %d %d %s/log/toprpg%d",
+/*sprintf(genbuf,"%s/bin/toprpg %d %d %s/log/toprpg%d",
     BBSHOME, i, i == 7 ? 100 : 50, BBSHOME, i);
-  system(genbuf);
-  sprintf(genbuf,BBSHOME"/log/toprpg%d",i);  
-  more(genbuf); 
+  system(genbuf); */ /* CiryLion:§ï¥Îcrontab¨Ó¶]... */
+  sprintf(genbuf,BBSHOME"/log/toprpg%d",i);
+  more(genbuf);
 }
 
 /* ½m¥\ */
 int
 rpg_kmob(int mode)
 {
-  mobattr m; 
+  mobattr m;
   int MHP = rpguser.con*30,MMP= rpguser.wis*10;  /* ¦Û¤vªº³Ì¤jmp,hp */
   int Att = c_att(cuser.userid);  /* §ðÀ»¤O */
   int Def = c_def(cuser.userid);  /* ¨¾¿m¤O */
@@ -425,24 +429,25 @@ rpg_kmob(int mode)
     return 0;
   }
 //  if(lockutmpmode(RTRAIN)) return 0;  /* ¤£Åýuser multi ª± */
-  setutmpmode(RTRAIN); 
+  setutmpmode(RTRAIN);
+  log_usies("RPG_Train",NULL);
   if(mode == hard)
     m.LV = rpguser.level + rand()%10;
   if(mode == medium)
     m.LV = rand()%2 ? rpguser.level + rand()%3 : rpguser.level - rand()%3;
   if(mode == easy)
     m.LV = rand()%3 < 1 ? rpguser.level : rpguser.level - rand()%5;
-  if(m.LV < 1) m.LV = 1;  
+  if(m.LV < 1) m.LV = 1;
   m.maxhp = m.hp = m.LV * 100;
   m.Att = m.LV * (10 + rand()%15);
   m.Def = m.LV * (5 + rand()%10);
   m.MA = m.LV * (20 + rand()%5);
-  m.MD = m.LV * (5 + rand()%5); 
+  m.MD = m.LV * (5 + rand()%5);
   m.EXP = (m.LV*m.LV + mode) * ((rand()%5) + 5);
   m.money = (m.LV*m.LV + mode) * ((rand()%2) + 5);
   while(!over){
     update_data();
-    if(mode == easy)  
+    if(mode == easy)
       strcpy(m.name,"¦×¸}©Çª«");
     else if(mode == medium)
       strcpy(m.name,"¤@¯ë©Çª«");
@@ -452,16 +457,16 @@ rpg_kmob(int mode)
     if(!HAS_PERM(PERM_SYSOP))
     {
       show_file(buf,1,10,ONLY_COLOR);  /* ¼Ä¤H¹Ï¤ù */
-      move(1,0); 
+      move(1,0);
       prints("µ¥¯Å : %d",m.LV);
     }
     else
     {
-      move(1,0); 
+      move(1,0);
       prints(
 "µ¥¯Å : %d\n¥Í©R : %d\n§ð¨¾ : %d / %d\nÅ]ªk : %d / %d\n¸gÅç : %d\n¼úª÷ : %d"
 ,m.LV,m.maxhp,m.Att,m.Def,m.MA,m.MD,m.EXP,m.money);
-    } 
+    }
     move(11,0);
     prints("[36m%s[m",msg_seperator);  /* ¤À¹j½u */
     move(13,0);
@@ -473,7 +478,7 @@ rpg_kmob(int mode)
       j = (m.hp/(m.maxhp/100) >= 100 ? 0 :
            m.hp/(m.maxhp/100) >= 75  ? 1 :
            m.hp/(m.maxhp/100) >= 50 ? 2 :
-           m.hp/(m.maxhp/100) >= 25 ? 3 : 4);   
+           m.hp/(m.maxhp/100) >= 25 ? 3 : 4);
       move(0,0);
       clrtoeol();
       if(!HAS_PERM(PERM_SYSOP))
@@ -506,8 +511,8 @@ rpg_kmob(int mode)
 
         case '!':
           if(HAS_PERM(PERM_SYSOP))
-            m.hp -= 10000;  
-          break;   
+            m.hp -= 10000;
+          break;
         case '4':
           pressanykey("¬I¤u¤¤");
           attack = 0;
@@ -763,7 +768,7 @@ rpg_kmob(int mode)
         /* Á×§KUserÂ_½u¨S¬ö¿ý¨ì */
         pressanykey(buf);
         move(12,0);
-        prints("                                                                               ");   
+        prints("                                                                               ");
       }
 
       /* ¼Ä¤H±¾¤F */
@@ -944,32 +949,33 @@ rpg_pk(fd,enemyid)
   int fd;
   char enemyid[IDLEN+1];
 {
-  rpgrec enemy; 
-  userec euser; 
+  rpgrec enemy;
+  userec euser;
   int MHP = rpguser.con*30,MMP= rpguser.wis*10;  /* ¦Û¤vªº³Ì¤jmp,hp */
   int Att = c_att(cuser.userid);  /* §ðÀ»¤O */
   int Def = c_def(cuser.userid);  /* ¨¾¿m¤O */
   int MA = c_ma(cuser.userid);    /* Å]ªk§ðÀ» */
   int MD = c_md(cuser.userid);    /* Å]ªk¨¾¿m */
   int Emhp,Emmp,Eatt=c_att(enemyid) ,Edef= c_def(enemyid)
-      ,Ema=c_ma(enemyid) ,Emd=c_md(enemyid) ; 
-  int money,exp;  /* ¥´§¹«á·|¼W¥[or´î¤Öªº$$¸òexp */
+      ,Ema=c_ma(enemyid) ,Emd=c_md(enemyid) ;
+/*  int money,exp; */ /* ¥´§¹«á·|¼W¥[or´î¤Öªº$$¸òexp */
   char buf[256]= "\0"; /* ansµ¹user input¥Î,bufµ¹¿Ã¹õoutput¥Î */
-  int j=0,k=0,l=0,over=0,attack=0; /* overµ²§ô¾Ô°«,attack¼Ä¤H§ðÀ» */
+  int j=0,k=0,/*l=0,*/over=0,attack=0; /* overµ²§ô¾Ô°«,attack¼Ä¤H§ðÀ» */
   int ans;
   user_info *my = currutmp;
 
   getuser(enemyid);
   enemy = rpgtmp;
-  euser = xuser;  
-  Emhp = enemy.con*30; Emmp = enemy.wis*10;     
+  euser = xuser;
+  Emhp = enemy.con*30; Emmp = enemy.wis*10;
   add_io(fd, 0);
 
-  setutmpmode(RPK); 
+  setutmpmode(RPK);
+  log_usies("RPG_PK",NULL);
 
   for(;;)
   {
-    if(over == 1) 
+    if(over == 1)
     {
       add_io(0, 0);
       close(fd);
@@ -986,11 +992,11 @@ rpg_pk(fd,enemyid)
       }
       else
       {
-        move(1,0); 
+        move(1,0);
         prints(
 "µ¥¯Å : %d\n¥Í©R : %d\n§ð¨¾ : %d / %d\nÅ]ªk : %d / %d\n¸gÅç : %d\n»È¹ô : %d"
 ,enemy.level,Emhp,Eatt,Edef,Ema,Emd,euser.exp,euser.silvermoney);
-      } 
+      }
       move(11,0);
       prints("[36m%s[m",msg_seperator);  /* ¤À¹j½u */
       move(13,0);
@@ -1002,7 +1008,7 @@ rpg_pk(fd,enemyid)
         j = ((enemy.hp*100)/Emhp >= 100 ? 0 :
             (enemy.hp*100)/Emhp >= 75  ? 1 :
             (enemy.hp*100)/Emhp >= 50 ? 2 :
-            (enemy.hp*100)/Emhp >= 25 ? 3 : 4);   
+            (enemy.hp*100)/Emhp >= 25 ? 3 : 4);
         move(0,0);
         clrtoeol();
         if(!HAS_PERM(PERM_SYSOP))
@@ -1046,7 +1052,7 @@ rpg_pk(fd,enemyid)
               outs(buf);
               k = (rand()%((Att-Edef)>=5 ? Att - Edef : 5))*j;
               sprintf(buf," %s ¥¢¦å %d ÂI¡C",euser.userid,k);
-              enemy.hp -= k;              
+              enemy.hp -= k;
               pressanykey(buf);
               my->turn = -1;
               send(fd, &my, sizeof(user_info), 0);

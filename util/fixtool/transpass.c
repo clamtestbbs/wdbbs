@@ -60,7 +60,11 @@ struct new
   int pagermode; 		  /* 呼叫器門號   4 bytes */
   char pagernum[7];		  /* 呼叫器號碼   7 bytes */
   char feeling[5];		  /* 心情指數     5 bytes */
-  char pad[123];		  /* 空著填滿至512用      */
+  char title[20];
+  usint five_win;
+  usint five_lost;
+  usint five_draw;
+  char pad[91];			  /* 空著填滿至512用      */
 };
 
 typedef struct new new;
@@ -177,10 +181,12 @@ main()
 	new.limitmoney=tuser.limitmoney;
 	new.rtimes=tuser.rtimes;
 	new.award=tuser.award;
-        memcpy(new.feeling," ",5);
+        memcpy(new.feeling,tuser.feeling,5);
 	new.pagermode=tuser.pagermode;
-	memcpy(new.pagernum," ",7);
+	memcpy(new.pagernum,tuser.pagernum,7);
+	memcpy(new.title,tuser.title,20);
 #endif
+	new.five_win = new.five_lost = new.five_draw = 0;
         write(fdw,&new,sizeof(new));
         ++i;
 //        if(!new.userid[0] && new.address[0])

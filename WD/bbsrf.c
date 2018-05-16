@@ -12,26 +12,11 @@
 #include <sys/param.h>
 
 
-//#define USE_UTMP
+#define USE_UTMP
 
-//#if defined(SOLARIS) || defined(SunOS)
+#if defined(SOLARIS) || defined(SunOS)
 #define USE_UTMPX
-/* Compatibility names for the strings of the canonical file names.  */
-# define UTMPX_FILE     _PATH_UTMPX
-# define UTMPX_FILENAME _PATH_UTMPX
-# define WTMPX_FILE     _PATH_WTMPX
-# define WTMPX_FILENAME _PATH_WTMPX
-
-
-#define _PATH_UTMPX     "/var/run/utx.active" 
-#define _PATH_WTMPX     "/var/log/utx.lastlogin" 
-#define _PATH_LASTLOG   "/var/log/lastlog" 
- 
-#define UT_NAMESIZE     32 
-#define UT_LINESIZE     8 
-#define UT_HOSTSIZE     256 
-
-//#endif
+#endif
 
 #ifdef SYSV
 #include <sys/utsname.h>

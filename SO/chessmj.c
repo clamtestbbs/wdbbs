@@ -21,7 +21,7 @@ int   selftouch;
 
 
 void
-chessmj_outz(msg)
+outz(msg)
   uschar *msg;
 {
   int ch;
@@ -49,7 +49,7 @@ void
 zmsg(msg)                       /* easy message */
   char *msg;
 {
-  chessmj_outz(msg); /* SiE: 980731: ¥Î outz ¥N´À */
+  outz(msg); /* SiE: 980731: ¥Î outz ¥N´À */
   refresh();
   zkey();
 }
@@ -65,7 +65,7 @@ int p_chessmj()
   long int money;
 
   clear();
-//  setutmpmode(CHESSMJ);
+  setutmpmode(CHESSMJ);
   do{
     move(0,0);prints("±zÁÙ¦³ [1;44;33m%d[m »È¨â",cuser.silvermoney);
     getdata(1, 0, "­nª±¦h¤Ö¤@©³¦h¤Ö»È¨â(1-250000)? ", buf1, 7, DOECHO,NULL);
@@ -643,7 +643,7 @@ int set[5],win;
   move(21,0);
   prints("    %8s [2 ¥x]  ","©³");
   prints("    %8s [%d ¥x]","¦X­p",sum+2);
-//  game_log(CHESSMJ,"%s %2d¥x[m",win?"[32;1mÄ¹":"[31;1m¿é",sum+2);
+  game_log(CHESSMJ,"%s %2d¥x[m",win?"[32;1mÄ¹":"[31;1m¿é",sum+2);
   return sum+2;
 }
 

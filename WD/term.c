@@ -51,7 +51,7 @@ struct termios tty_state, tty_new;
 #endif
 
 
-#ifdef USE_SCCS_IDS
+#if 0 //def USE_SCCS_IDS
 static const char SCCSid[] = "@(#) mytinfo tparm.c 3.2 92/02/01 public domain, By Ross Ridge";
 #endif
 
@@ -1000,7 +1000,7 @@ term_init(term)
   return YEA;
 }
 
-
+void ochar(int c);
 
 do_move(destcol, destline)
   int destcol, destline;

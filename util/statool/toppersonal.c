@@ -87,15 +87,13 @@ main(argc, argv)
   FILE *inf;
   int i;
 
-  if (argc < 3)
+  if (argc < 2)
   {
-    printf("Usage: %s <num_top> <out-file>\n", argv[0]);
+    printf("Usage: %s <out-file>\n", argv[0]);
     exit(1);
   }
 
-  num = atoi(argv[1]);
-  if (num == 0)
-    num = 100;
+  num = MAXBOARDS;
 
   inf = fopen(BBSHOME "/.BOARDS", "r");
 
@@ -120,7 +118,7 @@ main(argc, argv)
     }
   }
 
-  if ((fp = fopen(argv[2], "w")) == NULL)
+  if ((fp = fopen(argv[1], "w")) == NULL)
   {
     printf("cann't open topboard\n");
     return 0;

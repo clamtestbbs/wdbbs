@@ -6,33 +6,48 @@
 /* create : 95/03/29                                     */
 /* update : 95/12/15                                     */
 /*-------------------------------------------------------*/
+
 #define _MAIN_C_
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdarg.h>
+#define MAXMONEY ((cuser.totaltime * 10) + (cuser.numlogins * 100) + (cuser.numposts * 1000))
+
+#include <varargs.h>
+#include "bbs.h"
+
+#include <sys/resource.h> 
 #include <sys/wait.h> 
 #include <sys/socket.h>
 #include <netdb.h> 
 #include <netinet/in.h> 
 #include <arpa/telnet.h>
 #include <syslog.h>
-#include "bbs.h"
 
-#define SOCKET_QLEN	4
-#define PID_FILE	BBSHOME"/run/mbbsd.pid" 
+#define SOCKET_QLEN 4 
+#define TH_LOW 100 
+#define TH_HIGH 120
+#define PID_FILE BBSHOME"/run/mbbsd.pid" 
+
+#ifdef HAVE_CHKLOAD 
+#define BANNER "【風與塵埃的對話】◎ 電子布告欄系統 ◎(wdbbs.net)\r\n\
+ %s IP (211.75.90.90) \r\n"
+#else 
+#define BANNER "【風與塵埃的對話】◎ 電子布告欄系統 ◎(wdbbs.net)\r\n"
+#endif
 
 jmp_buf byebye;
 
 static uschar enter_uflag;
 char genbuf[1024];
-char tty_name[20] = "\0";
+
+#ifdef SHOW_IDLE_TIME
+char fromhost[STRLEN - 20] = "\0";
+#else
 char fromhost[STRLEN] = "\0";
+#endif
 char remoteusername[40];
 int mbbsd = 1; 
 
-static int use_shell_login_mode=0;
-//void check_register();
+void check_register();
 
 /* ----------------------------------------------------- */
 /* 離開 BBS 程式                                         */
@@ -80,9 +95,7 @@ u_exit(mode)
   auto_backup();
   setflags(PAGER_FLAG, currutmp->pager != 1);
   setflags(CLOAK_FLAG, currutmp->invisible);
-  /* alan.010307: 前4bits簽名紀錄, 後4bits pager狀態 */
-  xuser.pager = xuser.pager & 0xF0 + currutmp->pager;
-//  xuser.pager = currutmp->pager;	 /* 記錄pager狀態, add by wisely */
+  xuser.pager = currutmp->pager;	 /* 記錄pager狀態, add by wisely */
   xuser.invisible = currutmp->invisible; /* 紀錄隱形狀態 by wildcat */
   xuser.totaltime += time(0) - update_time;
   xuser.numposts = cuser.numposts;
@@ -90,17 +103,10 @@ u_exit(mode)
   xuser.pagernum[6] = '\0';
 
   if (!HAS_PERM(PERM_DENYPOST) && !currutmp->invisible)
-  {
-    char buf[256];
-    time_t now;
-    
-    time(&now);
-    sprintf(buf,"<<下站通知>> -- 我走囉！ - %s",Etime(&now));
-    do_aloha(buf);
-  }
+     do_aloha("<<下站通知>> -- 我走囉！");
 
   purge_utmp(currutmp);
-  if(!diff && cuser.numlogins > 1 && strcmp(cuser.userid,STR_GUEST))
+  if(!diff && cuser.numlogins && strcmp(cuser.userid,STR_GUEST))
     xuser.numlogins = --cuser.numlogins; /* Leeym 上站停留時間限制式 */
   substitute_record(fn_passwd, &xuser, sizeof(userec), usernum);
   log_usies(mode, NULL);
@@ -113,6 +119,8 @@ system_abort()
   if (currmode)
     u_exit("ABORT");
 
+  clear();
+  refresh();
   printf("謝謝光臨, 記得常來喔 !\n");
   sleep(1);
   exit(0);
@@ -145,9 +153,15 @@ dosearchuser(userid)
   char *userid;
 {
   if (usernum = getuser(userid))
+  {
     memcpy(&cuser, &xuser, sizeof(cuser));
+    memcpy(&rpguser, &rpgtmp, sizeof(rpguser));
+  }
   else
+  {
     memset(&cuser, 0, sizeof(cuser));
+    memset(&rpguser, 0, sizeof(rpguser));
+  }
   return usernum;
 }
 
@@ -155,7 +169,7 @@ dosearchuser(userid)
 static void
 talk_request()
 {
-#if defined ( __linux__ ) || defined ( __CYGWIN__ )
+#ifdef  LINUX
   /*
    * Linux 下連續 page 對方兩次就可以把對方踢出去： 這是由於某些系統一 nal
    * 進來就會將 signal handler 設定為內定的 handler, 不幸的是 default 是將程
@@ -166,7 +180,7 @@ talk_request()
 #endif
   bell();
   if (currutmp->msgcount) {
-     char buf[512];
+     char buf[200];
      time_t now = time(0);
 
      sprintf(buf, "\x1b[33;41m★%s\x1b[34;47m [%s] %s \x1b[0m",
@@ -194,7 +208,7 @@ talk_request()
 
 show_last_call_in()
 {
-   char buf[256];
+   char buf[200];
    sprintf(buf, COLOR2"\x1b[1m★ \x1b[37m%s %s \x1b[m",
       currutmp->msgs[0].last_userid,
       currutmp->msgs[0].last_call_in);
@@ -224,17 +238,20 @@ write_request()
 
   time(&now);
 
-#if defined ( __linux__ ) || defined ( __CYGWIN__ ) 
+#ifdef  LINUX
   signal(SIGUSR2, write_request);
 #endif
 
   update_data();
   ++cuser.receivemsg;
+  cuser.exp+= rpguser.race == 5 ? 15*rpguser.level : 3;
   substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
   bell();
   show_last_call_in();
+// wildcat patch : 看不到水球??!!
+  currutmp->msgcount--;
   memcpy(&oldmsg[no_oldmsg],&currutmp->msgs[0],sizeof(msgque));
-  ++no_oldmsg;
+  no_oldmsg++;
   no_oldmsg %= MAX_REVIEW;
   if(oldmsg_count < MAX_REVIEW) oldmsg_count++;
   if(watermode)
@@ -252,6 +269,7 @@ multi_user_check()
   register user_info *ui;
   register pid_t pid;
   int cmpuids();
+  char genbuf[3];
 
   if (HAS_PERM(PERM_SYSOP))
     return;         /* wildcat:站長不限制 */
@@ -265,7 +283,9 @@ multi_user_check()
     if (!pid || (kill(pid, 0) == -1))
       return;                   /* stale entry in utmp file */
 
-    if (getans("您想刪除其他重複的 login (Y/N)嗎？[Y] ") != 'n')
+    getdata(0, 0, "您想刪除其他重複的 login (Y/N)嗎？[Y] ", genbuf, 3, LCECHO,0);
+
+    if (genbuf[0] != 'n')
     {
       kill(pid, SIGHUP);
       log_usies("KICK ", cuser.username);
@@ -281,7 +301,7 @@ multi_user_check()
   } 
   else  /* guest的話 */
   {
-    if (count_multi() > 32)
+    if (count_multi() > 512)
     {
       pressanykey("抱歉，目前已有太多 guest, 請稍後再試。");
       oflush();
@@ -293,6 +313,7 @@ multi_user_check()
 /* --------- */
 /* bad login */
 /* --------- */
+
 static char str_badlogin[] = "logins.bad";
 
 
@@ -302,7 +323,7 @@ logattempt(uid, type)
   char type;                    /* '-' login failure   ' ' success */
 {
   char fname[40];
-  char genbuf[256];
+  char genbuf[200];
 
   sprintf(genbuf, "%c%-12s[%s] %s@%s\n", type, uid,
     Etime(&login_start_time), remoteusername, fromhost);
@@ -317,7 +338,7 @@ logattempt(uid, type)
   }
 }
 
-#ifdef __FreeBSD__
+#ifdef BSD44
 static int
 over_load()
 {
@@ -326,9 +347,11 @@ over_load()
   getloadavg(cpu_load, 3);
 
   if(cpu_load[0] > MAX_CPULOAD)
-    pressanykey("目前系統負荷 %f 過高,請稍後再來", cpu_load[0]);
-
-  return cpu_load[0];
+  {
+    pressanykey("目前系統負荷 %f 過高,請稍後再來",cpu_load[0]);
+    return 1;
+  }  
+  return 0;
 }
 #endif
 
@@ -337,20 +360,16 @@ login_query()
 {
   char uid[IDLEN + 1], passbuf[PASSLEN];
   int attempts;
-  char genbuf[512];
+  char genbuf[200];
   extern struct UTMPFILE *utmpshm;
-
-  signal(SIGALRM, abort_bbs);
 
   resolve_utmp();
   attempts = utmpshm->number;
   clear();
   show_file("etc/Welcome_title",0,10,ONLY_COLOR);
-  move(0,0);
+  move(10,0);
   counter(BBSHOME"/log/counter/上站人次","光臨本站",1);
   show_file("etc/Welcome_news",12,12,ONLY_COLOR);
-  signal(SIGALRM, abort_bbs);
-
   if (attempts >= MAXACTIVE)
   {
     pressanykey("目前站上人數已達上限，請您稍後再來。");
@@ -358,8 +377,8 @@ login_query()
     sleep(1);
     exit(1);
   }
-#ifdef __FreeBSD__
-  if(over_load() > MAX_CPULOAD) 
+#ifdef BSD44
+  if(over_load()) 
   {
     oflush();
     sleep(1);
@@ -372,7 +391,6 @@ login_query()
     if (attempts++ >= LOGINATTEMPTS)
     {
       pressanykey("錯誤太多次,掰掰~~~~~");
-      oflush();
       exit(1);
     }
     uid[0] = '\0';
@@ -403,10 +421,18 @@ login_query()
       else
       {
         /* SYSOP gets all permission bits */
+
         if (!ci_strcmp(cuser.userid, str_sysop))
           cuser.userlevel = ~0;
-        logattempt(cuser.userid, ' ');
-        break;
+        if (0 && HAS_PERM(PERM_SYSOP) && !strncmp(getenv("RFC931"), "?@", 2)) {
+           logattempt(cuser.userid, '*');
+           outs("站長請由 trusted host 進入");
+           continue;
+        }
+        else {
+           logattempt(cuser.userid, ' ');
+           break;
+        }
       }
     }
     else
@@ -416,7 +442,6 @@ login_query()
       break;
     }
   }
-  signal(SIGALRM, SIG_IGN);
 
   multi_user_check();
   sethomepath(genbuf, cuser.userid);
@@ -426,6 +451,10 @@ login_query()
 }
 
 
+
+/*
+woju
+*/
 add_distinct(char* fname, char* line)
 {
    FILE *fp;
@@ -440,7 +469,7 @@ add_distinct(char* fname, char* line)
       strcat(tmpname, "_tmp");
       if (!(fptmp = fopen(tmpname, "w"))) {
          fclose(fp);
-         return 0;
+         return;
       }
 
       rewind(fp);
@@ -487,7 +516,7 @@ del_distinct(char* fname, char* line)
       strcat(tmpname, "_tmp");
       if (!(fptmp = fopen(tmpname, "w"))) {
          fclose(fp);
-         return 0;
+         return;
       }
 
       rewind(fp);
@@ -567,14 +596,16 @@ setup_utmp(mode)
   uinfo.msgcount = 0;
   if(cuser.userlevel & PERM_BM) check_BM(); /* Ptt 自動取下離職板主權力 */
   uinfo.userlevel = cuser.userlevel;
+  uinfo.lastact = time(NULL);
 
   strcpy(uinfo.userid, cuser.userid);
   strcpy(uinfo.realname, cuser.realname);
   strcpy(uinfo.username, cuser.username);
   strcpy(uinfo.feeling, cuser.feeling);
   strncpy(uinfo.from, fromhost, 23);
-  uinfo.invisible = cuser.invisible;
-  uinfo.pager     = cuser.pager & 7;
+  uinfo.invisible = cuser.invisible%2;
+  uinfo.pager     = cuser.pager%5;
+  uinfo.brc_id    = 0;
 
 /* Ptt WHERE*/
 
@@ -586,11 +617,6 @@ setup_utmp(mode)
   setuserfile(buf, "remoteuser");
   add_distinct(buf, getenv("RFC931"));
 
-#ifdef SHOW_IDLE_TIME
-  if (use_shell_login_mode)
-    strcpy(uinfo.tty, tty_name);
-#endif
-
   if (enter_uflag & CLOAK_FLAG)
       uinfo.invisible = YEA;
   
@@ -601,7 +627,8 @@ setup_utmp(mode)
 static void
 user_login()
 {
-  char genbuf[256];
+  char ans[4];
+  char genbuf[200];
   struct tm *ptime,*tmp;
   time_t now = time(0);
   int a;
@@ -611,9 +638,6 @@ user_login()
   extern int fcache_semid;
   
   log_usies("ENTER", getenv("RFC931")/* fromhost */);
-#if 0
-  setproctitle("%s: %s", cuser.userid, fromhost);
-#endif
 
   /* ------------------------ */
   /* 初始化 uinfo、flag、mode */
@@ -658,14 +682,10 @@ user_login()
   /* ------------ */
 
   if (!(HAS_PERM(PERM_SYSOP) && HAS_PERM(PERM_DENYPOST)))
-  {
-    char buf[256];
-    time_t now;
-    
-    time(&now);
-    sprintf(buf,"<<上站通知>> -- 我來囉！ - %s",Etime(&now));
-    do_aloha(buf);
-  }
+     do_aloha("<<上站通知>> -- 我來啦！");
+/*
+Ptt
+*/
 
   time(&now);
   ptime = localtime(&now);
@@ -698,16 +718,19 @@ user_login()
 
 
 /* Ptt */
-    ptime = localtime(&cuser.lastlogin);
-    if(currutmp->birth == 1 
-      && (ptime->tm_mday != cuser.day || ptime->tm_mon + 1 != cuser.month))
-    {
-      more("etc/Welcome_birth",YEA);
-    }
+  if(currutmp->birth == 1)
+   {
+    more("etc/Welcome_birth",YEA);
+    brc_initial("Greeting");
+    set_board();
+    do_post();
+   }
     setuserfile(genbuf, str_badlogin);
     if (more(genbuf, NA) != -1)
     {
-      if (getans("您要刪除以上錯誤嘗試的記錄嗎(Y/N)?[Y]") != 'n')
+      getdata(b_lines - 1, 0, "您要刪除以上錯誤嘗試的記錄嗎(Y/N)?[Y]",
+        ans, 3, LCECHO,"Y");
+      if (*ans != 'n')
         unlink(genbuf);
     }
     check_register();
@@ -740,6 +763,7 @@ user_login()
     sprintf(currutmp->realname, cuser.realname);
     sprintf(cuser.address, addr[i]);
     cuser.sex = sex[i];
+    cuser.silvermoney = 300;
     cuser.habit = HABIT_GUEST;	/* guest's habit */
     currutmp->pager = 2;
     pressanykey(NULL);
@@ -757,12 +781,19 @@ user_login()
    {
      more("etc/newuser",YEA);
      HELP();
-     pressanykey("唷?!新來的唷?稍後可以到 Hi_All 板自我介紹一下唷!");
-  }
+     pressanykey("唷?!新來的唷?自我介紹一下吧!");
+     if(brc_initial("Hi_All"))
+     {
+       set_board();
+       do_post();
+     }
+   }
   if(HAS_HABIT(HABIT_NOTE))
     more("note.ans",YEA);
   if(HAS_HABIT(HABIT_SEELOG))
     Log();
+  if(!HAS_HABIT(HABIT_ALREADYSET) && cuser.userlevel)
+    u_habit();
 }
 
 
@@ -770,7 +801,7 @@ do_aloha(char *hello)
 {
    int fd;
    PAL pal;
-   char genbuf[256];
+   char genbuf[200];
 
    setuserfile(genbuf, FN_ALOHA);
    if ((fd = open(genbuf, O_RDONLY)) > 0)
@@ -828,14 +859,24 @@ check_max_online()
 
 
 void
+do_term_init()
+{
+  char genbuf[10];
+  if (!term_init("vt100"))
+  {
+    do
+    {
+      getdata(0, 0, "\n終端機型態錯誤！請輸入 [vt100]：", genbuf, 8, DOECHO,0);
+    } while (!term_init(genbuf));
+  }
+  initscr();
+}
+
+void
 start_client()
 {
-  char cmd[80] = "?@";
   extern struct commands cmdlist[];
   extern char currmaildir[32];
-
-  if (!getenv("RFC931"))
-    setenv("RFC931", strcat(cmd, fromhost), 1);
 
   /* ----------- */
   /* system init */
@@ -843,15 +884,35 @@ start_client()
   currmode = 0;
   update_time = login_start_time;
 
+/*
+woju
+*/
+{
+   char cmd[80] = "?@";
+
+   if (!getenv("RFC931"))
+      setenv("RFC931", strcat(cmd, fromhost), 1);
+}
+
   signal(SIGHUP, abort_bbs);
   signal(SIGBUS, abort_bbs);
   signal(SIGSEGV, abort_bbs);
 #ifdef SIGSYS
   signal(SIGSYS, abort_bbs);
 #endif
+//  signal(SIGINT, SIG_IGN);
+//  signal(SIGQUIT, SIG_IGN);
+//  signal(SIGPIPE, SIG_IGN);
   signal(SIGTERM, SIG_IGN);
 
+//  signal(SIGURG, SIG_IGN);
+//  signal(SIGTSTP, SIG_IGN);
+//  signal(SIGTTIN, SIG_IGN);
+//  signal(SIGTTOU, SIG_IGN);
+
+// 收到訊息
   signal(SIGUSR1, talk_request);
+// 送出訊息
   signal(SIGUSR2, write_request);
 
   if (setjmp(byebye))
@@ -859,8 +920,7 @@ start_client()
 
   dup2(0, 1);
   
-  term_init("vt100");
-  initscr();
+  do_term_init();
   login_query();
   user_login();
   check_max_online();
@@ -879,16 +939,15 @@ start_client()
 #endif
   if (HAVE_PERM(PERM_SYSOP | PERM_BM))
   {
-#ifdef NO_SO
-    b_closepolls();
-#else
     DL_func("SO/vote.so:b_closepolls");
-#endif
   }
   if (!HAVE_HABIT(HABIT_COLOR))
     showansi = 0;
   while (chkmailbox())
      m_read();
+#ifdef HAVE_GAME
+  waste_money();
+#endif
 
 #ifdef POSTNOTIFY
   m_postnotify(); 
@@ -898,17 +957,22 @@ start_client()
   {
     char buf[80];
     setbfile(buf, "VIP", FN_LIST);
-    if(belong_list(buf, cuser.userid) > 0)
+    if(belong_list(buf,cuser.userid))
       force_board("VIP");
     setbfile(buf, "WD_plan", FN_LIST);
-    if(belong_list(buf,cuser.userid) > 0)
+    if(belong_list(buf,cuser.userid))
       force_board("WD_plan");
+    if(HAS_PERM(PERM_SYSOP))
+      force_board("WIND");
   }
-  if(HAS_PERM(PERM_SYSOP))
-    force_board("WIND");
-  if(HAS_PERM(PERM_BM))
-    force_board("BM");
 //  force_board("Boards");
+  if(HAS_HABIT(HABIT_RPG) && !rpguser.race && cuser.userlevel)
+  {
+    rpg_help();
+    DL_func("SO/rpg.so:rpg_race_c");
+  }
+  else
+    cuser.habit ^= HABIT_RPG;
 
   if(HAS_HABIT(HABIT_FROM) && HAS_PERM(PERM_FROM))
   {
@@ -917,7 +981,6 @@ start_client()
     if(getdata(b_lines, 0, fbuf, currutmp->from, 17, DOECHO,0))
       currutmp->from_alias=0;
   }
-  
   if(HAS_HABIT(HABIT_FEELING))
   {
     getdata(b_lines ,0,"今天的心情如何呢？", cuser.feeling, 5 ,DOECHO,cuser.feeling);
@@ -926,10 +989,35 @@ start_client()
     substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
   }
 
+  if(HAS_HABIT(HABIT_NOTEMONEY))
+    DL_func("SO/mn.so:show_mn");
+  if(cuser.exp >= rpguser.level*rpguser.level*10000 && rpguser.race)
+  {
+    pressanykey("你已經可以升級囉"); 
+    DL_func("SO/rpg.so:rpg_guild");
+  }
+
   if (HAS_PERM(PERM_ACCOUNTS) && dashf(fn_register))
     m_register();             
   domenu(MMENU, "主功\能表", (chkmail(0) ? 'M' : 'B'), cmdlist);
 }
+
+#ifdef HAVE_GAME
+waste_money()
+{
+  while(cuser.silvermoney >= MAXMONEY
+    && cuser.numlogins > 2)
+  {
+    clear();
+    move(10,0);
+    prints("你的銀幣上限為 %ld！\n\n\n\n",MAXMONEY);
+    outs("請想辦法花掉一些 , 或是把錢轉成金幣吧!\n在商業中心的銀行中有換錢的選項 .");    
+    pressanykey("你錢太多囉！想辦法花掉吧！");
+    finance();
+    game_list();
+  }
+}
+#endif
 
 /* ----------------------------------------------------- */
 /* FSA (finite state automata) for telnet protocol       */
@@ -953,23 +1041,24 @@ telnet_init()
   char buf[256];
 
   data = buf;
+
+
   to.tv_sec = 1;
   rset = to.tv_usec = 0;
   FD_SET(0, (fd_set *) & rset);
   oset = rset;
-
   for (n = 0, cmd = svr; n < 4; n++)
   {
     len = (n == 1 ? 6 : 3);
     write(0, cmd, len);
     cmd += len;
 
-    if (select(1, (fd_set *) & rset, NULL, NULL, &to) >0)
-      read(0, data, sizeof(buf));
+    if (select(1, (fd_set *) & rset, NULL, NULL, &to) > 0)
+      recv(0, buf, sizeof(buf), 0);
+//      read(0, data, sizeof(buf));
     rset = oset;
   }
 }
-
 
 
 /* ----------------------------------------------- */
@@ -1033,7 +1122,6 @@ getremotename(from, rhost, rname)
       from->sin_family);
     alarm(0);
   }
-  strcpy(rhost, hp ? hp->h_name : (char *) inet_ntoa(from->sin_addr));
 
   /*
    * Use one unbuffered stdio stream for writing to and for reading from the
@@ -1150,7 +1238,7 @@ static void
 start_daemon()
 {
   int n;
-//  char buf[80];
+  char buf[80];
 
   /*
    * More idiot speed-hacking --- the first time conversion makes the C
@@ -1159,19 +1247,33 @@ start_daemon()
    * children, once per connection --- and it does add up.
    */
 
-//  time_t dummy = time(NULL);
-//  struct tm *dummy_time = localtime(&dummy);
+  time_t dummy = time(NULL);
+  struct tm *dummy_time = localtime(&dummy);
+  (void) strftime(buf, 80, "%d/%b/%Y:%H:%M:%S", dummy_time);
+/*
+  (void) gethostname(myhostname, sizeof(myhostname));
+*/
 
-//  strftime(buf, 80, "%d/%b/%Y:%H:%M:%S", dummy_time);
-
-  if (n = fork())
-  {
-    fprintf(stdout, "MBBS Daemon Stard in PID[%d]\n",n);
+  if (n=fork())
+   {
+    printf("pid[%d]\n",n);
     exit(0);
+   }
+  n = getdtablesize();
+  sprintf(genbuf, "%d\t%s", getpid(), buf);
+
+  while (n)
+    (void) close(--n);
+
+  n = open("/dev/tty", O_RDWR);
+  if (n > 0)
+  {
+    (void) ioctl(n, TIOCNOTTY, (char *) 0);
+    (void) close(n);
   }
 
-  n = getdtablesize();
-
+  for (n = 1; n < NSIG; n++)
+    (void) signal(n, SIG_IGN);
 }
 
 
@@ -1212,7 +1314,6 @@ bind_port(port)
   return sock;
 }
 
-int
 bad_host(char* name)
 {
    FILE* list;
@@ -1235,7 +1336,6 @@ bad_host(char* name)
 }
 
 
-int
 main(argc, argv,envp)
   int argc;
   char *argv[];
@@ -1249,186 +1349,166 @@ main(argc, argv,envp)
   int value;
   struct timeval tv;
 
-  /* avoid SIGPIPE */
-  signal(SIGPIPE,SIG_IGN);
-    
-  /* avoid erroneous signal from other mbbsd */
-  signal(SIGUSR1,SIG_IGN);
-  signal(SIGUSR2,SIG_IGN);
-  
-  /* check if invoked as "bbs" */
-  if(argc > 2 && !strcmp(argv[0], "mbbsd"))
+  /* --------------------------------------------------- */
+  /* setup standalone                                    */
+  /* --------------------------------------------------- */
+  start_daemon();
+
+  (void) signal(SIGCHLD, reapchild);
+  (void) signal(SIGTERM, close_daemon);
+
+
+  /* --------------------------------------------------- */
+  /* port binding                                        */
+  /* --------------------------------------------------- */
+
+  xsin.sin_family = AF_INET;
+
+  sprintf(margs,"%s ",argv[0]);
+  if (argc > 1)
   {
-    /* Give up root privileges: no way back from here */
-    setgid(BBSGID);
-    setuid(BBSUID);
-    chdir(BBSHOME);
-
-    use_shell_login_mode = 1;
-
-    /* copy from the original "bbs" */
-    if(argc > 1) {
-      strcpy(fromhost, argv[1]);
-#ifdef SHOW_IDLE_TIME
-      if(argc > 2)
-        strcpy(tty_name, argv[2]);
-#endif
-      if(argc > 3)
-        strcpy(remoteusername, argv[3]);
+    msock = -1;
+    for (nfds = 1; nfds < argc; nfds++)
+    {
+      csock = atoi(argv[nfds]);
+      if (csock > 0)
+        {
+         msock = bind_port(csock);
+         strcat(margs,argv[nfds]);
+	 strcat(margs," ");
+	}
+      else
+         break;
     }
-	
-    close(2);
-    init_tty();
-
-    nice(3);      /*  Ptt lower priority */
-    login_start_time = time(0);
-    start_client();
+    if (msock < 0)
+      exit(1);
   }
   else
   {
-    time_t now;
-    /* --------------------------------------------------- */
-    /* setup standalone                                    */
-    /* --------------------------------------------------- */
-    start_daemon();
+    static int ports[] = {23,3333,3006};
 
-    signal(SIGCHLD, reapchild);
-    signal(SIGTERM, close_daemon);
-
-    /* --------------------------------------------------- */
-    /* port binding                                        */
-    /* --------------------------------------------------- */
-
-    xsin.sin_family = AF_INET;
-  
-    time(&now);
-    sprintf(genbuf, "%d\t%s", getpid(), Ctime(&now));
-
-    if (argc > 1)
+    for (nfds = 0; nfds < sizeof(ports) / sizeof(int); nfds++)
     {
-      msock = -1;
-      for (nfds = 1; nfds < argc; nfds++)
-      {
-        csock = atoi(argv[nfds]);
-        if (csock > 0)
-        {
-           msock = bind_port(csock);
-           sprintf(genbuf + 512, " %d", csock);
-           strcat(genbuf, genbuf + 512);
-           strcat(margs, genbuf + 512);
-	}
-        else
-          break;
-      }
-      if (msock < 0)
-        exit(1);
+      csock = ports[nfds];
+      msock = bind_port(csock);
+
+      sprintf(genbuf + 512, "\t%d", csock);
+      strcat(genbuf, genbuf + 512);
     }
-    else
-    {
-      static int ports[] = {5757};
+  }
+  nfds = msock + 1;
 
-      for (nfds = 0; nfds < sizeof(ports) / sizeof(int); nfds++)
-      {
-        csock = ports[nfds];
-        msock = bind_port(csock);
+  /* --------------------------------------------------- */
+  /* Give up root privileges: no way back from here      */
+  /* --------------------------------------------------- */
 
-        sprintf(genbuf + 512, " %d", csock);
-        strcat(genbuf, genbuf + 512);
-        strcat(margs, genbuf + 512);
-      }
-    }
-    nfds = msock + 1;
+  (void) setgid(BBSGID);
+  (void) setuid(BBSUID);
+  (void) chdir(BBSHOME);
 
-    /* --------------------------------------------------- */
-    /* Give up root privileges: no way back from here      */
-    /* --------------------------------------------------- */
-
-    setgid(BBSGID);
-    setuid(BBSUID);
-    chdir(BBSHOME);
-
-    f_cat(PID_FILE, genbuf); 
-
-#if 0
-    setproctitle("listening%s", margs);
-#endif
-
-    /* --------------------------------------------------- */
-    /* main loop                                           */
-    /* --------------------------------------------------- */
+  f_cat(PID_FILE, genbuf); 
 
 
+  initsetproctitle(argc, argv, envp);
+  printpt("%s: listening ",margs);
 
-    for (;;)
-    {
+  /* --------------------------------------------------- */
+  /* main loop                                           */
+  /* --------------------------------------------------- */
+
+/*
+  th_low = (argc > 1) ? atoi(argv[1]) : TH_LOW;
+  th_high = (argc > 2) ? atoi(argv[2]) : TH_HIGH;
+*/
+
+  tv.tv_sec = 60 * 30;
+  tv.tv_usec = 0;
+
+
+  for (;;)
+  {
 again:
 
-      tv.tv_sec = 60 * 30;
-      tv.tv_usec = 0;
+    readset = mainset;
+    msock = select(nfds, (fd_set *) & readset, NULL, NULL, &tv);
 
-      readset = mainset;
-      msock = select(nfds, (fd_set *) & readset, NULL, NULL, &tv);
-
-      if (msock < 0)
-      {
-        goto again;
-      }
-      else if (msock == 0)        /* No network traffic */
-        continue;
- 
-      msock = 0;
-      csock = 1;
-      for (;;)
-      {
-        if (csock & readset)
-          break;
-        if (++msock >= nfds)
-        {
-          goto again;
-        }
-        csock <<= 1;
-      }
-
-      value = sizeof xsin;
-      do
-      {
-        csock = accept(msock, (struct sockaddr *)&xsin, &value);
-      } while (csock < 0 && errno == EINTR);
-
-      if (csock < 0)
-      {
-        goto again;
-      }
-
-
-      pid = fork();
-
-      if (!pid)
-      {
-#if 0
-        setproctitle("...login...");
-#endif
-        nice(2);      /*  Ptt lower priority */
-        write(csock, BANNER , strlen(BANNER));
-        while (--nfds >= 0)
-          close(nfds);
-        dup2(csock, 0);
-        close(csock);
-        login_start_time = time(0);
-
-        getremotename(&xsin, fromhost, remoteusername);   /* FC931 */
-
-        /* ban 掉 bad host / bad user  */
-        if (bad_host(fromhost))
-          exit(1);
-          
-        setenv("REMOTEHOST", fromhost, 1);
-        setenv("REMOTEUSERNAME", remoteusername, 1);
-
-        telnet_init();
-        start_client();
-      }
-      close(csock);
+    if (msock < 0)
+    {
+      goto again;
     }
+    else if (msock == 0)        /* No network traffic */
+      continue;
+
+    msock = 0;
+    csock = 1;
+    for (;;)
+    {
+      if (csock & readset)
+        break;
+      if (++msock >= nfds)
+        goto again;
+      csock <<= 1;
+    }
+
+    value = sizeof xsin;
+    do
+    {
+      csock = accept(msock, (struct sockaddr *)&xsin, &value);
+    } while (csock < 0 && errno == EINTR);
+
+    if (csock < 0)
+    {
+      goto again;
+    }
+
+/*
+    pid = *totaluser;
+    if (pid >= MAXACTIVE)
+    {
+      char buf[128];
+
+      (void) sprintf(buf, "目前線上人數 [%d] 人，客滿了，請稍後再來", pid);
+      (void) write(csock, buf, strlen(buf));
+      (void) close(csock);
+      goto again;
+    }
+*/
+    pid = fork();
+
+    if (!pid)
+    {
+     char info[256];
+     time_t now;
+
+     initsetproctitle(argc, argv, envp);
+     nice(2);      /*  Ptt lower priority */
+     sprintf(info, BANNER, genbuf);   
+     info[255]=0;
+     write(csock,info , strlen(info));
+      while (--nfds >= 0)
+        (void) close(nfds);
+      (void) dup2(csock, 0);
+      (void) close(csock);
+      time(&now);
+      login_start_time = now;
+
+      getremotename(&xsin, fromhost, remoteusername);   /* FC931 */
+
+      /* ban 掉 bad host / bad user  */
+      if (bad_host(fromhost))
+         exit(1);
+      setenv("REMOTEHOST", fromhost, 1);
+      setenv("REMOTEUSERNAME", remoteusername, 1);
+      {
+        char RFC931[80];
+        sprintf(RFC931, "%s@%s", remoteusername, fromhost);
+        setenv("RFC931", RFC931, 1);
+      }
+      telnet_init();
+      printpt("mbbsd : %s",fromhost);
+      start_client();
+    }
+    
+    (void) close(csock);
   }
 }

@@ -3,7 +3,7 @@
 
 
 #define  PASSWD BBSHOME"/.PASSWDS"
-#define  OUT BBSHOME"/etc/GNP"
+#define  OUT BBSHOME"/log/GNP"
 
 int coun=0,count=0;
 userec cuser;
@@ -62,6 +62,10 @@ main()
    }         
    else	
    {
+      if(cuser.goldmoney > 1000000 || cuser.silvermoney >50000000)
+        printf("[1;33m<%d> userid:%s  silver:%d  gold: %d[m\n",
+          count,cuser.userid,cuser.silvermoney,cuser.goldmoney);
+        
       coun ++;
       total1+=(cuser.goldmoney);    
       total2+=(cuser.silvermoney);    

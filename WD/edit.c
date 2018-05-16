@@ -919,7 +919,7 @@ static void
 do_quote()
 {
   int op;
-  char buf[512];
+  char buf[256];
 
   getdata(b_lines - 1, 0, "請問要引用原文嗎(Y/N/All/Repost)？[Y] ", buf, 3, LCECHO,"Y");
   op = buf[0];
@@ -933,7 +933,7 @@ do_quote()
       char *ptr;
       int indent_mode0 = indent_mode;
 
-      fgets(buf, 512, inf);
+      fgets(buf, 256, inf);
       if (ptr = strrchr(buf, ')'))
         ptr[1] = '\0';
       else if (ptr = strrchr(buf, '\n'))
@@ -963,12 +963,12 @@ do_quote()
 
       if (op != 'a')            /* 去掉 header */
       {
-        while (fgets(buf, 512, inf) && buf[0] != '\n');
+        while (fgets(buf, 256, inf) && buf[0] != '\n');
       }
 
       if (op == 'a')
       {
-        while (fgets(buf, 512, inf))
+        while (fgets(buf, 256, inf))
         {
           insert_char(':');
           insert_char(' ');
@@ -977,17 +977,17 @@ do_quote()
       }
       else if (op == 'r')
       {
-        while (fgets(buf, 512, inf))
+        while (fgets(buf, 256, inf))
           insert_string(Ptt_prints(buf,NO_RELOAD));
       }
       else
       {
         if (curredit & EDIT_LIST)       /* 去掉 mail list 之 header */
         {
-          while (fgets(buf, 512, inf) && (!strncmp(buf, "※ ", 3)));
+          while (fgets(buf, 256, inf) && (!strncmp(buf, "※ ", 3)));
         }
 
-        while (fgets(buf, 512, inf))
+        while (fgets(buf, 256, inf))
         {
           if (!strcmp(buf, "--\n"))
             break;
@@ -1218,7 +1218,7 @@ showsignature(fname)
   char *fname;
 {
   FILE *fp;
-  char buf[512];
+  char buf[256];
   int i, j;
   char ch;
 
@@ -1233,7 +1233,7 @@ showsignature(fname)
     if (fp = fopen(fname, "r"))
     {
       prints("\x1b[36m【 簽名檔.%c 】\x1b[m\n", ch);
-      for (i = 0; i++ < MAXSIGLINES && fgets(buf, 512, fp); outs(buf));
+      for (i = 0; i++ < MAXSIGLINES && fgets(buf, 256, fp); outs(buf));
       fclose(fp);
     }
   }
@@ -1249,10 +1249,10 @@ addsignature(fp)
   int i;
   char buf[WRAPMARGIN + 1];
   char fpath[STRLEN];
-  userec xuser;
 
   static char msg[] = "請選擇簽名檔 (1-9, 0=不加)[0]: ";
   char ch;
+  static char currsig = '1';	/* shakalaca.990426: 內定是用第一個 sig */
   
   extern bad_user(char* name);
 
@@ -1266,19 +1266,14 @@ addsignature(fp)
 /* shakalaca.990425 */
 /* original */
 /*  msg[27] = ch = '0' + (cuser.uflag & SIG_FLAG); */
-  rec_get(fn_passwd, &xuser, sizeof(xuser), usernum);
-  msg[27] = ch = '0' + (xuser.pager >> 4);
-//  msg[27] = ch = currsig = cuser.signum ? cuser.signum : '0';
-  
+  msg[27] = ch = currsig;
+
   getdata(0, 0, msg, buf, 4, DOECHO,0);
 
   if (ch != buf[0] && buf[0] >= '0' && buf[0] <= '9')
   {
     ch = buf[0];
-//    currsig = buf[0];
-//    cuser.signum = buf[0];
-    xuser.pager = ((buf[0] - '0') << 4) + (xuser.pager & 0x0F);
-    substitute_record(fn_passwd, &xuser, sizeof(userec), usernum);
+    currsig = buf[0];
 /* shakalaca.990426: original */
 /* cuser.uflag = (cuser.uflag & ~SIG_FLAG) | (ch & SIG_FLAG); */
   }
@@ -1399,6 +1394,7 @@ write_file(fpath, saveheader)
     {
       sethomepath(fpath, cuser.userid);
       strcpy(fpath, tempnam(fpath, "ve_"));
+      debug(fpath);
     }
 
     if ((fp = fopen(fpath, "w")) == NULL)
@@ -1426,8 +1422,8 @@ write_file(fpath, saveheader)
       }
     }
 /* shakalaca patch            */
-/* undef it for Linux 990816  */
-#if !defined ( __linux__ ) || !defined ( __CYGWIN__ )
+/* undef it for LINUX 990816  */
+#ifndef LINUX
     free(p); 
 #endif
   }
@@ -2047,6 +2043,8 @@ block_color()
 
 
 extern int my_write();
+// extern a_menu(char *maintitle, char *path, int lastlevel);
+extern gem_menu(char *fpath, int perm, int mode);
 
 int
 vedit(fpath, saveheader)
@@ -2054,12 +2052,14 @@ vedit(fpath, saveheader)
   int saveheader;
 {
   FILE *fp1;  /* Ptt */
+  char buf[80];
   char last;
   int ch, foo;
   int lastindent = -1;
   int last_margin;
   int mode0 = currutmp->mode;
   int destuid0 = currutmp->destuid;
+  unsigned int money=0;
   unsigned short int interval=0;
   unsigned short int count=0;
   time_t now=0,th;
@@ -2142,11 +2142,19 @@ vedit(fpath, saveheader)
            count=0;
          now = th;
          if ((char)ch!=last)
+         {
+            money++;
             last=(char)ch;
+         }
         }
 /* Jaky */
-    if (count >= 200)
+    if (count >= 300)
+    {
+       sprintf (buf,"\x1b[1;33;46m%s\x1b[37m在\x1b[37;45m%s\x1b[37m板違法賺錢 , %s\x1b[m",cuser.userid,currboard,ctime(&now));
+       f_cat ("etc/illegal_money",buf);
+       degold(100);
        abort_bbs();              /* 連續兩百秒不鬆手,分明是在斂財*/
+    }
 
     if (raw_mode)
        switch (ch) {
@@ -2241,7 +2249,8 @@ woju
           my_ansimode = my_ansimode0;
           edit_margin = edit_margin0;
           blockln = blockln0;
-          return foo;
+          if(!foo) return money;
+          else return foo;
         }
         line_dirty = 1;
         redraw_everything = YEA;
@@ -2290,14 +2299,14 @@ woju
         {
           char ans[4];
           move(b_lines - 2, 55);
-          outs("\x1b[1;33;40mB\x1b[41mR\x1b[42mG\x1b[43mY\x1b[44mL\x1b[45mP\x1b[46mC\x1b[47mW\x1b[m");
+          outs("\033[1;33;40mB\033[41mR\033[42mG\033[43mY\033[44mL\033[45mP\033[46mC\033[47mW\033[m");
           if (getdata(b_lines - 1, 0, "請輸入  亮度/前景/背景[正常白字黑底][0wb]：", ans, 4, LCECHO,0))
           {
             char t[] = "BRGYLPCW";
             char color[15];
             char *tmp, *apos = ans;
             int fg, bg;
-            strcpy(color, "\x1b[");
+            strcpy(color, "\033[");
             if (isdigit(*apos))
             {
               sprintf(color, "%s%c", color, *(apos++));
@@ -2510,40 +2519,36 @@ woju
 /* Ptt */
       case Ctrl('G'):  /* 啟動範本精靈 */
         {
-          int mode0 = currutmp->mode;
-          int currstat0 = currstat;
-          //setutmpmode(EDITEXP);
-          a_menu("編輯輔助器", "etc/editexp", (HAS_PERM(PERM_SYSOP) ? SYSOP : NOBODY),EDITEXP);
-          currutmp->mode = mode0;
-          currstat = currstat0;
+         int mode0 = currutmp->mode;
+         gem_menu("etc/editexp/.DIR", (HAS_PERM(PERM_SYSOP) ? 1 : 0), EDITEXP);
+         currutmp->mode = mode0;
         }
-        if (trans_buffer[0])
-        {
-          if (fp1 = fopen(trans_buffer, "r"))
-          {
-            int indent_mode0 = indent_mode;
-            indent_mode = 0;
-            prevln = currln;
-            prevpnt = currpnt;
+        if(trans_buffer[0])
+                {
+                    if (fp1 = fopen(trans_buffer, "r"))
+                          {
+                            int indent_mode0 = indent_mode;
+                            indent_mode = 0;
+                            prevln = currln;
+                            prevpnt = currpnt;
 
-            while (fgets(line, WRAPMARGIN + 2, fp1))
-            {
-              if (!strncmp(line,"作者:",5) ||
-                  !strncmp(line,"標題:",5) ||
-                  !strncmp(line,"時間:",5)) 
-                continue;
-              insert_string(line);
-            }
-            fclose(fp1);
-            indent_mode = indent_mode0;
+                            while (fgets(line, WRAPMARGIN + 2, fp1))
+                                {
+                                 if(!strncmp(line,"作者:",5) ||
+                                    !strncmp(line,"標題:",5) ||
+                                    !strncmp(line,"時間:",5)) continue;
+                                 insert_string(line);
+                                }
+                            fclose(fp1);
+                            indent_mode = indent_mode0;
 
-            while (curr_window_line >= b_lines)
-            {
-              curr_window_line--;
-              top_of_win = top_of_win->next;
-            }
-          }
-        }
+                            while (curr_window_line >= b_lines)
+                            {
+                              curr_window_line--;
+                              top_of_win = top_of_win->next;
+                            }
+                          }
+                }
         redraw_everything = YEA;
         line_dirty = 1;
         break;

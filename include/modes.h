@@ -54,48 +54,105 @@ enum
 #define CLASS           7
 #define PMENU           8
 #define NMENU           9
-#define POSTING         10      /* boards & class */
-#define READBRD         11
-#define READING         12
-#define READNEW         13
-#define SELECT          14
-#define RMAIL           15      /* mail menu */
-#define SMAIL           16
-#define CHATING         17      /* talk menu */
-#define XMODE           18
-#define FRIEND          19
-#define LAUSERS         20
-#define LUSERS          21
-#define MONITOR         22
-#define PAGE            23
-#define QUERY           24
-#define TALK            25
-#define EDITPLAN        26      /* user menu */
-#define EDITSIG         27
-#define VOTING          28
-#define XINFO           29
-#define MSYSOP          30
-#define LOG		31
-#define REPLY           32
-#define HIT             33
-#define DBACK           34
-#define NOTE            35
-#define EDITING         36
-#define MAILALL         37
+#define FINANCE         10
+#define POSTING         11      /* boards & class */
+#define READBRD         12
+#define READING         13
+#define READNEW         14
+#define SELECT          15
+#define RMAIL           16      /* mail menu */
+#define SMAIL           17
+#define CHATING         18      /* talk menu */
+#define XMODE           19
+#define FRIEND          20
+#define LAUSERS         21
+#define LUSERS          22
+#define MONITOR         23
+#define PAGE            24
+#define QUERY           25
+#define TALK            26
+#define EDITPLAN        27      /* user menu */
+#define EDITSIG         28
+#define VOTING          29
+#define XINFO           30
+#define MSYSOP          31
+#define LOG		32
+#define BIG2            33
+#define REPLY           34
+#define HIT             35
+#define DBACK           36
+#define NOTE            37
+#define EDITING         38
+#define MAILALL         39
 /*Ptt*/
-#define LOGIN           38       /* main menu */
-#define DICT            39
-#define EDITEXP         40
-#define ANNOUNCE        41       /* announce */
-#define EDNOTE          42 
+#define MJ              40
+#define LOGIN           41       /* main menu */
+#define DICT            42
+#define BRIDGE          43
+#define ARCHIE          44
+#define GOPHER          45
+#define SCHED		46
+#define CATV            47
+#define EDITEXP         48
+#define CAL             49
+#define PROVERB         50
+#define ANNOUNCE        51       /* announce */
+#define EDNOTE          52 
+#define GAME            53
+#define MARIE           54
+#define CHICKEN         55
+#define XBOARDS         56
+#define TICKET		57
+#define B_MENU          58
+#define RACE            59
+#define BINGO           60
+#define XAXB		61
+#define TETRIS		62
+#define CDICT		63
+#define XSYSTEM		64
+#define XUSER		65
+#define BANK		66
+#define BLACKJACK	67
+#define OSONG           68
 
-#define	POWERBOOK	43
-#define	PRECORD		44
-#define	MSGMENU		45
-#define NoteMoney	46
-#define LISTMAIN	47
-#define LISTEDIT	48
-#define GAME		49       //add GAME from pure version
+/* RPG 選單 */
+#define RMENU		69
+#define RGUILD 		70
+#define RTRAIN		71
+#define RINFO		72
+#define RPK		73
+#define RHELP		74
+#define RCHOOSE		75
+#define RINTRO		76
+#define EDITPIC		77
+#define RSHOP		78
+#define RTOPLIST	79
+
+#define DICE		80
+#define RICH		81
+#define STOCK		82
+#define MINE            83
+#define CHICKENPAGE	84
+#define CHICKENTALK	85
+#define GP		86
+#define NINE		87
+#define FIVE		88
+#define CHESS		89
+#define	POWERBOOK	90
+#define	PRECORD		91
+#define	MSGMENU		92
+#define NumFight	93
+#define	DRAGON		94
+#define BBSNET		95
+#define SEVENCARD	96
+#define CHESSMJ		97
+#define NETGAME		98
+#define BET		99
+#define NoteMoney	100
+#define LISTMAIN	101
+#define LISTEDIT	102
+#define FORTUNE		103
+#define TOBUY		104
 
 /* ----------------------------------------------------- */
 /* menu.c 中的模式                                       */
@@ -127,7 +184,6 @@ enum
 #define RS_CURRENT      0x10    /* match current read article */
 #define RS_THREAD       0x20    /* search the first article */
 #define RS_AUTHOR       0x40    /* search author's article */
-#define RS_SCORE	0x80	/* article score */
 
 #define RS_NEXT         0x8000  /* Direct read next file */
 #define RS_PREV         0x10000 /* Direct read prev file */

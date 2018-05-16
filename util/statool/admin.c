@@ -17,6 +17,8 @@
 #include "config.h"
 #include "record.c"
 int mannum;
+char *fn_board=".BOARDS";
+char *fn_passwd=".PASSWDS";
 
 struct binfo
 {
@@ -29,6 +31,7 @@ struct binfo
   int del;
   int pur;
   int tag;
+  usint attr;
 } st[MAXBOARD];
 
 int numboards=0;
@@ -37,12 +40,40 @@ int numhide=0;
 int numhideg=0;
 
 int
+apply_record(fpath, fptr, size)
+  char *fpath;
+  int (*fptr) ();
+int size;
+{
+  char abuf[512];
+  FILE* fp;
+
+  if (!(fp = fopen(fpath, "r")))
+    return -1;
+
+  while (fread(abuf, 1, size, fp) == size)
+     if ((*fptr) (abuf) == QUIT) {
+        fclose(fp);
+        return QUIT;
+     }
+  fclose(fp);
+  return 0;
+}
+
+int
 brd_cmp(b, a)
 struct binfo *a, *b;
 {
     if(a->sum!=b->sum)
             return (a->sum - b->sum);
     return a->times - b->times;
+}
+
+int
+personal_cmp(b, a)
+struct binfo *a, *b;
+{
+    return (((a->post*500)+(a->times*100)+(a->sum/3)) - ((b->post*500)+(b->times*100)+(b->sum/3)));
 }
 
 /*
@@ -182,6 +213,7 @@ fillbcache(fptr)
     st[numboards].pur=0;
     st[numboards].num=0;
     st[numboards].tag=0;
+    st[numboards].attr=fptr->brdattr;
 
     numboards++;
     return 0 ;
@@ -190,7 +222,7 @@ fillbcache(fptr)
 int
 fillboard()
 {
-  rec_apply( BBSHOME"/.BOARDS", fillbcache, sizeof(boardheader));
+  apply_record(BBSHOME"/.BOARDS", fillbcache, sizeof(boardheader));
 }
 
 /*
@@ -231,7 +263,7 @@ struct manrec allman[MAXUSERS];
 
 userec aman;
 int num;
-FILE *fp,*fp2;
+FILE *fp,*fp1,*fp2,*fp3;
 
 
 
@@ -260,26 +292,15 @@ main(argc, argv)
   int argc;
   char **argv;
 {
-  FILE *inf3;
-  FILE *inf2;
-  FILE *inf;
-  FILE *fpf;
-  int i;
-  int n;
-  int numlog=0, numlog2=0;
-  int numpo=0, numpo2=0;
-  int maxlog=0, maxlog2=0;
-  int maxpo=0, maxpo2=0;
-  char maxlogid[IDLEN+1];
-  char maxpoid[IDLEN+1];
-  char maxlogid2[IDLEN+1];
-  char maxpoid2[IDLEN+1];
-  int userlog=0, userlog2=0;
-  int userpo=0, userpo2=0;
+  FILE *inf3,*inf2,*inf,*fpf;
+  int i,n;
+  int numlog=0, numlog2=0, numpo=0, numpo2=0;
+  int maxlog=0, maxlog2=0, maxpo=0, maxpo2=0;
+  char maxlogid[IDLEN+1], maxpoid[IDLEN+1], maxlogid2[IDLEN+1], maxpoid2[IDLEN+1];
+  int userlog=0, userlog2=0, userpo=0, userpo2=0;
   time_t now = time(0);
   struct tm *ptime;
   char *progmode;
-  FILE *fp1;
 /*  FILE *op; */
   char buf[256], *p,bname[20];
 /*  char date[80];
@@ -303,18 +324,19 @@ main(argc, argv)
   int user_to=0;
   int hour;
   int newreg=0;
-  int numtalk=0;
-  int numchat=0;
-  int numnewb=0;
-  int numnameb=0;
-  int numdelb=0;
-  int numdated=0;
-  int numclean=0;
-  int numsetb=0;
-  int numkill=0;
-  int numsuci=0;
-  int numsetu=0;
-  int numsetself=0;
+  int numtalk=0, numchat=0, numnewb=0, numnameb=0, numdelb=0,numattrb=0,numprefix=0,numboardlog=0;
+  int numdated=0, numclean=0, numsetb=0, numkill=0, numsuci=0;
+  int numsetu=0, numsetself=0, numcdict=0, numfortune=0, numrailway=0;
+// wildcat add
+  int nummsgmenu=0, numbet=0, numfive=0, numgamble=0, nummine=0, numbbcall=0;
+  int nummn=0, numpedit=0, numpcall=0, numpread=0, numdragon=0;
+  int numrpgchoose=0, numrpguild=0, numrpgtop=0, numrpgtrain=0, numrpgset=0;
+  int numrpgpk=0, numosong=0, numcatv=0, numvote=0, numvotedit=0;
+  int numvotemake=0, numvbreply=0, numvbmake=0, numhint=0, numtetris=0;
+  int nummj=0, numbig2=0, numchess=0, numbbsnet=0, numsetbm=0, numsetbp=0;
+  int numspam=0, numxaxb=0, numchicken=0, numbj=0, numstock=0;
+  int numdice=0, numgp=0, nummarie=0, numrace=0, numbingo=0;
+  int numnine=0, numnfight=0, numchessmj=0, numsevencard=0;
   int num;
   int alltime=0;
   int alltimes=0;
@@ -349,7 +371,7 @@ main(argc, argv)
   }
 
   fillboard();
-  while (fgets(buf, 256, fp1))
+  while (fgets(buf, 512, fp1))
   {
     if ( !strncmp(buf, "USE", 3))
     {
@@ -459,6 +481,7 @@ main(argc, argv)
 
   now = time(NULL);
   ptime = localtime(&now);
+  fclose(fp1);
 
 #ifdef MONTH
   inf = fopen(BBSHOME "/.PASSWDS.yes", "rb");
@@ -484,6 +507,7 @@ main(argc, argv)
     allman[i].numposts += post_in_tin(allman[i].userid);
 #endif
   }
+  fclose(inf);
 
 #ifdef MONTH
   inf2 = fopen(BBSHOME "/.PASSWDS.month", "rb");
@@ -528,6 +552,7 @@ main(argc, argv)
     if (allman[i].numloginsto < allman[i].numloginsyes)
       allman[i].numlogins = 0;
   }
+  fclose(inf2);
 
 #ifdef MONTH
     if ((fpf = fopen(BBSHOME "/adm/usies", "r")) == NULL)
@@ -539,7 +564,7 @@ main(argc, argv)
     /* return 1 */;
   }
 
-    while (fgets(buf, 256, fpf))
+    while (fgets(buf, 512, fpf))
   {
     hour = atoi(buf + 9);
     if (hour < 0 || hour > 23)
@@ -556,64 +581,318 @@ main(argc, argv)
       newreg++;
       continue;
       }
-    if (!(strncmp(buf +22, "DATED", 5)))
+    else if (!(strncmp(buf +22, "DATED", 5)))
       {
       numdated++;
       continue;
       }
-    if (!(strncmp(buf +22, "CLEAN", 5)))
+    else if (!(strncmp(buf +22, "CLEAN", 5)))
       {
       numclean++;
       continue;
       }
-    if (!(strncmp(buf +22, "SUCI", 4)))
+    else if (!(strncmp(buf +22, "SUCI", 4)))
       {
       numsuci++;
       continue;
       }
-    if (!(strncmp(buf +22, "KILL", 4)))
+    else if (!(strncmp(buf +22, "KILL", 4)))
       {
       numkill++;
       continue;
       }
-    if (!(strncmp(buf +22, "NewBoard", 8)))
+    else if (!(strncmp(buf +22, "NewBoard", 8)))
       {
       numnewb++;
       continue;
       }
-    if (!(strncmp(buf +22, "DelBoard", 8)))
+    else if (!(strncmp(buf +22, "DelBoard", 8)))
       {
       numdelb++;
       continue;
       }
-    if (!(strncmp(buf +22, "SetBoard", 8)))
+    else if (!(strncmp(buf +22, "SetBoard", 8)))
       {
       numsetb++;
       continue;
       }
-    if (!(strncmp(buf +22, "NameBoard", 9)))
+    else if (!(strncmp(buf +22, "NameBoard", 9)))
       {
       numnameb++;
       continue;
       }
+    else if (!(strncmp(buf +22, "ATTR_Board", 10)))
+      {
+      numattrb++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "PREFIX", 6)))
+      {
+      numprefix++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BOARDLOG", 8)))
+      {
+      numboardlog++;
+      continue;
+      }
 
-
-    if (!(strncmp(buf +22, "CHAT ", 5)))
+    else if (!(strncmp(buf +22, "CHAT ", 5)))
       {
       numchat++;
       continue;
       }
-    if (!(strncmp(buf +22, "TALK ", 5)))
+    else if (!(strncmp(buf +22, "TALK ", 5)))
       {
       numtalk++;
       continue;
       }
-    if (!strncmp(buf + 22, "ENTER", 5))
+    else if (!(strncmp(buf +22, "FORTUNE", 7)))
+      {
+      numfortune++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RAILWAY", 7)))
+      {
+      numrailway++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "CDICT", 5)))
+      {
+      numcdict++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BBCALL", 6)))
+      {
+      numbbcall++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "MSGMENU", 7)))
+      {
+      nummsgmenu++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BET", 3)))
+      {
+      numbet++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "FIVE", 4)))
+      {
+      numfive++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "GAMBLE", 6)))
+      {
+      numgamble++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "MINE", 4)))
+      {
+      nummine++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "MN", 2)))
+      {
+      nummn++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "PCALL", 5)))
+      {
+      numpcall++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "PREAD", 5)))
+      {
+      numpread++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "DRAGON", 6)))
+      {
+      numdragon++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RPG_Choose", 10)))
+      {
+      numrpgchoose++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RPG_Guild", 9)))
+      {
+      numrpguild++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RPG_Toplist", 11)))
+      {
+      numrpgtop++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RPG_Train", 9)))
+      {
+      numrpgtrain++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "SetRPG", 6)))
+      {
+      numrpgset++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RPG_PK", 6)))
+      {
+      numrpgpk++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "OSONG", 5)))
+      {
+      numosong++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "CATV", 4)))
+      {
+      numcatv++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "VOTE", 4)))
+      {
+      numvote++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "VOTE_Edit", 9)))
+      {
+      numvotedit++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "VOTE_Make", 9)))
+      {
+      numvotemake++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "VB_Reply", 8)))
+      {
+      numvbreply++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "VB_Make", 7)))
+      {
+      numvbmake++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "HINT", 4)))
+      {
+      numhint++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "TETRIS", 6)))
+      {
+      numtetris++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "MJ", 2)))
+      {
+      nummj++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BIG2", 4)))
+      {
+      numbig2++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "CHESS", 5)))
+      {
+      numchess++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BBSNET", 6)))
+      {
+      numbbsnet++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "SetBoardBM", 10)))
+      {
+      numsetbm++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "SetBrdPass", 10)))
+      {
+      numsetbp++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "SPAM ", 5)))
+      {
+      numspam++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "XAXB", 4)))
+      {
+      numxaxb++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "CHICKEN", 7)))
+      {
+      numchicken++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BJ", 2)))
+      {
+      numbj++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "STOCK", 5)))
+      {
+      numstock++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "DICE", 4)))
+      {
+      numdice++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "GP", 2)))
+      {
+      numgp++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "MARIE", 5)))
+      {
+      nummarie++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "RACE", 4)))
+      {
+      numrace++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "BINGO", 5)))
+      {
+      numbingo++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "NINE", 4)))
+      {
+      numnine++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "NumFight", 8)))
+      {
+      numnfight++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "CHESSMJ", 7)))
+      {
+      numchessmj++;
+      continue;
+      }
+    else if (!(strncmp(buf +22, "SEVENCARD", 9)))
+      {
+      numsevencard++;
+      continue;
+      }
+    else if (!strncmp(buf + 22, "ENTER", 5))
     {
       act[hour]++;
       continue;
     }
-    if (!strncmp(buf + 22, "SetUser", 7))
+    else if (!strncmp(buf + 22, "SetUser", 7))
     {
       p=strstr(buf,"SetUser");
       p+=8;
@@ -642,7 +921,7 @@ main(argc, argv)
   }
   fclose(fpf);
 
-  if(fpf = fopen(".maxtoday", "r"))
+  if(fpf = fopen(BBSHOME"/.maxtoday", "r"))
   {
     fscanf(fpf, "%d", &maxtoday);
     fclose(fpf);
@@ -653,9 +932,19 @@ main(argc, argv)
     printf("cann't open admin.log\n");
     /* return 0*/;
   }
+  if ((fp1 = fopen(BBSHOME "/log/func.log", "w")) == NULL)
+  {
+    printf("cann't open func.log\n");
+    /* return 0*/;
+  }
   if((fp2 = fopen(BBSHOME "/log/board.log", "w")) == NULL)
   {
     printf("cann't open board.log\n");
+    /* return 0*/;
+  }
+  if((fp3 = fopen(BBSHOME "/log/personal.log", "w")) == NULL)
+  {
+    printf("cann't open personal.log\n");
     /* return 0*/;
   }
 
@@ -718,7 +1007,7 @@ main(argc, argv)
      userpo2, numpo2, numpo2/userlog2);
   fprintf(fp, "    ¤µ¤Ñ ¤W¯¸ ³Ì¦h¦¸ªº¤H¬O [1;33m%13s[m ¦³ [1;33m%10d[m ¦¸\n",
      maxlogid2, maxlog2);
-  fprintf(fp, "    ¤µ¤Ñ µoªí ³Ì¦h¦¸ªº¤H¬O [1;33m%13s[m ¦³ [1;33m%10d[m ½g\n\n",
+  fprintf(fp, "    ¤µ¤Ñ µoªí ³Ì¦h¦¸ªº¤H¬O [1;33m%13s[m ¦³ [1;33m%10d[m ½g\n",
      maxpoid2, maxpo2);
   fprintf(fp, "    ¤µ¤Ñ Åªª© [1;33m%8d[m ¦¸ ¦@ [1;33m%8d[m ¤À"
              " ¥­§¡¨Cª© [1;33m%5d[m ¤H¦¸ ¦@ [1;33m%5d[m ¤À \n",
@@ -726,28 +1015,21 @@ main(argc, argv)
   fprintf(fp, "    ¤µ¤Ñ Åªª© ¦¸¼Æ³Ì°ª¬O [1;33m%-13s[m ª© ¦@ [1;33m%5d[m ¦¸ ¤@¯ëª©­Ó¼Æ¬° [1;33m%5d[m ­Ó \n"
               "    ¤µ¤Ñ Åªª© ®É¶¡³Ì°ª¬O [1;33m%-13s[m ª© ¦@ [1;33m%5d[m ¤À ¤@¯ë¸s²Õ¼Æ¬° [1;33m%5d[m ­Ó\n\n",
      timesbname, max[0], numboards-1, sumbname, max[1]/60, numgroups);
+/*
   fprintf(fp, "    ¤µ¤Ñ Á`¦@¦³ [1;33m%6d[m ­Ó°T®§ ¨ä¤¤ ¦³ [1;33m%5d[m ­Ó¤Hµo ¦³ [1;33m%5d[m ­Ó¤H¦¬\n"
               "    µo³Ì¦hªº¬O [1;33m%13s[m ¦³ [1;33m%4d[m ¦¸"
               " ¦¬³Ì¦hªº¬O [1;33m%13s[m ¦³ [1;33m%4d[m ¦¸\n\n",
      messnum, user_from, user_to, uname_from, max_from, uname_to, max_to);
+*/
   fprintf(fp, "    ¤µ¤Ñ ¦³ [1;33m%5d[m ­Ó¤Hµù¥U  ¦³ [1;33m%5d[m ­Ó guest ¤W¨Ó¹L"
               " ¥þ³¡ªá¤F [1;33m%8d[m ¤ÀÄÁ\n"
-              "    ¤µ¤Ñ ³Ì°ª¦³ [1;33m%5d[m ¦P®É¤W¯¸ ¥­§¡¦³ [1;33m%5d[m ¤H¤W¯¸",
+              "    ¤µ¤Ñ ³Ì°ª¦³ [1;33m%5d[m ¦P®É¤W¯¸ ¥­§¡¦³ [1;33m%5d[m ¤H¤W¯¸\n",
      newreg, /* act[25]-numlog2 */  guestnum , act[24], maxtoday, act[24]/1440);
-  fprintf(fp,"\n    ¤µ¤Ñ ¦³ [1;33m%5d[m ¦¸ TALK ¦³ [1;33m%5d[m ­Ó¤H CHAT\n",
-      numtalk, numchat);
-  fprintf(fp, "    ¤µ¤Ñ ¦³ [1;33m%5d[m ­Ó id ³Q¬å ¦³ [1;33m%5d[m ¹L´Á"
-              " ¦³ [1;33m%5d[m ³Q²M ¦³ [1;33m%5d[m ¦Û±þ\n",
-     numkill, numdated, numclean, numsuci);
-  fprintf(fp, "    ¤µ¤Ñ ¦³ [1;33m%5d[m ­Ó¤H§ï¸ê®Æ ¦³ [1;33m%5d[m ­Ó¤H³Q§ï¸ê®Æ\n",
-     numsetself, numsetu);
+  fprintf(fp, "    ¤µ¤Ñ ¦³ [1;33m%5d[m ­Ó±b¸¹¹L´Á ¦³ [1;33m%5d[m ³Q²M\n",
+     numdated, numclean);
 
-  fprintf(fp, "\n    ¦³ [1;33m%5d[m ­Ó ¦³­­¨îªº ª© ¤Î [1;33m%5d[m ­Ó ¦³­­¨îªº ¸s²Õ \n",
+  fprintf(fp, "\n    ¦³ [1;33m%5d[m ­Ó ¦³­­¨îªº ª© ¤Î [1;33m%5d[m ­Ó ¦³­­¨îªº ¸s²Õ",
       numhide-numhideg, numhideg);
-
-  fprintf(fp, "\n    ¤µ¤Ñ ¶} [1;33m%5d[m ­Óª© Ãö [1;33m%5d[m ­Óª© "
-              "³]©w [1;33m%5d[m ­Óª© ©R¦W [1;33m%5d[m ­Óª©\n",
-      numnewb, numdelb, numsetb, numnameb);
 
   fprintf(fp, "\n    ¯¸ªø¦³ [1;33m%3d[m ¤H, ±b¸¹Á`ºÞ¦³ [1;33m%3d[m ¤H, "
               "¬Ýª©Á`ºÞ¦³ [1;33m%3d[m ¤H, ²á¤Ñ«ÇÁ`ºÞ¦³ [1;33m%3d[m ¤H\n",
@@ -755,6 +1037,46 @@ main(argc, argv)
   fprintf(fp, "    ª©¥D¦³ [1;33m%3d[m ¤H, ¬Ý¨£§ÔªÌ¦³ [1;33m%3d[m ¤H, "
               "¦³Áô¨­³N¦³ [1;33m%3d[m ¤H, §¹¦¨µù¥U¦³ [1;33m%5d[m ¤H\n",
     numbm, numsee, numcloak, numloginok);
+
+  fprintf(fp1,"\
+[1;46m                               ¦U¶µ¥\\¯à¨Ï¥Î²Î­p                                [m");
+  fprintf(fp1,"\n\
+²á¤Ñ        %4d ¦¸    ²á¤Ñ«Ç      %4d ¦¸
+¦Û¤v§ï¸ê®Æ  %4d ¦¸    ³Q¯¸ªø§ï¸ê®Æ%4d ¦¸    ¬Ý¬ÝªO°O¿ý  %4d ¦¸
+·s¼W¬ÝªO    %4d ­Ó    §R°£¬ÝªO    %4d ­Ó    §ó§ï¬ÝªOÃþ§O%4d ¦¸
+³]©w¬ÝªO    %4d ­Ó    §ó§ï¬ÝªO¦WºÙ%4d ¦¸    §ó§ï¬ÝªOÄÝ©Ê%4d ¦¸
+¯¸ªø³]©wªO¥D%4d ¦¸    ³]©w¬ÝªO±K½X%4d ¦¸    §ßªá¸¨·¬±Ù  %4d ¦¸
+¯¸ªø¬å User %4d ¦¸    User ¦Û±þ   %4d ¦¸    BBSNET      %4d ¦¸
+¤õ¨®®É¨è    %4d ¦¸    ­Ó¤H¹B¶Õ    %4d ¦¸    ¹q¤l¦r¨å    %4d ¦¸
+BBCALL      %4d ¦¸    ³q°T¿ý      %4d ¦¸    °O±b¥»      %4d ¦¸
+ÂIºq        %4d ¦¸    ¹qµø¸`¥Ø¬d¸ß%4d ¦¸    ±Ð¾ÇºëÆF    %4d ¦¸
+§ë²¼        %4d ¦¸    ­×§ï/Æ[¬Ý§ë²¼%3d ¦¸    Á|¿ì§ë²¼    %4d ¦¸
+¥Ó½Ð¬ÝªO/ªO¥D%3d ¦¸    ¦^À³¥Ó½Ð    %4d ¦¸
+µª¿ý¾÷¯d¨¥  %4d ¦¸    µª¿ý¾÷Å¥¯d¨¥%4d ¦¸
+",
+      numtalk, numchat,numsetself, numsetu, numboardlog,
+      numnewb, numdelb, numprefix,numsetb, numnameb,numattrb,
+      numsetbm,numsetbp,numspam,
+      numkill, numsuci,numbbsnet,
+      numrailway, numfortune,numcdict,numbbcall,nummsgmenu,nummn,numosong,
+      numcatv,numhint,
+      numvote,numvotedit,numvotemake,numvbmake,numvbreply,
+      numpcall,numpread);
+  fprintf(fp1,"\
+ºÆ¨g½ä½L    %4d ¦¸    ¤­¤l´Ñ      %4d ¦¸    ¹ï¹ï¼Ö      %4d ¦¸
+½ò¦a¹p      %4d ¦¸    ±µÀs        %4d ¦¸    «XÃ¹´µ¤è¶ô  %4d ¦¸
+ºô¸ô³Â±N    %4d ¦¸    ¤j¦Ñ¤G      %4d ¦¸    ¶H´Ñ        %4d ¦¸
+²q¼Æ¦r      %4d ¦¸    ¹q¤lÂû      %4d ¦¸    ¶Â³Ç§J      %4d ¦¸
+ªÑ¥«        %4d ¦¸    ¦è¤Ú©Ô      %4d ¦¸    ª÷¼³§J      %4d ¦¸
+¤pº¿ÄR      %4d ¦¸    ½ä°¨        %4d ¦¸    »«ªG        %4d ¦¸
+¤E¤E        %4d ¦¸    ¹ï¾Ô²q¼Æ¦r  %4d ¦¸    ¶H´Ñ³Â±N    %4d ¦¸
+½ä«°¤C±i    %4d ¦¸
+RPG¬DÂ¾·~   %4d ¦¸    RPG¤u·|     %4d ¦¸    RPG±Æ¦æº]   %4d ¦¸
+RPG°V½m³õ   %4d ¦¸    RPG³]©wuser %4d ¦¸    RPG¹ï¾Ô     %4d ¦¸
+",numbet,numfive,numgamble,nummine,numdragon,numtetris,nummj,numbig2,
+numchess,numxaxb,numchicken,numbj,numstock,numdice,numgp,nummarie,numrace,
+numbingo,numnine,numnfight,numchessmj,numsevencard
+,numrpgchoose,numrpguild,numrpgtop,numrpgtrain,numrpgset,numrpgpk);
 
 /*------- wildcat : ¤À¨â­ÓÀÉ¬ö¿ý -------*/
 
@@ -774,6 +1096,25 @@ main(argc, argv)
      fprintf(fp2,"[1;37;42m     %-15.15s%-28.28s %6d %4d %4d %3d %3d %3d\n",
      "Total","Á`¦X",alltime,alltimes,allnum,allpost,alltag,alldel);
 
+  fprintf(fp3, "==>[1;32m ­Ó¤HªO±Æ¦æº] [33m%s[m\n",Ctime(&now));
+  fprintf(fp3,"»¡©ú:®É¶¡->°±¯d®É¶¡(¬í) ¤H¦¸->¶iªO¤H¦¸ POST->µoªí¦¸¼Æ ¤À¼Æ->¤½¦¡ºâ¥X¨Óªº¤À¼Æ");
+
+  fprintf(fp3,"\n[1;37;42m¦W¦¸ %-15.15s%-28.28s %6s %4s %4s - %4s -   [m\n",
+                "°Q½×°Ï¦WºÙ","¤¤¤å±Ô­z","  ®É¶¡","¤H¦¸","POST","±o¤À");
+
+ qsort(st, numboards, sizeof( st[0] ), personal_cmp);
+ { int j=0;
+ for(i=0;i<MAXBOARD;i++)
+ {
+   if(st[i].sum && st[i].attr & BRD_PERSONAL)
+     fprintf(fp3,"[1;33m%4d[m %-15.15s%-28.28s [1;32m%6d [31m%4d [1;36m%4d - [1;33m%.2f[m  \n",
+     ++j,st[i].boardname,st[i].expname,st[i].sum,st[i].times,st[i].post
+        , (float)((st[i].post*500) + (st[i].times*100) +(st[i].sum/3))/100);
+ }
+ }
+//     fprintf(fp3,"[1;37;42m     %-15.15s%-28.28s %6d %4d %4d %3d %3d %3d\n",
+//     "Total","Á`¦X",alltime,alltimes,allnum,allpost,alltag,alldel);
+
   printf("numlog = %d\n", numlog);
   printf("numlog2 = %d\n", numlog2);
   printf("numpo = %d\n", numpo);
@@ -787,5 +1128,7 @@ main(argc, argv)
   printf("Maxpost2 %s = %d\n", maxpoid2, maxpo2);
   printf("Maxlogin2 %s = %d\n", maxlogid2, maxlog2);
   fclose(fp);
+  fclose(fp1);
   fclose(fp2);
+  fclose(fp3);
 }

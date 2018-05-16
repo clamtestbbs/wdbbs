@@ -48,7 +48,8 @@ static char STR_bv_comments[] = ".comments";	/* §ë²¼ªÌªº«Ø·N */
 
 boardheader *bcache;
 
-void b_closepolls()
+void
+b_closepolls()
 {
   boardheader fh;
   struct stat st;
@@ -93,7 +94,7 @@ void b_closepolls()
       lseek(fd, (off_t) sizeof(fh) * (getbnum(fh.brdname) - 1), SEEK_SET);
       if (write(fd, &fh, sizeof(fh)) != sizeof(fh))
       {
-        sprintf(currmsg, "\x1b[1;5;37;41mWarning!\x1b[m");
+        sprintf(currmsg, "\033[1;5;37;41mWarning!\033[m");
         kill(currpid, SIGUSR2);
         igetch();
         break;
@@ -502,11 +503,11 @@ do_vote(ent, fhdr, direct)
     count = 0;
     
     if (fhdr->filemode & VOTE_SCORE)
-      prints("\x1b[1;32m­p¤À¤è¦¡¡G½T©w¦n±zªº¿ï¾Ü«á¡A¿é¤J¨ä¥N½X(1, 2, 3...)§Y¥iµ¹¤À¼Æ¡C\x1b[0m\n"
-      "\x1b[1;37;44m ¤À¼Æªº½d³ò¬° 1~10 ¤À , «ö [F] µ²§ô§ë²¼ \x1b[0m¡C");
+      prints("\033[1;32m­p¤À¤è¦¡¡G½T©w¦n±zªº¿ï¾Ü«á¡A¿é¤J¨ä¥N½X(1, 2, 3...)§Y¥iµ¹¤À¼Æ¡C\033[0m\n"
+      "\033[1;37;44m ¤À¼Æªº½d³ò¬° 1~10 ¤À , «ö [F] µ²§ô§ë²¼ \033[0m¡C");
     else
-      prints("\x1b[1;32m­p²¼¤è¦¡¡G½T©w¦n±zªº¿ï¾Ü«á¡A¿é¤J¨ä¥N½X(1, 2, 3...)§Y¥i¡C\x1b[0m\n"
-      "\x1b[1;37;44m «ö [F] µ²§ô§ë²¼ \x1b[0m¡A¦¹¦¸§ë²¼§A¥i¥H§ë %1d ²¼¡C", 
+      prints("\033[1;32m­p²¼¤è¦¡¡G½T©w¦n±zªº¿ï¾Ü«á¡A¿é¤J¨ä¥N½X(1, 2, 3...)§Y¥i¡C\033[0m\n"
+      "\033[1;37;44m «ö [F] µ²§ô§ë²¼ \033[0m¡A¦¹¦¸§ë²¼§A¥i¥H§ë %1d ²¼¡C", 
       fhdr->savemode);
 
     while (fgets(inbuf, sizeof(inbuf), fp))
@@ -565,7 +566,7 @@ do_vote(ent, fhdr, direct)
       if (vote[0] == 'q' || (!vote[0] && !i))
       {
         clrtoeol();
-        prints("\x1b[5m°O±o¦A¨Ó§ë³á!!      \x1b[m");
+        prints("[5m°O±o¦A¨Ó§ë³á!!      [m");
         refresh();
         page = 3; /* ¸õ¥X */
         break;
@@ -675,11 +676,12 @@ do_vote(ent, fhdr, direct)
   
           substitute_record(fn_passwd, &cuser, sizeof(userec), usernum); /* °O¿ý */
  
+          ingold(1);
           clrtoeol();
           if (fhdr->filemode & VOTE_SCORE)
-            pressanykey("¤w§¹¦¨§ë²¼!");
+            pressanykey("¤w§¹¦¨§ë²¼¡A¨®°¨¶O1¤¸ª÷¹ô¡I");
           else            
-            pressanykey("¤w§¹¦¨§ë²¼¡I(¥Ø«e¤w§ë²¼¼Æ: %d)", statb.st_size/2);
+            pressanykey("¤w§¹¦¨§ë²¼¡A¨®°¨¶O1¤¸ª÷¹ô¡I(¥Ø«e¤w§ë²¼¼Æ: %d)", statb.st_size/2);
         }
       }
       page = 3; /* ¸õ¥X */
@@ -789,7 +791,7 @@ maintain_vote(ent, fhdr, direct)
       else if (buf[0] == 'r' || buf[0] == 'R')
       {
         strcpy(fpath + len, STR_bv_comments);
-        more(fpath,YEA);
+        more(fpath);
       }
       else if (buf[0] == 'p' || buf[0] == 'n' || buf[0] == 'P' || buf[0] == 'N')
       {
@@ -1028,9 +1030,9 @@ votedoent(num, ent)
   sprintf(closeday, "%02d/%02d/%02d",
           ptime->tm_mon + 1, ptime->tm_mday, ptime->tm_year % 100);
 
-  prints("%4d %c %-5s%-4.3s %-11s %s[%s]\x1b[m  %s\n", 
+  prints("%4d %c %-5s%-4.3s %-11s %s[%s][m  %s\n", 
     num, vote_flag(ent, NULL) ? ' ':'+', ent->date, ent->title + 65, closeday,
-    (ent->filemode & VOTE_PRIVATE) ? "\x1b[1;31m" : "\x1b[1;36m",
+    (ent->filemode & VOTE_PRIVATE) ? "[1;31m" : "[1;36m",
     (ent->filemode & VOTE_PRIVATE) ? "¨p¤H" : "¤@¯ë", ent->title);
 }
 
@@ -1041,7 +1043,7 @@ votetitle()
   showtitle("§ë²¼©Ò", BoardName);
   outs("\
 [¡ö]Â÷¶} [¡÷/ENTER]¶}©l§ë²¼ ªO¥D±M¥ÎÁä: [^P]Á|¿ì¤@¦¸§ë²¼ [M]¨ú®ø§ë²¼/´£¦­¶}²¼\n\
-" COLOR1 "\x1b[1m½s¸¹   ¶}©l¤é´Á   µ²§ô¤é´Á   §ë  ²¼  ¥D  ÃD                                   \x1b[0m");
+" COLOR1 "\033[1m½s¸¹   ¶}©l¤é´Á   µ²§ô¤é´Á   §ë  ²¼  ¥D  ÃD                                   \033[0m");
 }
 
 
@@ -1081,7 +1083,8 @@ b_results()
 }
 
 /* §ë²¼¤¤¤ß chyiuan */
-int all_vote(void)
+int
+all_vote()
 {
   register int i;
   register boardheader *bhdr;
@@ -1126,12 +1129,12 @@ int all_vote(void)
         {
           setbfile(buf, vdata[all].bname, FN_CANVOTE);
           if(!belong(buf, cuser.userid))
-            strcpy(vdata[all].mode,"\x1b[1;33m[¨p]\x1b[m¤£¨üÁÜ");
+            strcpy(vdata[all].mode,"[1;33m[¨p][m¤£¨üÁÜ");
           else
-            strcpy(vdata[all].mode,"\x1b[1;33m[¨p]\x1b[m¨üÁÜ¤¤");
+            strcpy(vdata[all].mode,"[1;33m[¨p][m¨üÁÜ¤¤");
         }
         else
-          strcpy(vdata[all].mode,"\x1b[1;33m[¤½]\x1b[m¨S­­¨î");
+          strcpy(vdata[all].mode,"[1;33m[¤½][m¨S­­¨î");
         all++;          
       }
 */
@@ -1165,17 +1168,17 @@ int all_vote(void)
       for (i = 0; i <boards; i++)
       {
         move(8+i,0);
-        prints("\x1b[0m%s \x1b[37m%2d.  %-14s   %-44.44s %d\x1b[0m ",
+        prints("[0m%s [37m%2d.  %-14s   %-44.44s %d[0m ",
         vdata[i+pagenum*pageboard].pointer,
         i+pagenum*pageboard + 1,
         vdata[i+pagenum*pageboard].bname,
         vdata[i+pagenum*pageboard].btitle,
         vdata[i+pagenum*pageboard].num);
-//        vote_flag(vdata[i+pagenum*pageboard].bname,'\0')?"\x1b[1;36m¤w§ë\x1b[0m":"\x1b[1;31m¥¼§ë\x1b[0m");
+//        vote_flag(vdata[i+pagenum*pageboard].bname,'\0')?"[1;36m¤w§ë[0m":"[1;31m¥¼§ë[0m");
       }
       move(b_lines,0);
       prints(COLOR1
-"\x1b[1m §ë²¼¿ï³æ \x1b[33m(¡ô/¡õ)(p/n)\x1b[37m©¹¤W/¤U \x1b[33m(PgUp/PgDn)(P/N)\x1b[37m¤W/¤U­¶ \x1b[33m(¡÷)(r)\x1b[37m§ë²¼ \x1b[33m(¡ö)(q)\x1b[37mÂ÷¶}  \x1b[m");
+"[1m §ë²¼¿ï³æ [33m(¡ô/¡õ)(p/n)[37m©¹¤W/¤U [33m(PgUp/PgDn)(P/N)[37m¤W/¤U­¶ [33m(¡÷)(r)[37m§ë²¼ [33m(¡ö)(q)[37mÂ÷¶}  [m");
       move(b_lines,79);
       ch=igetkey();
       strcpy(vdata[pass].pointer,"¡@");

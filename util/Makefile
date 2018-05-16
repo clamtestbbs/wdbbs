@@ -5,71 +5,39 @@
 #  create : 95/03/29				 	  #
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
+BBSHOME=/home/bbs
 
-ARCHI	!= uname -m
+# For FreeBSD
+CC	= gcc
+CFLAGS	= -O -DBSD44 -pipe -fomit-frame-pointer -I../include -I../WD -D_BBS_UTIL_C_
+LDFLAGS	= -s -L../lib -ldao -lcrypt
 
-OPSYS	!= uname -o
+# For SunOS 5.6
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DSYSV -DSOLARIS
+#LDFLAGS	= -ltermcap -lnsl -lsocket -ldl -L../lib -ldao
 
-SUBDIR	= statool fixtool
-
-BBSHOME	?= $(HOME)
-
-SRCROOT	= ..
-
-INCLUDE	= $(SRCROOT)/include
-
-DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib/stuff -lstuff
-
-CC	= clang
-
-CPROTO	= cproto -E"clang -pipe -E -I$(INCLUDE)"
-
-CFLAGS	= -m32 -O -Wunused -I../include -I../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
-
-LDFLAGS	= $(DAOLIB) -lcrypt -lncurses
-
-.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -lresolv -ldl -rdynamic
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
+# For Linux
+#CC	= gcc
+#CFLAGS	= -O2 -pipe -fomit-frame-pointer -I../include -I../WD -DLINUX -D_BBS_UTIL_C_
+#LDFLAGS	= -s -fforce-mem -funroll-loops -fstrict-prototype -Wunused -L../lib -ldao -lcrypt
 
 .SUFFIXES: .o .c
 
 .c:   ;   $(CC) -o $@ $@.c $(CFLAGS) $(LDFLAGS)
 
-TOOL =  byte showb showdir \
-        expire showboard showuser setuser #mandex 
+TOOL =	bbsmail bfinger clrdir expire showb rmtusr mailpost\
+	showboard showuser showdir setuser bbsadm delspam query BM_money\
+	bgopherd man2web mandex setboard openticket cna query\
+	bbspost bpop3d bhttpd bet_open emailist brdpop3d hfinger hint byte
 
 all: 	$(TOOL)
-	$(MAKE) $(TOOL)
-	@for i in $(SUBDIR); do \
-	        cd $$i &&       \
-	       	$(MAKE) all &&  \
-	        cd ..;          \
-	done
+
 
 install:$(TOOL)
-	install -d $(BBSHOME)/bin/
-	install -c -m 0755 $(TOOL) $(BBSHOME)/bin/
-	@for i in $(SUBDIR); do     \
-	        cd $$i &&           \
-	       	$(MAKE) install &&  \
-	        cd ..;              \
-	done
+	strip $(TOOL)
+	chown bbs.bbs $(TOOL)
+	cp -fp $(TOOL) $(BBSHOME)/bin
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~
-	@for i in $(SUBDIR); do \
-	        cd $$i;         \
-	       	$(MAKE) clean;    \
-	        cd ..;          \
-	done

@@ -30,7 +30,7 @@ int p_pipple()
  {
    show_system_pic(11);
    move(b_lines,0);
-   pipkey=egetch();   
+   pipkey=igetkey();   
    if(pipkey=='Q' || pipkey=='q')
      return 0;
    if(d.death!=0 || !d.name[0])
@@ -42,7 +42,7 @@ int p_pipple()
  {
    show_system_pic(12);
    move(b_lines,0);
-   pipkey=egetch();   
+   pipkey=igetkey();   
    if(pipkey=='R' || pipkey=='r')
      pip_read_backup();
    else if(pipkey=='Q' || pipkey=='q')
@@ -464,8 +464,16 @@ pip_job_workP,		'p',	'P',
 NULL,			'\0',	'\0'
 };
 
+int
+t_pk()
+{
+  pressanykey("¥\\¯à©|¥¼¶}©ñ");
+  return 0;
+}
+
+
 /*¯S®í¿ï³æ*/
-int t_talk(),pip_see_doctor(),pip_change_weight(),pip_meet_vs_man(),pip_query(),pip_go_palace();
+int pip_see_doctor(),pip_change_weight(),pip_meet_vs_man(),pip_query(),pip_go_palace();
 static struct pipcommands pipspeciallist[] =
 {
 pip_see_doctor,		'1',	'1',
@@ -473,7 +481,7 @@ pip_change_weight,	'2',	'2',
 pip_meet_vs_man,	'3',	'3',
 pip_query,		'4',	'4',
 pip_go_palace,		'5',	'5',
-t_talk,			'6',	'6',
+t_pk,			'6',	'6',
 NULL,			'\0',	'\0'
 };
 
@@ -549,7 +557,7 @@ struct pipcommands cmdtable[];
 	   
 	   now=time(0);   
 	   pip_time_change(now);
-	   pipkey=egetch();
+	   pipkey=igetkey();
 	   now=time(0);
 	   pip_time_change(now);
 	
@@ -571,14 +579,14 @@ struct pipcommands cmdtable[];
 		break;
 		
 	     default:
-		for(cmd1; key1 = cmd1->key1; cmd1++)
+		for(; key1 = cmd1->key1; cmd1++)
 		/*if(key == tolower(pipkey))*/
 		if(key1 == pipkey)
 		{
 		    cmd1->fptr();
 		    ok=1;
 		}
-		for(cmd2; key2 = cmd2->key2; cmd2++)
+		for(; key2 = cmd2->key2; cmd2++)
 		if(ok==0 && key2 == pipkey)
 		{
 		    cmd2->fptr();
@@ -1279,7 +1287,7 @@ int pip_basic_feed()     /* Áý­¹*/
    move(b_lines, 0);
    prints("[1;44;37m  ¶¼­¹¿ï³æ  [46m[1]¦Y¶º [2]¹s­¹ [3]¸É¤Y [4]ÆFªÛ [5]¤Hçx [6]³·½¬ [Q]¸õ¥X¡G         [m");   
    pip_time_change(now);
-   pipkey=egetch();
+   pipkey=igetkey();
    pip_time_change(now);
 
    switch(pipkey)
@@ -1529,7 +1537,7 @@ pip_write_backup()
     clrtoeol();
     move(b_lines-1,1);
     prints("Àx¦s [1]¶i«×¤@ [2]¶i«×¤G [3]¶i«×¤T [Q]©ñ±ó [1/2/3/Q]¡G");
-    pipkey=egetch();
+    pipkey=igetkey();
     
     if (pipkey=='1')
       num=1;
@@ -1583,7 +1591,7 @@ pip_read_backup()
     clrtoeol();
     move(b_lines-1,1);
     prints("Åª¨ú [1]¶i«×¤@ [2]¶i«×¤G [3]¶i«×¤T [Q]©ñ±ó [1/2/3/Q]¡G");
-    pipkey=egetch();
+    pipkey=igetkey();
     
     if (pipkey=='1')
       num=1;
@@ -1979,7 +1987,7 @@ struct goodsofpip *p;
 	    move(b_lines,0); 
 	    sprintf(inbuf,"[1;44;37m  %8s¿ï³æ  [46m  [B]¶R¤Jª««~  [S]½æ¥Xª««~  [Q]¸õ¥X¡G                         [m",shopname[mode]);
 	    prints(inbuf);
-	    pipkey=egetch(); 
+	    pipkey=igetkey(); 
 	    switch(pipkey)  
 	    {
 		case 'B':
@@ -2192,7 +2200,7 @@ struct weapon *p;
    prints(buf);   
    now=time(0);
    pip_time_change(now);
-   pipkey=egetch();
+   pipkey=igetkey();
    pip_time_change(now);
 
    switch(pipkey)  
@@ -3553,7 +3561,7 @@ int pip_play_guess()   /* ²q®±µ{¦¡ */
     prints("[1;44;37m  ²q®±¿ï³æ  [46m[1]§Ú¥X°Å¤M [2]§Ú¥X¥ÛÀY [3]§Ú¥X¥¬°Õ [4]²q®±°O¿ý [Q]¸õ¥X¡G         [m");   
     move(b_lines-1, 0);
     clrtoeol();
-    pipkey=egetch();
+    pipkey=igetkey();
     switch(pipkey)
     {
       case '4':
@@ -4406,7 +4414,7 @@ struct royalset *p;
    move(b_lines,0);
    prints(
    "[1;37;46m  °Ñ¨£¿ï³æ  [44m [¦r¥À]¿ï¾Ü±ý«ô³Xªº¤Hª«  [Q]Â÷¶}¬PªÅÁ`¥q¥O³¡¡G                    [0m");
-   pipkey=egetch();
+   pipkey=igetkey();
    choice=pipkey-64;
    if(choice<1 || choice>10)
       choice=pipkey-96;
@@ -4866,7 +4874,7 @@ pip_system_service()
      clrtoeol();
      move(b_lines,0);
      prints("[1;44m  ªA°È¶µ¥Ø  [46m[1]©R¦W¤j®v [2]ÅÜ©Ê¤â³N [3]µ²§½³]§½                                [0m");
-     pipkey=egetch();
+     pipkey=igetkey();
      
      switch(pipkey)
      {
@@ -4909,7 +4917,7 @@ pip_system_service()
        }
        move(b_lines,0);
        prints("[1;44m  ªA°È¶µ¥Ø  [46m[1]©R¦W¤j®v [2]ÅÜ©Ê¤â³N [3]µ²§½³]§½                                [0m");
-       pipkey=egetch();
+       pipkey=igetkey();
        if(pipkey=='Y' || pipkey=='y')
        {
          /*§ï¦W°O¿ý*/
@@ -4945,7 +4953,7 @@ pip_system_service()
        }
        move(b_lines,0);
        prints("[1;44m  ªA°È¶µ¥Ø  [46m[1]©R¦W¤j®v [2]ÅÜ©Ê¤â³N [3]µ²§½³]§½                                [0m");
-       pipkey=egetch();
+       pipkey=igetkey();
        if(pipkey=='Y' || pipkey=='y')
        {
          d.wantend=oldchoice;
@@ -5187,7 +5195,7 @@ pip_data_list(userid)  /*¬Ý¤pÂû­Ó¤H¸Ô²Ó¸ê®Æ*/
     move(b_lines,0);
     sprintf(buf,"[1;44;37m  ¸ê®Æ¿ï³æ  [46m  [¡ô/PAGE UP]©¹¤W¤@­¶ [¡õ/PAGE DOWN]©¹¤U¤@­¶ [Q]Â÷¶}:            [m");
     prints(buf);    
-    pipkey=egetch();
+    pipkey=igetkey();
     switch(pipkey)
     {
       case KEY_UP:
@@ -5564,7 +5572,7 @@ int mode;
    {
     dresistmore=0;
     d.nodone=0;
-    pipkey=egetch(); 
+    pipkey=igetkey(); 
     switch(pipkey)
     {
      case '1': 
@@ -6049,7 +6057,7 @@ pip_magic_menu()   /*¾Ô°«¤¤ªk³NªºÀ³¥Î*/
    "[1;44;37m  Å]ªk¿ï³æ  [46m  [1]ªvÀø [2]¹p¨t [3]¦B¨t [4]¤õ¨t [5]¤g¨t [6]­·¨t [Q]©ñ±ó: [m");
    move(b_lines,0);
    prints(buf);   
-   pipkey=egetch();
+   pipkey=igetkey();
    switch(pipkey)
    {
     case '1':  /*ªvÀøªk³N*/
@@ -6277,7 +6285,7 @@ int pip_results_show()  /*¦¬Ã¬©u*/
 	prints(buf);	
 	do
 	{
-		pipkey=egetch();
+		pipkey=igetkey();
 	}
 	while(pipkey!='q' && pipkey!='Q' && pipkey!='A' && pipkey!='a' &&
 	       pipkey!='B' && pipkey!='b' && pipkey!='C' && pipkey!='c'&&

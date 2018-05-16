@@ -18,11 +18,9 @@ static int cfd; /* socket number */
 static int myColor; /* my chess color */
 static int GameOver; /* end game */
 
-#if 0
 /* Thor.990311: dynamic attribute key */
 static int key_total; /* attribute key for total */
 static int key_win; /* attribute key for win */
-#endif
 
 #define stop_line (b_lines - 3)
 
@@ -135,7 +133,7 @@ static int othUpdate(int Color, int row, int col)
   /* Thor.990329: 註解, 下滿時 */
   /* if(numWhite + numBlack == 8*8) */
   {
-    int othAllow();
+    static int othAllow();
     int my = myColor; /* Thor.990331: 暫存myColor */
     int allowBlack, allowWhite;
     myColor = Black;
@@ -168,11 +166,10 @@ static int othUpdate(int Color, int row, int col)
   return winside;
 }
 
-int othAllow(/*int Color,that is myColor*/)
+static int othAllow(/*int Color,that is myColor*/)
 {
   int i,j,p,q, num=0;
   for(i=0;i<8;i++)
-  {
     for(j=0;j<8;j++)
     {
       Allow[i][j]=0;
@@ -190,9 +187,8 @@ int othAllow(/*int Color,that is myColor*/)
               }
             }
       }
-    };
-  };
 next:
+    }
   return num;
 }
 
@@ -622,14 +618,12 @@ bw_init()
   /* Initialize screen */
   clear();
 
-#if 0
   /* sprintf(buf,"☆%s vs ★%s \033[m",cuser.userid, currutmp->chatid); */
   /* Thor.990311: dyanmic attribute */
   attr_get(cuser.userid, key_total, &myTotal);
   attr_get(cuser.userid, key_win, &myWin);
   attr_get(currutmp->chatid, key_total, &yourTotal);
   attr_get(currutmp->chatid, key_win, &yourWin);
-#endif
 
   sprintf(buf,"☆%s(%d戰%d勝) vs ★%s(%d戰%d勝) \033[m",cuser.userid, myTotal, myWin, currutmp->chatid, yourTotal, yourWin);
 
@@ -668,18 +662,20 @@ overgame()
   else if(GameOver==Deny)
     printbwline("\033[1;32m◆ 雙方平手\033[m");
 
-#if 0
   /* Thor.990311: dyanmic attribute */
   attr_step(cuser.userid, key_total, 0, +1); 
+#if 0
   myTotal++;
   attr_put(cuser.userid,key_total, &myTotal);
+#endif
   if(myColor == GameOver) 
   {
     attr_step(cuser.userid, key_win, 0, +1); 
+#if 0
     myWin++;
     attr_put(cuser.userid,key_win, &myWin);
-  }
 #endif
+  }
 }
 
 static inline int
@@ -1063,7 +1059,9 @@ static int fNoOp()
   return NOTHING;
 }
 
-KeyFunc Talk[] = {
+static KeyFunc
+Talk[] =
+{
  Ctrl('C'), ftkCtrlC,
  Ctrl('D'), fCtrlD,
  Ctrl('H'), ftkCtrlH,
@@ -1075,9 +1073,9 @@ KeyFunc Talk[] = {
  KEY_DOWN, ftkDOWN,
  KEY_TAB, fTAB,
  0, ftkDefault
-};
-
-KeyFunc yourTurn[] = {
+},
+yourTurn[] =
+{
  Ctrl('C'), ftnCtrlC,
  Ctrl('D'), fCtrlD,
  KEY_LEFT, ftnLEFT,
@@ -1086,9 +1084,9 @@ KeyFunc yourTurn[] = {
  KEY_DOWN, ftnDOWN,
  KEY_TAB, fTAB,
  0, fNoOp
-};
-
-KeyFunc myTurn[] = {
+},
+myTurn[] =
+{
  Ctrl('C'), ftnCtrlC,
  ' ', ftnEnter,
  '\n', ftnEnter,
@@ -1105,7 +1103,7 @@ KeyFunc myTurn[] = {
 /* bwboard main */
 int BWboard(int sock, int later)
 {
-  screenline sl[b_lines + 1];
+  screenline sl[b_lines];
   int ch;
   char c;
   KeyFunc *k;
@@ -1145,11 +1143,9 @@ int BWboard(int sock, int later)
   rule = ruleSet[c];
   ruleStr = ruleStrSet[c];
 
-#if 0  
   /* Thor.990311: dynamic attribute */
   key_total = ATTR_OTHELLO_TOTAL + ((unsigned)c << 8);
   key_win = ATTR_OTHELLO_WIN + ((unsigned)c << 8);
-#endif
 
   /* initialize all */
   bw_init();

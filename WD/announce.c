@@ -55,8 +55,7 @@ a_perm(fname,fhdr,me)
       sprintf(buf,"%s/.vis",fname);
     if(me->level >= MANAGER)
       return 2;
-//    if(belong_list(buf,cuser.userid) <= 0)
-    if(belong_list(buf,cuser.userid) != 0)
+    if(belong_list(buf,cuser.userid))
       return 1;
     else
       return 0;
@@ -84,23 +83,10 @@ g_showmenu (pm)
 	max = pm->num;
       while (n < max)
 	{
-#ifdef	HYPER_BBS
-          char hbuf[256];	// HyperBBS
-          sprintf(hbuf, "\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
-                  (n/10000)+648,
-                  ((n%10000)/1000)+648,
-                  ((n%1000)/100)+648,
-                  ((n%100)/10)+648,
-                  (n%10)+648);
-#endif
 	  item = pm->item[n++];
 	  title = item->title;
 	  ch = title[1];
-#ifdef	HYPER_BBS
-	  prints ("\n%5d.%s %-72.71s\x1b[201m", n, hbuf, title);
-#else
 	  prints ("\n%5d. %-72.71s", n, title);
-#endif
 	}
     }
   else
@@ -278,7 +264,7 @@ go_proxy (char *fpath, ITEM * node, int update)
       int sock;
 
       if (fo == NULL)
-	return 0;
+	return;
 
       outmsg ("★ 建立 proxy 資料連線中 ... ");
       refresh ();
@@ -293,7 +279,7 @@ go_proxy (char *fpath, ITEM * node, int update)
 	  fwrite ("", 0, 0, fo);
 	  fclose (fo);
 	  alarm (0);
-	  return 0;
+	  return;
 	}
 
       signal (SIGALRM, isig);
@@ -487,7 +473,7 @@ gem(char *maintitle, ITEM * path, int update)
 	  me.page = 9999;
 	  break;
 	case 'N':
-	  if (HAS_PERM (PERM_SYSOP))
+	  if (HAS_PERM (PERM_SYSOP) || HAS_PERM (PERM_ANNOUNCE))
 	    {
 	      go_proxy (fname, me.item[me.now], 0);
 	      move (b_lines - 1, 0);
@@ -679,7 +665,7 @@ copy_stamp(char* fpath, char* fname)
     fileheader fhdr;
 
     stampfile(fpath, &fhdr);
-    return 0;
+    return;
   }
   dtime = atoi(fname + 3);
   strcat(fpath, fname);
@@ -755,30 +741,18 @@ a_showmenu (pm)
       a_loadname (pm);
       for (n = 0; n < p_lines && pm->page + n < pm->num; n++)
 	{
-#ifdef	HYPER_BBS
-          char hbuf[256];	// HyperBBS
-          sprintf(hbuf, "\x1b[200m\x1b[400m\x1b[444m\x1b[300m\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[%dm\x1b[613m\x1b[613m",
-                  ((pm->page + n + 1)/10000)+648,
-                  (((pm->page + n + 1)%10000)/1000)+648,
-                  (((pm->page + n + 1)%1000)/100)+648,
-                  (((pm->page + n + 1)%100)/10)+648,
-                  ((pm->page + n + 1)%10)+648);
-#endif
 	  item = &pm->header[n];
 	  title = item->title;
 	  editor = item->owner;
+/*  Ptt 把時間改為取檔案時間
+   dtime = atoi(&item->filename[2]);
+ */
 	  sprintf (buf, "%s/%s", pm->path, item->filename);
 	  dtime = dasht (buf);
 	  a_timestamp (buf, &dtime);
-#ifdef	HYPER_BBS
-          prints ("\n%6d%s%s %-47.46s%-13s[%s]\x1b[201m",
-            pm->page + n + 1, (item->filemode & FILE_REFUSE) ? ")" : ".",
-            hbuf, title, editor, buf);
-#else
           prints ("\n%6d%s %-47.46s%-13s[%s]",
             pm->page + n + 1, (item->filemode & FILE_REFUSE) ? ")" : ".",
             title, editor, buf);
-#endif
 	}
     }
   else
@@ -879,7 +853,7 @@ a_delete (pm)
   {
     if(answer("此檔案/目錄不可刪除 , 是否要刪除索引 (y/N)")=='y')
     {
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
         return;
       pm->num--;
     }
@@ -892,7 +866,7 @@ a_delete (pm)
 	       ,ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
 	return;
     }
   else if (dashl (fpath))
@@ -900,7 +874,7 @@ a_delete (pm)
       getdata (b_lines - 1, 1, "您確定要刪除此 symbolic link 嗎(Y/N)？[N] ", ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
 	return;
       unlink (fpath);
     }
@@ -909,7 +883,7 @@ a_delete (pm)
       getdata (b_lines - 1, 1, "您確定要刪除此檔案嗎(Y/N)？[N] ", ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
 	return;
 
       setbpath (buf, "deleted");
@@ -929,7 +903,7 @@ a_delete (pm)
 	       LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
 	return;
       sprintf (buf, "rm -rf %s", fpath);
       system (buf);
@@ -941,7 +915,7 @@ a_delete (pm)
 	       ,ans, 3, LCECHO, 0);
       if (ans[0] != 'y')
 	return;
-      if (rec_del (buf, FHSZ, pm->now + 1, NULL, NULL) == -1)
+      if (rec_del (buf, FHSZ, pm->now + 1) == -1)
 	return;
     }
   pm->num--;
@@ -1318,7 +1292,7 @@ a_newitem (pm, mode)
       break;
     case ADDGOPHER:
       bzero (&item, sizeof (item));
-      if (!getdata (b_lines - 2, 1, "輸入URL位址：", item.filename + 2, 61, DOECHO, 0))
+      if (!getdata (b_lines - 2, 1, "輸入URL位址：", item.filename + 2, 61, DOECHO))
 	return;
       strcpy (item.title, "★ ");	/* A1BB */
       break;
@@ -1451,7 +1425,7 @@ a_copyitem (char *fpath, char *title, char *owner)
 
 /* ===== end ===== */
 
-int a_menu (maintitle, path, lastlevel, mode)
+a_menu (maintitle, path, lastlevel, mode)
      char *maintitle;
      char *path;
      int lastlevel;
@@ -1724,14 +1698,18 @@ int a_menu (maintitle, path, lastlevel, mode)
 			  move (22, 0);
 			  clrtoeol ();
 			  getdata (22, 1,
-				   "要把範例 Plugin 到文章嗎?[y/N]"
+				   strstr (fname, "etc/editexp/") ?
+				   "要把範例 Plugin 到文章嗎?[y/N]" :
+				   "確定要點這首歌嗎?[y/N]"
 				   ,ans, 3, LCECHO, 0);
 			  if (ans[0] == 'y')
 			    {
 			      strcpy (trans_buffer, fname);
 			      Fexit = 1;
 			      free (me.header);
-			      return 0;
+			      if (currstat == OSONG)
+				f_cat (FN_USSONG, fhdr->title);
+			      return;
 			    }
 			}
 		      if (more_result == 1)
@@ -1800,7 +1778,7 @@ int a_menu (maintitle, path, lastlevel, mode)
 		  if (Fexit)
 		    {
 		      free (me.header);
-		      return 0;
+		      return;
 		    }
 		}
 	      me.page = 9999;
@@ -1954,7 +1932,15 @@ Announce ()
 {
   setutmpmode (ANNOUNCE);
   a_menu (mytitle, "man",
-    (HAS_PERM (PERM_SYSOP) ? SYSOP : NOBODY));
+    ((HAS_PERM (PERM_SYSOP) || HAS_PERM (PERM_ANNOUNCE)) ? SYSOP : NOBODY));
+  return 0;
+}
+
+int
+rpg_help ()
+{
+  setutmpmode (LOG);
+  a_menu (mytitle, "game/rpg/help", (HAS_PERM (PERM_SYSOP) ? SYSOP : NOBODY));
   return 0;
 }
 
@@ -2015,13 +2001,13 @@ user_allpost(char *uid)
 void
 my_gem()
 {
-  more(BBSHOME"/etc/my_gem",YEA);
+  more(BBSHOME"/etc/my_gem");
   user_gem(cuser.userid);
 }
 
 void
 my_allpost()
 {
-  more(BBSHOME"/etc/my_allpost",YEA);
+  more(BBSHOME"/etc/my_allpost");
   user_allpost(cuser.userid);
 }

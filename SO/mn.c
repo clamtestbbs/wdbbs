@@ -13,7 +13,7 @@
 
 static char genbuf[256];
 
-void
+static void
 add_mn()
 {
   int i = 5,mode;
@@ -56,7 +56,7 @@ add_mn()
   return;
 }  
 
-void
+static void
 del_mn()
 {
   int i;
@@ -73,10 +73,65 @@ del_mn()
   rec_del(genbuf, sizeof(MN), i);
 }
 
+static void
 count_mn()
 {
+  int fd,totalin=0,totalout=0,i=0,j=0,
+      way1=0,way2=0,way3=0,way4=0,way5=0,way6=0,way7=0;
+  MN mncount;
+
+  setuserfile(genbuf, FN_MN);
+  i = dashs(genbuf)/sizeof(MN);
+  
+  for(j=0;j<=i;j++)
+  {
+    rec_get(genbuf,&mncount,sizeof(mncount),j);  
+    if(mncount.flag == MODE_OUT) 
+    {
+      totalout += mncount.money;
+      switch(mncount.use_way)
+      {
+        case 0:
+          way1+=mncount.money;
+          break;
+        case 1:
+          way2+=mncount.money;
+          break;
+        case 2:
+          way3+=mncount.money;
+          break;
+        case 3:
+          way4+=mncount.money;
+          break;
+        case 4:
+          way5+=mncount.money;
+          break;
+        case 5:
+          way6+=mncount.money;
+          break;
+        default:
+          way7+=mncount.money;
+          break;
+      };
+    }
+    else 
+      totalin += mncount.money;
+    close(fd);
+  }
+  clear();
+  prints("\
+¥Ø«e[1;31mÁ`¦¬¤J[m : [1;33m%-12d[m ¤¸
+¥Ø«e[1;32mÁ`¤ä¥X[m : [1;33m%-12d[m ¤¸
+
+ªá¦b[1;36m[­¹] %-12d ¤¸[m    [1;32m[¦ç] %-12d ¤¸[m
+    [1;31m[¦í] %-12d ¤¸[m    [1;33m[¦æ] %-12d ¤¸[m
+    [1;35m[¨|] %-12d ¤¸[m    [1;37m[¼Ö] %-12d ¤¸[m
+    [1;34m¨ä¥L %-12d ¤¸[m",
+    totalin,totalout,way1,way2,way3,way4,way5,way6,way7);
+  pressanykey(NULL);
 }
 
+static void
 load_mn(file,page)
   char *file;
   int page;
@@ -121,13 +176,14 @@ show_mn()
   clear();
   showtitle("°O±b¥»", BoardName);
   setutmpmode(NoteMoney);
+  log_usies("MN",NULL);
   show_file(BBSHOME"/etc/mn_title",1,5,NO_RELOAD);
 
   setuserfile(genbuf, FN_MN);
   load_mn(genbuf,op);
 
   getdata(b_lines - 1, 0, 
-    "½Ð¿é¤J±zªº¿ï¾Ü : (c)´«­¶ 1.·s¼W  2.§R°£  3.¥þ§R  Q.Â÷¶} : ", genbuf, 2, DOECHO, 0);
+    "½Ð¿é¤J±zªº¿ï¾Ü : (c)´«­¶ 1.·s¼W  2.§R°£  3.¥þ§R  4.Á`­p  Q.Â÷¶} : ", genbuf, 2, DOECHO, 0);
   switch(genbuf[0])
   {
     case 'c':
@@ -147,6 +203,9 @@ show_mn()
         setuserfile(genbuf, FN_MN);
         unlink(genbuf);
       }
+      break;
+    case '4':
+      count_mn();
       break;
     case 'q':
     case 'Q':

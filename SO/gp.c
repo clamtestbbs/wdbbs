@@ -153,12 +153,12 @@ for(x=0;x<5;x++)
   if(i<0)
   {
    inmoney(bet*2);
-   inexp(ba*2); 
+   inexp(ba); 
    pressanykey("«z!!¦n´Î³á!!²bÁÈ %d ¤¸«¨.. :DDD",bet);
    if (cont>0)
-     game_log(GP,"³s³Ó %d ¦¸, Ä¹¤F %d ¤¸",cont+1,bet);
+     game_log(GP,"[1;31m³s³Ó %d ¦¸, Ä¹¤F %d ¤¸",cont+1,bet);
    else
-     game_log(GP,"Ä¹¤F %d ¤¸",bet);
+     game_log(GP,"[1;31mÄ¹¤F %d ¤¸",bet);
    bet = ( bet > 50000 ? 100000 : bet * 2 );gw=1;
   }
   else if(i>1000)
@@ -169,13 +169,13 @@ for(x=0;x<5;x++)
     case 1002: doub=10; break;
     case 1003: doub=5; break;
    }
-   inmoney(bet*2*doub);
-   inexp(ba*2*doub);
-   pressanykey("«z!!¦n´Î³á!!²bÁÈ %d ¤¸«¨.. :DDD",bet*2*doub-bet);
+   inmoney((bet*doub) + bet);
+   inexp(ba*doub);
+   pressanykey("«z!!¦n´Î³á!!²bÁÈ %d ¤¸«¨.. :DDD",bet*doub);
    if(cont>0)
-     game_log(GP,"³s³Ó %d ¦¸, Ä¹¤F %d ¤¸",cont+1,bet*doub); 
+     game_log(GP,"[1;31m³s³Ó %d ¦¸, Ä¹¤F %d ¤¸",cont+1,bet*doub); 
    else
-     game_log(GP,"Ä¹¤F %d ¤¸",bet*doub);
+     game_log(GP,"[1;31mÄ¹¤F %d ¤¸",bet*doub);
    game_log(GP,"%s",genbuf);
    bet = ( bet > 50000 ? 100000 : bet * 2 * doub ); gw=1;
    bet = ( bet >= 100000 ? 100000 : bet );
@@ -184,17 +184,17 @@ for(x=0;x<5;x++)
   {
    pressanykey("¿é¤F..:~~~");
    if(cont>1)
-     game_log(GP,"¤¤¤î %d ³s³Ó, ¿é¤F %d ¤¸",cont,bet);
+     game_log(GP,"[1;32m¤¤¤î %d ³s³Ó, ¿é¤F %d ¤¸",cont,bet);
    else
-     game_log(GP,"¿é¤F %d ¤¸",bet);
+     game_log(GP,"[1;32m¿é¤F %d ¤¸",bet);
    cont=0;bet=0;
   }
 
   if ( gw==1 )
   {
     gw=0;
-    getdata(21, 0,"±z­n§â¼úª÷Ä~ÄòÀ£ª`¶Ü (y/n)?", ans, 2, 1, 0);
-    if ( ans[0]=='y' || ans[0]=='Y' )
+    getdata(21, 0,"±z­n§â¼úª÷Ä~ÄòÀ£ª`¶Ü (y/n)?", ans, 2, LCECHO, 0);
+    if ( ans[0]=='y')
        cont++;
     else
     {

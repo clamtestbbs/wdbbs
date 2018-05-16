@@ -261,6 +261,7 @@ p_edithint()
 {
   char genbuf[200];
 
+  log_usies("PEDIT",NULL);
   sprintf(genbuf, "主人留言(最多%d行) (D)刪除 (E)錄製 [Q]取消？[Q]", MAXHINTLINES);
   getdata(b_lines - 1, 0, genbuf, genbuf, 3, LCECHO, 0);
 
@@ -466,6 +467,7 @@ int
 p_call() {
   char genbuf[200];
   
+  log_usies("PCALL",NULL);
   stand_title("留言給.....");
   usercomplete("你想留言給誰? ", genbuf);
 
@@ -488,6 +490,7 @@ p_read() {
   char ans[4];
   char prompt[STRLEN];
 
+  log_usies("PREAD",NULL);
   sprintf(prompt, "(N)新的留言/(S)被保存的留言 [%c]", check_personal_note(1, NULL) ? 'N' : 'S');
   getdata(b_lines, 0, prompt, ans, 2, DOECHO, 0);
   if (ans[0] == 'n') {
@@ -503,4 +506,17 @@ p_read() {
     Pnote(0);
 
   return 0;
+}
+
+#include<stdarg.h>
+void 
+va_do_pnote(va_list pvar)
+{
+  char *userid;
+  
+  userid = va_arg(pvar, char *);
+  clear();
+  move(1 ,0);
+  show_pnote_hint(userid);
+  do_pnote(userid);
 }

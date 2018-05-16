@@ -19,6 +19,8 @@
 
 #define FN_PASSWD       ".PASSWDS"      /* User records */
 #define FN_BOARD        ".BOARDS"       /* board list */
+#define FN_RPG		".RPG"		/* RPG records */
+#define FN_GAME		".GAME"	/* RPG records */
 #define FN_USIES        "usies"         /* BBS log */
 #define FN_USSONG       "ussong"        /* ÂIºq */
 #define FN_VOTE		".VCH"		/* §ë²¼ */
@@ -26,6 +28,10 @@
 #define FN_PAL		"pal"
 #define FN_ALOHA	"aloha"
 
+#define FN_TOPSONG      "log/topsong"
+#define FN_TOPRPG       "log/toprpg"
+#define FN_GAMEMONEY    "game/money"
+#define FN_MONEYLOG     "log/moneystat"
 #define FN_OVERRIDES    "overrides"
 #define FN_REJECT       "reject"
 #define FN_CANVOTE      "can_vote"
@@ -33,6 +39,10 @@
 #define FN_APPLICATION  "application"
 #define FN_VISABLE      "visable"
 #define FN_MYFAVORITE   "favorite"
+
+#define FN_TICKET_RECORD "game/ticket.data"
+#define FN_TICKET_USER   "game/ticket.user"
+#define FN_TICKET        "game/ticket.result"
 
 #define DEFAULT_BOARD   str_sysop
 
@@ -89,12 +99,6 @@
 
 #define MSG_SEPERATOR   "\
 ¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w"
-
-#define MSG_SEP2   "\
-¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª¢«¢ª"
-
-#define MSG_SEP3   "\
-¡»¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¢w¡»"
 
 #define MSG_CLOAKED     "¼K¼K,¸ú°_¨ÓÅo!"
 #define MSG_UNCLOAK     "­«²{¦¿´ò¤F...."
@@ -173,6 +177,8 @@ time_t schedule_time;
 char schedule_string[100];
 userec cuser;                   /* current user structure */
 userec xuser;                   /* lookup user structure */
+rpgrec rpguser;
+rpgrec rpgtmp;
 char quote_file[80] = "\0";
 char quote_user[80] = "\0";
 time_t paste_time;
@@ -193,7 +199,6 @@ char reset_color[4] = "[m";
 char margs[64] = "\0";           /*  main argv list*/
 char watermode = 0;
 int inmore = 0;
-int brdauthor = 0;
 /* global string variables */
 
 
@@ -201,6 +206,7 @@ int brdauthor = 0;
 
 char *fn_passwd         = FN_PASSWD;
 char *fn_board          = FN_BOARD;
+char *fn_rpg		= FN_RPG;
 char *fn_note_ans       = "note.ans";
 char *fn_register       = "register.new";
 char *fn_plans          = "plans";
@@ -218,7 +224,6 @@ char *fn_mandex         = "/.Names";
 /* message */
 
 char *msg_seperator     = MSG_SEPERATOR;
-char *msg_sep3		= MSG_SEP3;
 char *msg_mailer        = MSG_MAILER;
 char *msg_shortulist    = MSG_SHORTULIST;
 
@@ -248,7 +253,7 @@ char *str_mail_address  = "." BBSUSER "@" MYHOSTNAME;
 char *str_new           = "new";
 char *str_reply         = "Re: ";
 char *str_space         = " \t\n\r";
-char *str_sysop         = "SYSOP";
+char *str_sysop         = "sysop";
 char *str_author1       = STR_AUTHOR1;
 char *str_author2       = STR_AUTHOR2;
 char *str_post1         = STR_POST1;
@@ -278,6 +283,8 @@ extern time_t schedule_time;
 extern char schedule_string[100];
 extern userec cuser;            /* current user structure */
 extern userec xuser;            /* lookup user structure */
+extern rpgrec rpguser;
+extern rpgrec rpgtmp;
 
 extern char quote_file[80];
 extern char quote_user[80];
@@ -300,13 +307,13 @@ extern char reset_color[];
 extern char margs[];
 extern char watermode;
 extern int inmore;
-extern int brdauthor;
 /* global string variable */
 
 /* filename */
 
 extern char *fn_passwd;
 extern char *fn_board;
+extern char *fn_rpg;
 extern char *fn_note_ans;
 extern char *fn_register;
 extern char *fn_plans;
@@ -324,7 +331,6 @@ extern char *fn_mandex;
 /* message */
 
 extern char *msg_seperator;
-extern char *msg_sep3;
 extern char *msg_mailer;
 extern char *msg_shortulist;
 
@@ -387,5 +393,13 @@ extern int KEY_ESC_arg;
 
 
 void doent();   /* read,mail,announce list */
+
+#define RACE_NORACE     "µL·~¹C¥Á"
+#define RACE_POST       "Äé¤ô±j¤H"
+#define RACE_READ       "Åª¤å§Ö¤â"
+#define RACE_IDLE       "±`¾nµ{¦¡"
+#define RACE_CHAT       "²á¤Ñ²r±N"
+#define RACE_MSG        "¤ô²y«a­x"
+#define RACE_GAME       "¹CÀ¸«g¬P"
 
 #endif                          /* _GLOBAL_H_ */

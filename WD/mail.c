@@ -16,6 +16,52 @@ char currmaildir[32];
 static char listfile[] = "list.0";
 static int mailkeep=0, mailsum=0;
 static int mailsumlimit=0,mailmaxkeep=0;
+extern int TagNum;
+
+
+int
+setforward() /* Ptt , modify by wildcat*/
+{
+  char buf[80],ip[50]="",yn[4];
+// wildcat : bbs 所有 domain name list
+  char myhost[6][50] = {"wd.twbbs.org","wdbbs.net","wdbbs.org","wd.twbbs.org.tw","bbs.wdbbs.net","bbs.wdbbs.org"}; 
+  FILE *fp;
+  int i=0,allow=1;
+   
+  sethomepath(buf, cuser.userid);
+  strcat(buf,"/.forward");
+  if(fp = fopen(buf,"r"))
+  {
+    fscanf(fp,"%s",ip);
+    fclose(fp);
+  }
+  getdata(b_lines-1,0,"請輸入信箱自動轉寄的email地址:",
+    ip,41, DOECHO,ip);
+// 判斷是否轉寄給自己,或是寄到同一台機器
+  do
+  {
+    str_lower(myhost[i],myhost[i]);
+    str_lower(ip,ip);
+    if(strstr(ip,myhost[i])) allow=0;
+  }while(!strlen(myhost[i++])); 
+// 直接用 not_addr 來判斷是不是 email 即可
+  if(allow && !not_addr(ip))
+  {
+    getdata(b_lines,0,"確定開啟自動轉信功\能?(Y/n)",yn,3,LCECHO,0);
+    if(yn[0] != 'n' &&  (fp=fopen(buf,"w")))
+    {
+      fprintf(fp,"%s",ip);
+      fclose(fp);
+      pressanykey("設定完成!");
+      refresh();
+      return 0;
+    }
+  }
+  unlink(buf);
+  pressanykey("取消自動轉信!");
+  refresh();
+  return 0;
+}
 
 #ifdef INTERNET_PRIVATE_EMAIL
 int
@@ -164,7 +210,6 @@ do_send(userid, title)
   char fpath[STRLEN];
   char receiver[IDLEN+1];
   char genbuf[200];
-  char junbuf[40];
 
 #ifdef INTERNET_PRIVATE_EMAIL
   int internet_mail;
@@ -206,16 +251,6 @@ do_send(userid, title)
       clear();
       return -2;
     }
-/*  add by jungle */
-    sprintf(junbuf,BBSHOME"/home/%s/spam-list",userid);
-    if (belong(junbuf,cuser.userid) && !HAS_PERM(PERM_SYSOP))
-    {
-      unlink(fpath);
-      clear();
-      return -2;
-    }
-/*  end  */
-
     clear();
     prints("信件即將寄給 %s\n標題為：%s\n確定要寄出嗎? (Y/N) [Y]",
       userid, title);
@@ -247,7 +282,7 @@ do_send(userid, title)
       return -2;
     }
     clear();
-    strcpy(userid, receiver);
+   strcpy(userid, receiver);
     sethomepath(genbuf, userid);
     stampfile(genbuf, &mhdr);
     f_mv(fpath, genbuf);
@@ -421,7 +456,7 @@ multi_send(title, inmail)
   fileheader mymail;
   char fpath[TTLEN], *ptr;
   int reciper, listing;
-  char genbuf[256],junbuf[40];
+  char genbuf[256];
 
   if (inmail)
   {
@@ -485,6 +520,7 @@ multi_send(title, inmail)
       sprintf(save_title, "[通告] %s", fpath);
     } 
 
+    getdata(4, 0, "是否要在信件中顯示收件者名單 ? (Y/N) [Y] ", genbuf, 3, DOECHO, 0);
     setuserfile(fpath, fn_notes);
 
     if (fp = fopen(fpath, "w"))
@@ -492,18 +528,21 @@ multi_send(title, inmail)
       fprintf(fp, "※ [通告] 共 %d 人收件", reciper);
       listing = 80;
 
-      for (p = toplev; p; p = p->next)
+      if (genbuf[0] != 'n')
       {
-        reciper = strlen(p->word) + 1;
-        if (listing + reciper > 75)
+        for (p = toplev; p; p = p->next)
         {
-          listing = reciper;
-          fprintf(fp, "\n※");
+          reciper = strlen(p->word) + 1;
+          if (listing + reciper > 75)
+          {
+            listing = reciper;
+            fprintf(fp, "\n※");
+          }
+          else
+            listing += reciper;
+  
+          fprintf(fp, " %s", p->word);
         }
-        else
-          listing += reciper;
-
-        fprintf(fp, " %s", p->word);
       }
       memset(genbuf, '-', 75);
       genbuf[75] = '\0';
@@ -540,20 +579,10 @@ multi_send(title, inmail)
         outc(' ');
       }
       outs(p->word);
-/* add by jungle */
-      sprintf(junbuf,BBSHOME"/home/%s/spam-list",p->word);
-      if (belong(junbuf,cuser.userid) && !HAS_PERM(PERM_SYSOP))
-      {
-        clear();
-        return 0;
-      }
-/*  end  */
-
       if (searchuser(p->word) && strcmp(STR_GUEST, p->word) )
         sethomepath(genbuf, p->word);
       else
         continue;
-        
       stampfile(genbuf, &mymail);
       unlink(genbuf);
       f_cp(fpath, genbuf, O_TRUNC);
@@ -618,6 +647,18 @@ mail_all()
 
    stand_title("給所有使用者的系統通告");
    setutmpmode(SMAIL);
+/*
+   if(answer("是否要給錢？ (y/N)") == 'y')
+   {
+     while(money <= 0)
+     {
+       getdata(2, 0, "要給多少金幣?",fpath, 4, DOECHO, 0);
+       money = atoi(fpath);
+       if(money <=0) return RC_FULL;
+       mode = 1;
+     }
+   }
+*/
    getdata(2, 0, "主題：", fpath, 64, DOECHO,0);
    sprintf(save_title, "[系統通告]\x1b[1;32m %s\x1b[m", fpath);
 
@@ -666,7 +707,6 @@ mail_all()
       userid = uidshm->userid[i];
       if (strcmp(userid, "guest") && strcmp(userid, "new") && strcmp(userid, cuser.userid)) {
          sethomepath(genbuf, userid);
-         if(!dashd(genbuf)) continue; /* wildcat */
          stampfile(genbuf, &mymail);
          unlink(genbuf);
          f_cp(fpath, genbuf, O_TRUNC);
@@ -678,7 +718,10 @@ mail_all()
          if (rec_add(genbuf, &mymail, sizeof(mymail)) == -1)
             outs(err_uid);
          sprintf(genbuf, "%*s %5d / %5d", IDLEN + 1, userid, i + 1, unum);
-
+/*
+         if(mode)
+           inugold(userid,money);
+*/
          outmsg(genbuf);
          refresh();
       }
@@ -859,7 +902,7 @@ m_new()
   if (delcnt)
   {
     while (delcnt--)
-      rec_del(currmaildir, sizeof(fileheader), delmsgs[delcnt], NULL, NULL);
+      rec_del(currmaildir, sizeof(fileheader), delmsgs[delcnt]);
   }
   outs(mrd ? "信已閱\畢" : "沒有新信件了");
   pressanykey(NULL);
@@ -874,15 +917,9 @@ mailtitle()
 
   sprintf(tmpbuf,"%s [線上 %d 人]",BOARDNAME,count_ulist());
   showtitle("\0郵件選單", tmpbuf);
-#ifdef HYPER_BBS
-  outs(HB_BACK"\
- [↑,↓]選擇 \x1b[200m\x1b[444m\x1b[507m[→,r]閱\讀信件\x1b[201m [R]回信 [x]轉達 [y]群組回信 [^Z]求助\n\x1b[1m\
-"COLOR1" 編號   日 期  作 者          信  件  標  題 ");
-#else
   outs("\
 [←]離開 [↑,↓]選擇 [→,r]閱\讀信件 [R]回信 [x]轉達 [y]群組回信 [^Z]求助\n\x1b[1m\
 "COLOR1" 編號   日 期  作 者          信  件  標  題 ");
-#endif
   if(mailsumlimit)
   {
     sprintf(buf,"\x1b[32m(容量:%d/%dk %d/%d篇)",mailsum, mailsumlimit
@@ -1069,158 +1106,58 @@ mail_reply(ent, fhdr, direct)
   return RC_FULL;
 }
 
-static int
-mail_cross_post(ent, fhdr, direct)
+
+mail_save(ent, fhdr, direct)
   int ent;
   fileheader *fhdr;
   char *direct;
 {
-  char xboard[20], fname[80], xfpath[80], xtitle[80], inputbuf[10];
-  fileheader xfile;
-  FILE *xptr;
-  int author = 0;
-  char genbuf[200];
-  char genbuf2[4];
+  char fpath[256], title[TTLEN + 1];
+  fileheader tmp;
 
-  make_blist();
-  move(2, 0);
-  clrtoeol();
-  move(3, 0);
-  clrtoeol();
-  move(1, 0);
-  namecomplete("轉錄本文章於看板：", xboard);
-  if (*xboard == '\0' || !haspostperm(xboard))
+  memcpy(&tmp, fhdr, sizeof(fileheader));
+
+  if (HAS_PERM(PERM_MAILLIMIT))
+  {
+    setuserfile(fpath, fhdr->filename);
+    sprintf(title, "◇ %s", tmp.title);
+    strncpy(tmp.title, title, TTLEN);
+    tmp.title[TTLEN] = '\0';
+    gem_copyitem(fpath, &tmp);
+    sethomeman(fpath, cuser.userid);
+    gem_menu(fpath, 1, RMAIL);
     return RC_FULL;
-
-  ent = 1;
-  if (HAS_PERM(PERM_SYSOP) || !strcmp(fhdr->owner, cuser.userid))
-  {
-    getdata(2, 0, "(1)原文轉載 (2)舊轉錄格式？[1] ",
-      genbuf, 3, DOECHO,"1");
-    if (genbuf[0] != '2')
-    {
-      ent = 0;
-      getdata(2, 0, "保留原作者名稱嗎?[Y] ", inputbuf, 3, DOECHO,"Y");
-      if (inputbuf[0] != 'n' && inputbuf[0] != 'N') author = 1;
-    }
   }
-
-  if (ent)
-    sprintf(xtitle, "[轉錄]%.66s", fhdr->title);
-  else
-    strcpy(xtitle, fhdr->title);
-
-  sprintf(genbuf, "採用原標題《%.60s》嗎?[Y] ", xtitle);
-  getdata(2, 0, genbuf, genbuf2, 4, LCECHO,"Y");
-  if (*genbuf2 == 'n')
-  {
-    if (getdata(2, 0, "標題：", genbuf, TTLEN, DOECHO,0))
-      strcpy(xtitle, genbuf);
-  }
-
-  getdata(2, 0, "(S)存檔 (L)站內 (Q)取消？[S] ", genbuf, 3, LCECHO,"S");
-  if (genbuf[0] == 'l' || genbuf[0] == 's')
-  {
-    int currmode0 = currmode;
-
-    currmode = 0;
-    setbpath(xfpath, xboard);
-    stampfile(xfpath, &xfile);
-    if (author)
-      strcpy(xfile.owner, fhdr->owner);
-    else
-      strcpy(xfile.owner, cuser.userid);
-    strcpy(xfile.title, xtitle);
-    if (genbuf[0] == 'l')
-    {
-      xfile.savemode = 'L';
-      xfile.filemode = FILE_LOCAL;
-    }
-    else
-      xfile.savemode = 'S';
-
-    setuserfile(fname, fhdr->filename);
-    if (ent)
-    {
-      xptr = fopen(xfpath, "w");
-
-      strcpy(save_title, xfile.title);
-      strcpy(xfpath, currboard);
-      strcpy(currboard, xboard);
-      write_header(xptr);
-      strcpy(currboard, xfpath);
-
-      fprintf(xptr, "※ [本文轉錄自 %s 信箱]\n\n", cuser.userid);
-
-      b_suckinfile(xptr, fname);
-      addsignature(xptr);
-      fclose(xptr);
-    }
-    else
-    {
-      unlink(xfpath);
-      f_cp(fname, xfpath, O_TRUNC);
-    }
-
-    setbdir(fname, xboard);
-    rec_add(fname, (char *) &xfile, sizeof(xfile));
-    if (!xfile.filemode)
-      outgo_post(&xfile, xboard);
-    update_data();
-    cuser.numposts++;
-    substitute_record(fn_passwd, &cuser, sizeof(userec), usernum);
-    pressanykey("文章轉錄完成");
-    currmode = currmode0;
-  }
-  return RC_FULL;
+  return RC_NONE;
 }
 
-
-
-mail_save(int ent, fileheader* fhdr, char* direct)
-{
-   char fpath[256];
-   char title[TTLEN+1];
-
-   if (HAS_PERM(PERM_MAILLIMIT)) {
-      setuserfile(fpath, fhdr->filename);
-      strcpy(title, "◇ ");
-      strncpy(title+3, fhdr->title, TTLEN-3);
-      title[TTLEN] = '\0';
-      a_copyitem(fpath, title, fhdr->owner);
-      sethomeman(fpath, cuser.userid);
-      a_menu(cuser.userid, fpath, belong("etc/sysop", cuser.userid) ? 2 : 1);
-      return RC_FULL;
-   }
-   return RC_NONE;
-}
-
-extern int cite();
+extern int cross_post();
 extern int man();
-extern int add_tag();
-extern int del_tag();
-extern int gem_tag();
+extern int cite_article();
 extern int edit_post();
 extern int mark();
 extern int del_range();
 extern int edit_title();
+/*
+extern int del_tag();
+*/
 
 static struct one_key mail_comms[] = {
   'z', man,
-  'c', cite,
-  'C', gem_tag,
-  's', mail_save,
-  'd', mail_del,
+  'c', cite_article,
   'D', del_range,
-  'r', mail_read,
-  'R', mail_reply,
   'E', edit_post,
   'm', mark,
-  't', add_tag,
   'T', edit_title,
-  'x', m_forward,
-  'X', mail_cross_post,
+  'x', cross_post,
+/*
   Ctrl('D'), del_tag,
+ */
+  'r', mail_read,
+  'R', mail_reply,
+  's', mail_save,
+  'd', mail_del,
+  'X', m_forward,
   'y', multi_reply,
   '\0', NULL
 };
@@ -1232,20 +1169,17 @@ m_read()
   if (rec_num(currmaildir, sizeof(fileheader)))
   {
     curredit = EDIT_MAIL;
-    curredit &= ~EDIT_ITEM;
+    TagNum = 0;
     i_read(RMAIL, currmaildir, mailtitle, doent, mail_comms,NULL);
     currfmode = FILE_TAGED;
     if (search_rec(currmaildir, cmpfmode))
       del_tag(0, 0, currmaildir);
-
     curredit = 0;
-    return 0;
   }
   else
-  {
     pressanykey("您沒有來信");
-    return 0;
-  }
+
+  return 0;
 }
 
 
@@ -1354,12 +1288,15 @@ bbs_sendmail(fpath, title, receiver, key)
 
   while (fgets(genbuf, sizeof(genbuf), fin))
   {
+#ifdef REG_MAGICKEY
+    char *po;
+#endif    
+
     if (genbuf[0] == '.' && genbuf[1] == '\n')
       fputs(". \n", fout);
     else
     {
 #ifdef REG_MAGICKEY
-      char *po;
       while (po = strstr(genbuf, "<Magic>"))
       {
 	char buf[128];
@@ -1383,96 +1320,108 @@ int
 doforward(direct, fh, mode)
   char *direct;
   fileheader *fh;
-  int mode;                     /* 是否 uuencode */
+  int mode;			/* 是否 uuencode */
 {
   static char address[60];
-  char fname[MAXPATHLEN];
-  int return_no;
-  char genbuf[200];
+  fileheader fhdr;
+  char fname[MAXPATHLEN], fpath[MAXPATHLEN], genbuf[200];
+  int return_no, taged, locus;
+
+  if (mode != 'Z')		/* shakalaca.000715: 打包不用 tag */
+    taged = AskTag("轉寄");
+  else
+    taged = 0;
+
+  if (taged < 0)
+    return taged;
 
   if (!address[0])
     strcpy(address, cuser.email);
 
   if (address[0])
   {
-    sprintf(genbuf, "確定轉寄給 [%s] 嗎(Y/N/Q)？[Y] ", address);
-    getdata(b_lines - 1, 0, genbuf, fname, 3, LCECHO,0);
-
-    if (fname[0] == 'q')
-    {
-      outz("取消轉寄");
-      return 1;
-    }
-    if (fname[0] == 'n')
-      address[0] = '\0';
+    sprintf(genbuf, "確定轉寄給 [%s] 嗎 (Y/N/Q)？[Y] ", address);
+    switch (getans(genbuf))
+      {
+	case 'q':
+	  outz("取消轉寄");
+	  return 1;
+	case 'n':
+	  address[0] = '\0';
+	default:
+	  break;
+      }
   }
-
   if (!address[0])
   {
-    getdata(b_lines - 1, 0, "請輸入轉寄地址：", fname, 60, DOECHO,0);
+    getdata(b_lines, 0, "請輸入轉寄地址：", fname, 60, DOECHO, 0);
     if (fname[0])
     {
       if (strchr(fname, '.'))
-        strcpy(address, fname);
+	strcpy(address, fname);
       else
-        sprintf(address, "%s.bbs@%s", fname, MYHOSTNAME);
-    }
-    else
+	sprintf(address, "%s.bbs@%s", fname, MYHOSTNAME);
+    } else
     {
       outz("取消轉寄");
       return 1;
     }
   }
-
   if (not_addr(address))
     return -2;
 
-  sprintf(fname, "正轉寄給 %s, 請稍候...", address);
-  outz(fname);
-
-  if (mode == 'Z' || mode == 'M') {
-     FILE* fp;
-     int address_ok = valid_ident(address);
-
-     if (fp = fopen("mbox_sent", "a")) {
-        time_t now = time(0);
-
-        fprintf(fp, "%c%-12s %s => %s\n",
-           address_ok ? ' ' : '-', cuser.userid, Cdatelite(&now), address);
-        fclose(fp);
-     }
-     if (!address_ok) {
-         sprintf(fname, "無效的工作站位址 %s", address);
-         outz(fname);
-         return -2;
-      }
-     if(mode == 'Z')
-       sprintf(fname, "cd home; tar cfz - %s | uuencode %s.tgz > /tmp/%s.tgz",
-         cuser.userid, cuser.userid, cuser.userid);
-     else if(mode =='M')
-       sprintf(fname, "cd man/boards; tar cfz - %s | uuencode %s.tgz > /tmp/%s.tgz",
-         currboard, currboard, currboard);
-     system(fname);
-     strcpy(fname, direct);
-  }
-  else if (mode == 'U')
+  if (taged)
   {
-    char tmp_buf[128];
-
-    sprintf(fname, "/tmp/bbs.uu%05d", currpid);
-    sprintf(tmp_buf, "/usr/bin/uuencode %s/%s uu.%05d > %s",
-      direct, fh->filename, currpid, fname);
-    system(tmp_buf);
-    sleep(1);
+    fh = &fhdr;
+    sprintf(fpath, "%s/.DIR", direct);
   }
-  else
-    sprintf(fname, "%s/%s", direct, fh->filename);
+  locus = 0;
+  do
+  {
+    if (taged)
+    {
+      EnumTagFhdr(fh, fpath, locus);
+      locus++;
+    }
+    if (mode == 'Z')
+    {
+      FILE *fp;
+      int address_ok = valid_ident(address);
 
-  return_no = bbs_sendmail(fname, fh->title, address, NULL);
+      if (fp = fopen("mbox_sent", "a"))
+      {
+	time_t now = time(0);
 
-    if (mode != 'F')
+	fprintf(fp, "%c%-12s %s => %s\n",
+	    address_ok ? ' ' : '-', cuser.userid, Cdatelite(&now), address);
+	fclose(fp);
+      }
+      if (!address_ok)
+      {
+	sprintf(fname, "無效的工作站位址 %s", address);
+	pressanykey(fname);
+	return -2;
+      }
+      sprintf(fname, "cd home; tar cfz - %s | uuencode %s.tgz > /tmp/%s.tgz",
+	      cuser.userid, cuser.userid, cuser.userid);
+      system(fname);
+      strcpy(fname, direct);
+    } else if (mode == 'U')
+    {
+      char tmp_buf[128];
 
-  return (return_no);
+      sprintf(fname, "/tmp/bbs.uu%05d", currpid);
+      sprintf(tmp_buf, "/usr/bin/uuencode %s/%s uu.%05d > %s",
+	      direct, fh->filename, currpid, fname);
+      system(tmp_buf);
+    } else
+      sprintf(fname, "%s/%s", direct, fh->filename);
+
+    return_no = bbs_sendmail(fname, fh->title, address, NULL);
+  } while ((locus < taged) && (!return_no));
+
+  if (mode != 'F')
+    return (return_no);
 }
 
 #endif
@@ -1574,13 +1523,7 @@ mail_justify(userec muser)
     if (bbs_sendmail(NULL, title, muser.email, MagicKey) < 0)
       f_cp("etc/bademail", buf1, O_TRUNC);
     else
-    {
-      sethomefile(title, muser.userid, "MagicKey");
-      if (dashf(title))
-        unlink(title);
-      f_cat(title, MagicKey);
       f_cp("etc/justify", buf1, O_TRUNC);
-    }
   }
   else
     f_cp("etc/bademail", buf1, O_TRUNC);
