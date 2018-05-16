@@ -82,13 +82,11 @@ enum
 #define NOTE            35
 #define EDITING         36
 #define MAILALL         37
-/*Ptt*/
 #define LOGIN           38       /* main menu */
 #define DICT            39
 #define EDITEXP         40
 #define ANNOUNCE        41       /* announce */
 #define EDNOTE          42 
-
 #define	POWERBOOK	43
 #define	PRECORD		44
 #define	MSGMENU		45

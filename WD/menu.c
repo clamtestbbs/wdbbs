@@ -99,6 +99,8 @@ movie(i)
 
   resolve_garbage(); /* get film cache */
 
+  if (currstat == GAME) 
+    return; 
   if (HAVE_HABIT(HABIT_MOVIE))
   {
 //    film->max_film=31;
@@ -178,7 +180,7 @@ show_menu(p)
       {
         sprintf(buf,s+2);
 #ifdef HAVE_NOTE_2
-        if(buf2[m][0]=='\0')
+        if(currstat == GAME || buf2[m][0]=='\0')
 #endif
           prints("%*s  [\x1b[1;36m%c\x1b[m]%s\n", 
             menu_column, "", s[1], buf);

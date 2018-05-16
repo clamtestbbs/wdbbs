@@ -49,16 +49,16 @@ char *ModeTypeTable[] =
   "編輯文章",                   /* EDITING */
   "發系統通告",                 /* MAILALL */
   "上站途中",                   /* LOGIN */
+  NULL,                         /* DICT */
   "編輯輔助器",			/* EDITEXP */
   "精華區",                     /* ANNOUNCE */
-  "刻留言板",
-
+  "刻留言板",                   /* EDNOTE */
   "萬用手冊",			/* PowerBook */
   "錄製留言",			/* PRECORD */
   "通訊錄",			/* MSGMENU */
   "記帳本",			/* NoteMoney */
   "整頓名單",			/* ListMain */
-  "編輯名單",			/* ListEdit */
+  "編輯名單",			/* LISTEDIT */
   "風塵育樂中心",		/* GAME */
   NULL
 };
