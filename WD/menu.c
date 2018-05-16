@@ -470,20 +470,16 @@ static struct MENU gamelist[] = {
     "HHorseRace  ☆ 繁星賭馬場             最低消費 $1s",1,
   "SO/bingo.so:bingo",PERM_BASIC,
     "BBingo      ☆ 盈月賓果園             最低消費 $1s",1,
-#endif
   "SO/gagb.so:gagb",0,
     "G?A?B       ☆ 猜猜猜數字             最低消費 $1s",1,
-#if 0
   "SO/guessnum.so:fightNum",0,
     "FFightNum   ☆ 對戰猜數字             最低消費 $1s",1,
-#endif
   "SO/bj.so:BlackJack",0,
     "JJack       ☆ 盈月黑傑克             最低消費 $1s",1,
   "SO/nine.so:p_nine",PERM_BASIC,
     "999         ☆ 天地久九九             最低消費 $1s",1,
   "SO/dice.so:x_dice",0,
     "DDice       ☆ 西八拉賭場             最低消費 $1s",1,
-#if 0
   "SO/gp.so:p_gp",0,
     "PPoke       ☆ 金撲克梭哈             最低消費 $1s",1,
   "SO/pip.so:p_pipple",PERM_LOGINOK,
@@ -494,16 +490,12 @@ static struct MENU gamelist[] = {
     "LLandMine   ◆ 勁爆踩地雷             免費給你玩",1,
   "SO/poker.so:p_dragon",0,
     "11接龍      ◆ 測試中的接龍           免費給你玩",1,
-#endif
   "SO/chessmj.so:p_chessmj",0,
     "22ChessMJ   ☆ 象棋麻將               最低消費 $1s",1,
-#if 0
   "SO/seven.so:p_seven",0,
     "33Seven     ☆ 賭城七張               最低消費 $1s",1,
-#endif
   "SO/bet.so:p_bet",0,
     "44Bet       ☆ 瘋狂賭盤               最低消費 $1s",1,
-#if 0
   "SO/stock.so:p_stock",PERM_BASIC,
     "SStock      ◇ 風塵股市",1,
   x_bridgem,PERM_LOGINOK,"OOkBridge    【 橋牌競技 】",0,
