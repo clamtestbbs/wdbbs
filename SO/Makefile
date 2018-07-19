@@ -6,31 +6,8 @@
 #  update : 98/12/21					 #
 # ------------------------------------------------------ #
 
-ARCHI	!= uname -m
-
-OPSYS	!= uname -o
-
-BBSHOME	?= $(HOME)
-
-DAOLIB	= -L../lib/maple3 -ldaom3 \
-	  -L../lib/stuff -lstuff  \
-
-CC	= clang
-CFLAGS	= -g -O2 -Wunused -I../include -pipe -fomit-frame-pointer -Wno-invalid-source-encoding
-LDFLAGS	= -lcrypt $(DAOLIB) -lcurses
-
-.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -rdynamic -lresolv -ldl
-.endif
+SRCROOT=	..
+.include "$(SRCROOT)/wdbbs.mk"
 
 SO =	bet.so bj.so buy.so bwboard.so chat.so chessmj.so \
        	dice.so gagb.so votebrd.so vote.so #gamble.so gp.so guessnum.so indict.so \
@@ -38,8 +15,6 @@ SO =	bet.so bj.so buy.so bwboard.so chat.so chessmj.so \
 #       	pnote.so poker.so railway.so rpg.so seven.so song.so stock.so\
 #       	tv.so xyz.so 
 
-ETC =	Makefile $(HDR)
-       
 .SUFFIXES: .o .c .ln .so
 
 .c.o:   ;   $(CC) $(CFLAGS) -c $*.c

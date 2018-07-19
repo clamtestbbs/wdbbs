@@ -6,26 +6,8 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
-ARCHI	!= uname -m
-
-OPSYS	!= uname -o
-
-SUBDIR	= statool fixtool
-
-BBSHOME	?= $(HOME)
-
 SRCROOT	= ../..
-
-INCLUDE	= $(SRCROOT)/include
-
-DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib/stuff -lstuff  \
-
-CC	= clang
-
-CFLAGS	= -m32 -g -O -pipe -fomit-frame-pointer -I$(INCLUDE) -D_BBS_UTIL_C_ -Wno-invalid-source-encoding
-
-LDFLAGS	=  -lcrypt $(DAOLIB)
+.include "$(SRCROOT)/wdbbs.mk"
 
 .SUFFIXES: .o .c
 
@@ -41,7 +23,8 @@ all: 	$(TOOL)
 
 install:$(TOOL)
 	install -d $(BBSHOME)/bin/
-	install -c -m 755 $(TOOL) $(BBSHOME)/bin/
+	install -c -m 0755 $(TOOL) $(BBSHOME)/bin/
 
 clean:
 	rm -fr $(TOOL) *.o *.BAK *.log *~
+

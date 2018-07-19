@@ -6,41 +6,11 @@
 #  update : 95/12/15				 	  #
 # ------------------------------------------------------- #
 
-ARCHI	!= uname -m
-
-OPSYS	!= uname -o
+SRCROOT	= ..
+.include "$(SRCROOT)/wdbbs.mk"
 
 SUBDIR	= statool fixtool
 
-BBSHOME	?= $(HOME)
-
-SRCROOT	= ..
-
-INCLUDE	= $(SRCROOT)/include
-
-DAOLIB	= -L$(SRCROOT)/lib/maple3 -ldaom3 \
-	  -L$(SRCROOT)/lib/stuff -lstuff
-
-CC	= clang
-
-CPROTO	= cproto -E"clang -pipe -E -I$(INCLUDE)"
-
-CFLAGS	= -m32 -O -Wunused -I../include -I../WD -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding 
-
-LDFLAGS	= $(DAOLIB) -lcrypt -lncurses
-
-.if  $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -lresolv -ldl -rdynamic
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
 
 .SUFFIXES: .o .c
 

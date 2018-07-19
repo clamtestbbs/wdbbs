@@ -6,8 +6,6 @@
 #  update : 18/05/01                                      #
 # ------------------------------------------------------- #
 
-OPSYS	!= uname -o
-
 SUBDIR 	= maple3 stuff
 
 all clean:

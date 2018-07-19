@@ -6,38 +6,8 @@
 #  update : 98/12/21					 #
 # ------------------------------------------------------ #
 
-ARCHI	!= uname -m
-
-OPSYS	!= uname -o
-
-BUILDTIME	!= date '+%s'
-
-BBSHOME	?= $(HOME)
-
-DAOLIB	= -L../lib/maple3 -ldaom3 \
-	  -L../lib/stuff -lstuff  
-
-CC	= clang
-
-CPROTO	= cproto -E"clang -pipe -E -I../include"
-
-CFLAGS	= -m32 -O -Wunused -I../include -pipe -fomit-frame-pointer -g -Wno-invalid-source-encoding -Wno-implicit-function-declaration \
-	  -Wno-implicit-int
-
-LDFLAGS	= $(DAOLIB) -lncurses -lcrypt 
-
-.if $(ARCHI)=="x86_64" || $(ARCHI)=="amd64"
-CFLAGS	+= -m32
-LDFLAGS	+= -m32
-.endif
-
-.if $(OPSYS) == "GNU/Linux"
-LDFLAGS	+= -lresolv -ldl -rdynamic
-.endif
-
-.if $(OPSYS) == "FreeBSD"
-LDFLAGS	+= -Wl,-export-dynamic -lcompat
-.endif
+SRCROOT=	..
+.include "$(SRCROOT)/wdbbs.mk"
 
 SRC =	announce.c bbs.c board.c cache.c edit.c \
 	io.c mail.c mbbsd.c menu.c more.c name.c read.c record.c\
@@ -48,10 +18,6 @@ MOBJ =	announce.o bbs.o board.o cache.o edit.o \
 	io.o mail.o mbbsd.o menu.o more.o name.o read.o record.o\
 	register.o screen.o stuff.o talk.o user.o term.o\
 	admin.o list.o
-
-.if $(OPSYS) == "Cygwin"
-NO_SO =	yes
-.endif
 
 .ifdef NO_SO
 SODIR	= ../SO
@@ -75,9 +41,6 @@ PRO =	announce.x bbs.x board.x cache.x edit.x \
 	register.x screen.x stuff.x talk.x user.x term.x\
 	admin.x list.x
 
-ETC =	Makefile $(HDR)
-
-       
 .SUFFIXES: .o .c .ln .x
 
 .c.o:   ;   $(CC) $(CFLAGS) $(OS_DEF) -c $*.c
